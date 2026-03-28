@@ -9,9 +9,8 @@
 - **Atomic Operations:** Keep changes small and focused on a single task.
 
 ## 2. Branching & Commits
-- **Track Branches:** Every track must be developed on a dedicated branch (e.g., `track/shortname-YYYYMMDD`).
-- **Phase Branches:** Each major phase from `plan.md` should be developed on a separate feature branch branching off the track branch.
-- **Merge Requests (MRs):** Upon completing a phase, create a Merge Request (or Pull Request) for review before merging into the track branch. Once all phases are complete, merge the track branch into the main development branch.
+- **Track Branches:** Every track must be developed on a dedicated branch (e.g., `track/shortname-YYYYMMDD`). This branch will persist for the duration of the track.
+- **Merge Requests (MRs):** Upon completing a track, create a Merge Request (or Pull Request) to merge the track branch into the main development branch.
 - **Per-Task Commits:** Commit changes after every completed task in `plan.md`.
 - **Git Notes Summaries:** Store detailed task summaries in Git notes metadata to keep the commit history clean.
 
@@ -19,7 +18,7 @@
 For every item in `plan.md`, execute this exact cycle:
 
 ### Phase A: Design & Specification
-1. **Branch Check:** Ensure you are on the correct phase-specific feature branch.
+1. **Branch Check:** Ensure you are on the correct track-specific branch.
 2. **Interface Definition:** Write or update type definitions and function signatures.
 3. **Write Test:** Create a `pytest` case in `tests/` that reproduces the requirement.
 4. **Verify Failure:** Run `uv run pytest` and confirm the test fails (Red state).
@@ -50,11 +49,10 @@ For every item in `plan.md`, execute this exact cycle:
 ## 5. Phase Completion & Checkpointing
 When all tasks in a **Phase** are complete:
 1. **Full Suite:** Run the complete test and linting suite.
-2. **MR Creation:** Push the phase branch and create a Merge Request for review.
-3. **User Manual Verification:** Execute the meta-task: `- [ ] Task: Conductor - User Manual Verification '<Phase Name>' (Protocol in workflow.md)`.
+2. **User Manual Verification:** Execute the meta-task: `- [ ] Task: Conductor - User Manual Verification '<Phase Name>' (Protocol in workflow.md)`.
 
 ## 6. Protocol: Conductor - User Manual Verification
 This meta-task requires the Conductor agent to:
 1.  **Self-Review:** Compare the implementation against the `spec.md` and `plan.md`.
 2.  **Demonstrate:** Provide a summary or example of the feature in action (e.g., a code snippet or TUI screenshot description).
-3.  **Confirm:** Ask the user to confirm the phase meets their expectations before proceeding to the next phase or merging the MR.
+3.  **Confirm:** Ask the user to confirm the phase meets their expectations before proceeding to the next phase.

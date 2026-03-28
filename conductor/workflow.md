@@ -9,8 +9,9 @@
 - **Atomic Operations:** Keep changes small and focused on a single task.
 
 ## 2. Branching & Commits
-- **Phase Branches:** Each major phase from `plan.md` should be developed on a separate feature branch.
-- **Merge Requests (MRs):** Upon completing a phase, create a Merge Request (or Pull Request) for review before merging into the main development branch.
+- **Track Branches:** Every track must be developed on a dedicated branch (e.g., `track/shortname-YYYYMMDD`).
+- **Phase Branches:** Each major phase from `plan.md` should be developed on a separate feature branch branching off the track branch.
+- **Merge Requests (MRs):** Upon completing a phase, create a Merge Request (or Pull Request) for review before merging into the track branch. Once all phases are complete, merge the track branch into the main development branch.
 - **Per-Task Commits:** Commit changes after every completed task in `plan.md`.
 - **Git Notes Summaries:** Store detailed task summaries in Git notes metadata to keep the commit history clean.
 

@@ -37,7 +37,7 @@ class ObjectExplorerApp(App[None]):
         self,
         obj: object,
         obj_name: str = "root",
-        **kwargs: Any,
+        **kwargs: Any,  # noqa: ANN401
     ) -> None:
         """Initialize the object explorer app.
 

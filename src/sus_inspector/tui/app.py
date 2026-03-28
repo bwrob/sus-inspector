@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING, ClassVar, cast
 
 from rich.panel import Panel
 from rich.pretty import Pretty
@@ -13,7 +13,7 @@ from textual.containers import Horizontal, VerticalScroll
 from textual.widgets import Footer, Header, Input, Static, Tree
 from typing_extensions import override
 
-from sus_inspector.hooks import VIEW_HOOKS
+from sus_inspector.hooks.registry import VIEW_HOOKS, ensure_default_hooks
 
 if TYPE_CHECKING:
     from textual._path import CSSPathType
@@ -50,6 +50,8 @@ class ObjectExplorerApp(App[None]):
         super().__init__(**kwargs)
         self.root_obj: object = obj
         self.root_name: str = obj_name
+        # Ensure default hooks are loaded when the app starts
+        ensure_default_hooks()
 
     @override
     def compose(self) -> ComposeResult:
@@ -154,10 +156,12 @@ class ObjectExplorerApp(App[None]):
 
         """
         if isinstance(obj, dict):
-            for k, v in list(obj.items()):
+            obj_dict = cast("dict[object, object]", obj)
+            for k, v in list(obj_dict.items()):
                 _ = node.add(str(k), data=v, allow_expand=self._is_expandable(v))
         elif isinstance(obj, (list, tuple, set)):
-            for i, v in enumerate(list(obj)):
+            obj_list = list(cast("list[object]", obj))
+            for i, v in enumerate(obj_list):
                 _ = node.add(f"[{i}]", data=v, allow_expand=self._is_expandable(v))
         else:
             self._add_object_attributes(node, obj)
@@ -184,7 +188,7 @@ class ObjectExplorerApp(App[None]):
                 continue
             except Exception:
                 # We catch broad exceptions here because we're exploring arbitrary
-                # user objects, and getattr() can trigger code that raises objectthing.
+                # user objects, and getattr() can trigger code that raises anything.
                 # We log it and move on.
                 logger.exception("Failed to get attribute %s from %s", attr_name, obj)
                 continue
@@ -201,7 +205,8 @@ class ObjectExplorerApp(App[None]):
 
         """
         if isinstance(obj, (dict, list, tuple, set)):
-            return len(obj) > 0
+            obj_coll = cast("dict[object, object] | list[object]", obj)
+            return len(obj_coll) > 0
         return bool(hasattr(obj, "__dict__")) or bool(hasattr(obj, "__slots__"))
 
     def on_tree_node_expanded(self, event: Tree.NodeExpanded[object]) -> None:

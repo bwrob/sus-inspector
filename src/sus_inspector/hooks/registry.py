@@ -30,3 +30,24 @@ def register_hook(
 
     """
     VIEW_HOOKS.insert(0, (type_checker, render_func))
+
+
+def ensure_default_hooks() -> None:
+    """Register default hooks if the registry is empty."""
+    if VIEW_HOOKS:
+        return
+
+    # Register built-in hooks lazily
+    from sus_inspector.hooks.builtins import list_view  # noqa: PLC0415
+
+    register_hook(list, list_view)
+
+    # Optional Pydantic support
+    try:
+        from pydantic import BaseModel  # noqa: PLC0415
+
+        from sus_inspector.hooks.pydantic import pydantic_view  # noqa: PLC0415
+
+        register_hook(BaseModel, pydantic_view)
+    except ImportError:
+        pass

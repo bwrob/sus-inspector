@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import inspect
+from typing import TYPE_CHECKING
 
-from sus_inspector.tui.app import ObjectExplorerApp
+if TYPE_CHECKING:
+    from types import FrameType
 
 
 class InteractiveExplorer:
@@ -38,7 +40,7 @@ class InteractiveExplorer:
             # Capture local variables from the caller's frame
             current_frame = inspect.currentframe()
             if current_frame and current_frame.f_back:
-                frame = current_frame.f_back
+                frame: FrameType = current_frame.f_back
                 local_items = frame.f_locals.items()
                 local_vars = {
                     str(k): v for k, v in local_items if not str(k).startswith("__")
@@ -47,20 +49,14 @@ class InteractiveExplorer:
             return None
 
         # Determine a reasonable default name
-        name: str = "root"
-        name = str(obj.__name__) if hasattr(obj, "__name__") else type(obj).__name__
-
+        name = getattr(obj, "__name__", None) or type(obj).__name__
         self._run(obj, name)
         return obj
 
     @staticmethod
     def _run(obj: object, name: str) -> None:
-        """Start the Textual App.
+        """Start the Textual App lazily."""
+        from sus_inspector.tui.app import ObjectExplorerApp  # noqa: PLC0415
 
-        Args:
-            obj: Object to explore.
-            name: Root name for tree.
-
-        """
         app = ObjectExplorerApp(obj, obj_name=name)
         app.run()

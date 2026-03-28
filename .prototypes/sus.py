@@ -7,7 +7,6 @@ suspicious Python objects during debugging.
 from __future__ import annotations
 
 import inspect
-from collections.abc import Callable
 from typing import TYPE_CHECKING, Any
 
 from rich._inspect import Inspect
@@ -20,6 +19,8 @@ from textual.containers import Horizontal, VerticalScroll
 from textual.widgets import Footer, Header, Input, Static, Tree
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from textual.widgets.tree import TreeNode
 
 # --- Optional Pydantic Support ---
@@ -33,7 +34,9 @@ except ImportError:
 
 # --- 1. Define the Hook System ---
 # Type for hook registry: list of (type_checker_func, render_func)
-VIEW_HOOKS: list[tuple[type | Callable[[Any], bool], Callable[[Any], RenderableType]]] = []
+VIEW_HOOKS: list[
+    tuple[type | Callable[[Any], bool], Callable[[Any], RenderableType]]
+] = []
 
 
 def register_hook(
@@ -54,7 +57,9 @@ def register_hook(
 def list_view(obj: list[Any]) -> Table:
     """Render a list as a Rich Table."""
     max_preview_items = 100
-    table = Table(title=f"List (length: {len(obj)})", title_justify="left", show_edge=False)
+    table = Table(
+        title=f"List (length: {len(obj)})", title_justify="left", show_edge=False
+    )
     table.add_column("Index", justify="right", style="cyan")
     table.add_column("Type", style="magenta")
     table.add_column("Preview")
@@ -121,6 +126,7 @@ class ObjectExplorerApp(App[None]):
             obj: The object to inspect.
             obj_name: The name of the root object for the tree display.
             **kwargs: Additional arguments for the Textual App.
+
         """
         super().__init__(**kwargs)
         self.root_obj = obj
@@ -141,7 +147,9 @@ class ObjectExplorerApp(App[None]):
                 yield Static("Select a node to inspect...", id="detail-view")
 
         yield Static(f"Path: {self.root_name}", id="path-bar")
-        yield Input(placeholder="Search keys (Press Enter to find next)...", id="search-bar")
+        yield Input(
+            placeholder="Search keys (Press Enter to find next)...", id="search-bar"
+        )
         yield Footer()
 
     def on_mount(self) -> None:
@@ -287,11 +295,17 @@ class InteractiveExplorer:
             # Capture local variables from the caller's frame
             frame = inspect.currentframe().f_back
             if frame:
-                local_vars = {k: v for k, v in frame.f_locals.items() if not k.startswith("__")}
+                local_vars = {
+                    k: v for k, v in frame.f_locals.items() if not k.startswith("__")
+                }
                 self._run(local_vars, "locals")
             return None
 
-        name = str(type(obj).__name__) if not hasattr(obj, "__name__") else str(obj.__name__)
+        name = (
+            str(type(obj).__name__)
+            if not hasattr(obj, "__name__")
+            else str(obj.__name__)
+        )
         self._run(obj, name)
         return obj
 

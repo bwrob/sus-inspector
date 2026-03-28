@@ -1,0 +1,19 @@
+#tree-pane {
+    width: 30%;
+    border: solid $primary;
+}
+
+#detail-pane {
+    width: 70%;
+    border: solid $secondary;
+}
+
+#path-bar {
+    dock: bottom;
+    background: $accent;
+}
+
+#search-bar {
+    dock: bottom;
+    display: none;
+}

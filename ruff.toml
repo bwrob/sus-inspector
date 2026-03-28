@@ -7,6 +7,8 @@ target-version = "py310"
     preview = true
     select  = ["ALL"]
 
+[lint.per-file-ignores]
+    "tests/**/*" = ["S101"]
 
 [format]
     docstring-code-format = true

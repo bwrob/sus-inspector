@@ -53,10 +53,10 @@ Want to know everything that is happening in the current function? Pass the Elli
 def calculate_payout(user_id):
     base_score = 42
     multiplier = 1.5
-    
-    # Wait, something is wrong here... 
-    sus / ...  
-    
+
+    # Wait, something is wrong here...
+    sus / ...
+
     return base_score * multiplier
 ```
 

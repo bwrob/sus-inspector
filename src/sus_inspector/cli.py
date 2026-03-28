@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-import os
 import site
 import sys
+from pathlib import Path
 
 from rich.console import Console
 from rich.panel import Panel
@@ -18,7 +18,12 @@ INJECTION_END_MARKER = "# ------------------------------"
 
 
 def get_injection_code() -> str:
-    """Return the code to be injected into usercustomize.py."""
+    """Return the code to be injected into usercustomize.py.
+
+    Returns:
+        str: Python code block.
+
+    """
     return f"""
 {INJECTION_MARKER}
 try:
@@ -33,90 +38,142 @@ except ImportError:
 """
 
 
-def get_target_info(is_global: bool) -> tuple[str, str]:
-    """Return the site-packages directory and the filename to use."""
-    if is_global:
+def get_target_info(*, is_global_user: bool) -> tuple[Path, str]:
+    """Return the site-packages directory and the filename to use.
+
+    Args:
+        is_global_user: Whether to target global user site-packages.
+
+    Returns:
+        tuple[Path, str]: (target_directory, filename).
+
+    """
+    if is_global_user:
         # User-specific global site-packages
-        return site.getusersitepackages(), "usercustomize.py"
+        return Path(site.getusersitepackages()), "usercustomize.py"
 
     # Virtual environment or system-wide site-packages
     # We prefer the first one in the list
     site_packages = site.getsitepackages()
-    target_dir = site_packages[0] if site_packages else site.getusersitepackages()
+    if site_packages:
+        target_dir = Path(site_packages[0])
+    else:
+        target_dir = Path(site.getusersitepackages())
     return target_dir, "sitecustomize.py"
 
 
-def inject_permanently(is_global: bool = False) -> None:
-    """Inject sus permanently into builtins. Targets venv by default."""
-    target_dir, filename = get_target_info(is_global)
-    target_path = os.path.join(target_dir, filename)
+def _ensure_dir(target_dir: Path) -> bool:
+    """Ensure the target directory exists.
 
-    scope_name = "GLOBAL USER" if is_global else "VIRTUAL ENV"
+    Args:
+        target_dir: Directory to ensure.
 
-    console.print(
-        Panel(
-            f"[bold yellow]Injection: sus-inspector ({scope_name})[/bold yellow]\n\n"
-            f"This command will attempt to inject [bold]sus[/bold] into your environment.\n\n"
-            f"• Target: [blue]{target_path}[/blue]\n"
-            "• Once injected, [bold]sus[/bold] will be available in every Python "
-            "script run in this environment without an import.\n"
-            "• A [italic]try/except[/italic] block ensures your Python won't break if you "
-            "uninstall the package later.",
-            title="🔍 Setup",
-            expand=False,
-        )
-    )
+    Returns:
+        bool: True if successful.
 
-    if not Confirm.ask(f"Do you want to proceed with the {scope_name.lower()} installation?"):
-        console.print("[red]Aborted.[/red]")
-        return
-
-    # 1. Ensure directory exists
-    if not os.path.exists(target_dir):
+    """
+    if not target_dir.exists():
         try:
-            os.makedirs(target_dir)
-        except Exception as e:
+            target_dir.mkdir(parents=True, exist_ok=True)
+        except OSError as e:
             console.print(f"[red]Error creating directory {target_dir}:[/red] {e}")
-            sys.exit(1)
+            return False
+    return True
 
-    # 2. Check for existing injection
-    injection_code = get_injection_code()
-    if os.path.exists(target_path):
-        with open(target_path) as f:
+
+def _check_already_injected(target_path: Path, filename: str) -> bool:
+    """Check if sus is already injected into the target file.
+
+    Args:
+        target_path: Path to the file.
+        filename: Name of the file for display.
+
+    Returns:
+        bool: True if already injected.
+
+    """
+    if target_path.exists():
+        with target_path.open(encoding="utf-8") as f:
             content = f.read()
             if INJECTION_MARKER in content:
-                console.print(f"[green]sus is already injected into {filename}![/green]")
-                return
+                msg = f"[green]sus is already injected into {filename}![/green]"
+                console.print(msg)
+                return True
+    return False
 
-    # 3. Append the code
+
+def _write_injection(target_path: Path) -> None:
+    """Write the injection code to the target file.
+
+    Args:
+        target_path: Path to the file.
+
+    """
     try:
-        with open(target_path, "a") as f:
-            # Ensure there's a newline if the file already exists and isn't empty
-            if os.path.exists(target_path) and os.path.getsize(target_path) > 0:
-                f.write("\n")
-            f.write(injection_code)
-        console.print(
-            f"\n[bold green]Success![/bold green] Injected into: [blue]{target_path}[/blue]\n"
-            "Restart your Python shell and try typing [bold]sus / ...[/bold]"
+        with target_path.open("a", encoding="utf-8") as f:
+            if target_path.exists() and target_path.stat().st_size > 0:
+                _ = f.write("\n")
+            _ = f.write(get_injection_code())
+        s_msg = (
+            f"\n[bold green]Success![/bold green] Injected: [blue]{target_path}[/blue]"
         )
-    except Exception as e:
+        console.print(s_msg)
+    except OSError as e:
         console.print(f"[red]Failed to write to {target_path}:[/red] {e}")
         sys.exit(1)
 
 
-def remove_injection(is_global: bool = False) -> None:
-    """Remove the sus-inspector injection. Targets venv by default."""
-    target_dir, filename = get_target_info(is_global)
-    target_path = os.path.join(target_dir, filename)
+def inject_permanently(*, is_global_user: bool = False) -> None:
+    """Inject sus permanently into builtins. Targets venv by default.
 
-    if not os.path.exists(target_path):
+    Args:
+        is_global_user: Whether to target global user site-packages.
+
+    """
+    target_dir, filename = get_target_info(is_global_user=is_global_user)
+    target_path = target_dir / filename
+    scope_name = "GLOBAL USER" if is_global_user else "VIRTUAL ENV"
+
+    msg = (
+        f"This command will inject [bold]sus[/bold] into your environment.\n\n"
+        f"• Target: [blue]{target_path}[/blue]\n"
+        "• [bold]sus[/bold] will be available globally in this environment.\n"
+        "• [italic]try/except[/italic] ensures your Python won't break."
+    )
+    console.print(Panel(msg, title=f"🔍 Setup ({scope_name})", expand=False))
+
+    prompt = f"Do you want to proceed with the {scope_name.lower()} installation?"
+    if not Confirm.ask(prompt):
+        console.print("[red]Aborted.[/red]")
+        return
+
+    if not _ensure_dir(target_dir):
+        sys.exit(1)
+
+    if _check_already_injected(target_path, filename):
+        return
+
+    _write_injection(target_path)
+
+
+def remove_injection(*, is_global_user: bool = False) -> None:
+    """Remove the sus-inspector injection. Targets venv by default.
+
+    Args:
+        is_global_user: Whether to target global user site-packages.
+
+    """
+    target_dir, filename = get_target_info(is_global_user=is_global_user)
+    target_path = target_dir / filename
+
+    if not target_path.exists():
         console.print(f"[yellow]No {filename} found at {target_path}.[/yellow]")
         return
 
-    with open(target_path) as f:
+    with target_path.open(encoding="utf-8") as f:
         lines = f.readlines()
 
-    new_lines = []
+    new_lines: list[str] = []
     in_block = False
     found = False
 
@@ -132,14 +189,17 @@ def remove_injection(is_global: bool = False) -> None:
             new_lines.append(line)
 
     if not found:
-        console.print(f"[yellow]No sus-inspector injection found in {target_path}.[/yellow]")
+        path_str = str(target_path)
+        msg = f"[yellow]No sus-inspector injection found in {path_str}.[/yellow]"
+        console.print(msg)
         return
 
     try:
-        with open(target_path, "w") as f:
+        with target_path.open("w", encoding="utf-8") as f:
             f.writelines(new_lines)
-        console.print(f"[bold green]Success![/bold green] Injection removed from {target_path}.")
-    except Exception as e:
+        path_str = str(target_path)
+        msg = f"[bold green]Success![/bold green] Removed from {path_str}."
+        console.print(msg)
+    except OSError as e:
         console.print(f"[red]Failed to update {target_path}:[/red] {e}")
         sys.exit(1)
-

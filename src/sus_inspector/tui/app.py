@@ -2,42 +2,71 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+import logging
+from typing import TYPE_CHECKING, ClassVar
 
-from rich._inspect import Inspect
+from rich.panel import Panel
+from rich.pretty import Pretty
 from textual.app import App, ComposeResult
+from textual.binding import Binding, BindingType
 from textual.containers import Horizontal, VerticalScroll
 from textual.widgets import Footer, Header, Input, Static, Tree
+from typing_extensions import override
 
 from sus_inspector.hooks import VIEW_HOOKS
 
 if TYPE_CHECKING:
+    from textual._path import CSSPathType
     from textual.widgets.tree import TreeNode
+
+logger = logging.getLogger(__name__)
 
 
 class ObjectExplorerApp(App[None]):
     """Textual TUI for exploring Python objects."""
 
-    CSS_PATH = "styles.tcss"
+    CSS_PATH: ClassVar[CSSPathType | None] = "styles.tcss"
 
-    BINDINGS = [
-        ("q", "quit", "Quit"),
-        ("escape", "quit", "Quit"),
-        ("/", "search", "Search Tree"),
+    BINDINGS: ClassVar[list[BindingType]] = [
+        Binding("q", "quit", "Quit"),
+        Binding("escape", "quit", "Quit"),
+        Binding("/", "search", "Search Tree"),
     ]
 
-    def __init__(self, obj: Any, obj_name: str = "root", **kwargs: Any) -> None:
-        """Initialize the object explorer app."""
-        super().__init__(**kwargs)
-        self.root_obj = obj
-        self.root_name = obj_name
+    def __init__(
+        self,
+        obj: object,
+        obj_name: str = "root",
+        **kwargs: object,
+    ) -> None:
+        """Initialize the object explorer app.
 
+        Args:
+            obj: The object to explore.
+            obj_name: Label for the root node.
+            **kwargs: Additional args for Textual App.
+
+        """
+        super().__init__(**kwargs)
+        self.root_obj: object = obj
+        self.root_name: str = obj_name
+
+    @override
     def compose(self) -> ComposeResult:
-        """Compose the UI layout."""
+        """Compose the UI layout.
+
+        Yields:
+            Header: UI header.
+            Horizontal: Main exploration panes.
+            Static: Path bar.
+            Input: Search bar.
+            Footer: UI footer.
+
+        """
         yield Header(show_clock=True, icon="🔍")
 
         with Horizontal():
-            tree: Tree[Any] = Tree(self.root_name, id="tree-pane")
+            tree: Tree[object] = Tree(self.root_name, id="tree-pane")
             tree.border_title = "Object Tree"
             yield tree
 
@@ -47,9 +76,8 @@ class ObjectExplorerApp(App[None]):
                 yield Static("Select a node to inspect...", id="detail-view")
 
         yield Static(f"Path: {self.root_name}", id="path-bar")
-        yield Input(
-            placeholder="Search keys (Press Enter to find next)...", id="search-bar"
-        )
+        msg = "Search keys (Press Enter to find next)..."
+        yield Input(placeholder=msg, id="search-bar")
         yield Footer()
 
     def on_mount(self) -> None:
@@ -57,22 +85,30 @@ class ObjectExplorerApp(App[None]):
         tree = self.query_one(Tree)
         tree.root.data = self.root_obj
         self.add_children(tree.root, self.root_obj)
-        tree.root.expand()
-        tree.focus()
+        _ = tree.root.expand()
+        _ = tree.focus()
 
     def action_search(self) -> None:
         """Triggered by pressing '/' to show the search bar."""
         search_bar = self.query_one("#search-bar", Input)
         search_bar.display = True
-        search_bar.focus()
+        _ = search_bar.focus()
 
     def on_input_submitted(self, event: Input.Submitted) -> None:
-        """Handle search queries."""
+        """Handle search queries.
+
+        Args:
+            event: Input submission event.
+
+        """
         query = event.value.lower()
         tree = self.query_one(Tree)
         search_bar = self.query_one("#search-bar", Input)
 
-        def find_node(node: TreeNode[Any], search_term: str) -> TreeNode[Any] | None:
+        def find_node(
+            node: TreeNode[object],
+            search_term: str,
+        ) -> TreeNode[object] | None:
             if search_term in str(node.label).lower() and node != tree.root:
                 return node
             for child in node.children:
@@ -84,74 +120,116 @@ class ObjectExplorerApp(App[None]):
         found_node = find_node(tree.root, query)
 
         if found_node:
-            curr = found_node.parent
-            while curr:
-                curr.expand()
-                curr = curr.parent
-            tree.select_node(found_node)
-            tree.scroll_to_node(found_node)
+            self._select_search_result(tree, found_node)
 
         search_bar.display = False
         search_bar.value = ""
-        tree.focus()
+        _ = tree.focus()
 
-    def add_children(self, node: TreeNode[Any], obj: Any) -> None:
-        """Recursively add children to a tree node based on object attributes/keys."""
-        try:
-            if isinstance(obj, dict):
-                for k, v in list(obj.items()):
-                    node.add(str(k), data=v, allow_expand=self._is_expandable(v))
-            elif isinstance(obj, (list, tuple, set)):
-                for i, v in enumerate(list(obj)):
-                    node.add(f"[{i}]", data=v, allow_expand=self._is_expandable(v))
-            else:
-                for attr_name in dir(obj):
-                    if not attr_name.startswith("_"):
-                        try:
-                            attr_value = getattr(obj, attr_name)
-                            node.add(
-                                attr_name,
-                                data=attr_value,
-                                allow_expand=self._is_expandable(attr_value),
-                            )
-                        except (AttributeError, Exception):
-                            continue
-        except Exception:
-            pass
+    @staticmethod
+    def _select_search_result(
+        tree: Tree[object],
+        found_node: TreeNode[object],
+    ) -> None:
+        """Expand and scroll to search results.
 
-    def _is_expandable(self, obj: Any) -> bool:
-        """Check if an object can have children in the tree."""
+        Args:
+            tree: The tree widget.
+            found_node: The node that matched.
+
+        """
+        curr = found_node.parent
+        while curr:
+            _ = curr.expand()
+            curr = curr.parent
+        tree.select_node(found_node)
+        _ = tree.scroll_to_node(found_node)
+
+    def add_children(self, node: TreeNode[object], obj: object) -> None:
+        """Recursively add children to a tree node based on object attributes/keys.
+
+        Args:
+            node: The current tree node.
+            obj: The object whose members to add.
+
+        """
+        if isinstance(obj, dict):
+            for k, v in list(obj.items()):
+                _ = node.add(str(k), data=v, allow_expand=self._is_expandable(v))
+        elif isinstance(obj, (list, tuple, set)):
+            for i, v in enumerate(list(obj)):
+                _ = node.add(f"[{i}]", data=v, allow_expand=self._is_expandable(v))
+        else:
+            self._add_object_attributes(node, obj)
+
+    def _add_object_attributes(self, node: TreeNode[object], obj: object) -> None:
+        """Add attributes of an object to the tree node.
+
+        Args:
+            node: The current tree node.
+            obj: The object.
+
+        """
+        for attr_name in dir(obj):
+            if attr_name.startswith("_"):
+                continue
+            try:
+                attr_value = getattr(obj, attr_name)
+                _ = node.add(
+                    attr_name,
+                    data=attr_value,
+                    allow_expand=self._is_expandable(attr_value),
+                )
+            except AttributeError:
+                continue
+            except Exception:
+                # We catch broad exceptions here because we're exploring arbitrary
+                # user objects, and getattr() can trigger code that raises objectthing.
+                # We log it and move on.
+                logger.exception("Failed to get attribute %s from %s", attr_name, obj)
+                continue
+
+    @staticmethod
+    def _is_expandable(obj: object) -> bool:
+        """Check if an object can have children in the tree.
+
+        Args:
+            obj: Object to check.
+
+        Returns:
+            bool: True if expandable.
+
+        """
         if isinstance(obj, (dict, list, tuple, set)):
             return len(obj) > 0
         return bool(hasattr(obj, "__dict__")) or bool(hasattr(obj, "__slots__"))
 
-    def on_tree_node_expanded(self, event: Tree.NodeExpanded[Any]) -> None:
-        """Lazy-load children when a node is expanded."""
+    def on_tree_node_expanded(self, event: Tree.NodeExpanded[object]) -> None:
+        """Lazy-load children when a node is expanded.
+
+        Args:
+            event: Expansion event.
+
+        """
         if event.node.data is not None and not event.node.children:
             self.add_children(event.node, event.node.data)
 
-    def on_tree_node_highlighted(self, event: Tree.NodeHighlighted[Any]) -> None:
-        """Update the detail view when a node is selected."""
+    def on_tree_node_highlighted(self, event: Tree.NodeHighlighted[object]) -> None:
+        """Update the detail view when a node is selected.
+
+        Args:
+            event: Highlight event.
+
+        """
         detail_view = self.query_one("#detail-view", Static)
         detail_pane = self.query_one("#detail-pane")
         path_bar = self.query_one("#path-bar", Static)
         obj = event.node.data
 
-        path_segments = []
-        curr = event.node
-        while curr and curr.parent:
-            path_segments.insert(0, str(curr.label))
-            curr = curr.parent
+        # --- Update the Tree Path Bar ---
+        self._update_path_bar(path_bar, event.node)
 
-        full_path = self.root_name
-        for p in path_segments:
-            if p.startswith("["):
-                full_path += p
-            else:
-                full_path += f".{p}"
-
-        path_bar.update(f"Path: {full_path}")
-
+        # --- Handle the Data View ---
         if obj is None:
             detail_pane.border_subtitle = "NoneType"
             detail_view.update("No data.")
@@ -159,6 +237,46 @@ class ObjectExplorerApp(App[None]):
 
         detail_pane.border_subtitle = f"Type: {type(obj).__name__}"
 
+        if self._try_view_hooks(detail_view, obj):
+            return
+
+        # Fallback to rich pretty print
+        detail_view.update(Panel(Pretty(obj), title="Object Preview"))
+
+    def _update_path_bar(self, path_bar: Static, node: TreeNode[object]) -> None:
+        """Update the path bar with the current traversal path.
+
+        Args:
+            path_bar: Static widget for path.
+            node: The currently selected node.
+
+        """
+        path_segments: list[str] = []
+        curr = node
+        while curr and curr.parent:
+            path_segments.insert(0, str(curr.label))
+            curr = curr.parent
+
+        full_path: str = self.root_name
+        for p in path_segments:
+            if p.startswith("["):
+                full_path += p
+            else:
+                full_path += f".{p}"
+        path_bar.update(f"Path: {full_path}")
+
+    @staticmethod
+    def _try_view_hooks(detail_view: Static, obj: object) -> bool:
+        """Try applying registered view hooks.
+
+        Args:
+            detail_view: Static widget for detail.
+            obj: Object to render.
+
+        Returns:
+            bool: True if a hook was applied.
+
+        """
         for type_checker, render_func in VIEW_HOOKS:
             matches = (
                 isinstance(obj, type_checker)
@@ -168,8 +286,9 @@ class ObjectExplorerApp(App[None]):
             if matches:
                 try:
                     detail_view.update(render_func(obj))
-                    return
                 except Exception:
+                    logger.exception("View hook %s failed for %s", render_func, obj)
                     continue
-
-        detail_view.update(Inspect(obj, methods=True, help=True, value=True))
+                else:
+                    return True
+        return False

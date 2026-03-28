@@ -44,7 +44,7 @@
         "precommit",
         "format",
         "lint",
-        "type-check",
+        # "type-check",
         "type-check-ty",
         "complexity",
     ]

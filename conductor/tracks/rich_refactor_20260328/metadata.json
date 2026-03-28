@@ -1,0 +1,8 @@
+{
+    "created_at": "2026-03-28T12:00:00Z",
+    "description": "review rich.inspect usage. remove all of it, using its implementation as inspiration for custom implementations of inspection for different object classes. this will allow for better customization and to align the visual style better",
+    "status": "new",
+    "track_id": "rich_refactor_20260328",
+    "type": "refactor",
+    "updated_at": "2026-03-28T12:00:00Z"
+}

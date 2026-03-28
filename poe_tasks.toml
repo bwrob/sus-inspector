@@ -1,0 +1,117 @@
+[executor]
+    type = "uv"
+
+[tasks.precommit]
+    help  = "Run all pre-commit hooks on all files."
+    shell = "pre-commit run --all-files > /dev/null || pre-commit run --all-files"
+
+[tasks.format]
+    cmd  = "ruff format --diff"
+    help = "Check code formatting using ruff."
+
+[tasks.lint]
+    cmd  = "ruff check --config ruff.toml"
+    help = "Check code rules using ruff."
+
+[tasks.type-check]
+    cmd  = "basedpyright --project pyrightconfig.json src tests"
+    help = "Check static typing using basedpyright."
+
+[tasks.type-check-ty]
+    cmd  = "ty check ."
+    help = "Check static typing using ty."
+
+[tasks.complexity]
+    default_item_type = "cmd"
+    help              = "Check code complexity using complexipy."
+    sequence          = ["complexipy .", "ruff check . --select=PLR0912"]
+
+[tasks.dependencies]
+    cmd  = "tach check"
+    help = "Check dependency layers using tach."
+
+[tasks.fix]
+    default_item_type = "cmd"
+    help              = "Code quality fixes using ruff."
+    ignore_fail       = "return_non_zero"
+    sequence          = ["ruff check --fix --unsafe-fixes", "ruff format"]
+
+[tasks.code-quality]
+    help = "Run all code quality checks."
+    ignore_fail = "return_non_zero"
+    sequence = [
+        "fix",
+        "precommit",
+        "format",
+        "lint",
+        "type-check",
+        "type-check-ty",
+        "complexity",
+    ]
+
+[tasks.test]
+    cmd  = "pytest"
+    help = "Run tests using pytest."
+
+[tasks.coverage]
+    cmd  = "pytest --doctest-modules --verbose --cov --cov-report=xml"
+    help = "Create test coverage report."
+
+[tasks.generate-banner]
+    cmd  = "python scripts/compile_banner.py"
+    help = "Generate the banner image from Typst source."
+
+[tasks.dependency-graph]
+    cmd  = "tach show --mermaid -o docs/dependency_graph.mmd"
+    help = "Generate the dependency graph."
+
+[tasks.build-docs]
+    help = "Build the documentation site using Zensical."
+    sequence = [
+        "generate-banner",
+        "dependency-graph",
+        { cmd = "uv run zensical build" },
+    ]
+[tasks.publish-docs]
+    help = "Build and deploy Zensical using a protected-branch-safe orphan"
+    shell = """
+  # 1. Capture the branch you are on RIGHT NOW
+  START_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+  # 2. Set up a 'trap' to ensure we ALWAYS return to the start branch
+  # even if the script crashes or you Ctrl+C
+  cleanup() {
+    echo "Cleaning up..."
+    git checkout -f "$START_BRANCH"
+    git branch -D temp-deploy-docs 2>/dev/null || true
+  }
+  trap cleanup EXIT
+
+  # 3. Build the site (do this on your source branch)
+  zensical build
+
+  # 4. Jump to the orphan branch
+  git checkout --orphan temp-deploy-docs
+
+  # 5. Clear the index (so gh-pages only gets the 'site' folder)
+  git rm -rf . --cached --quiet
+
+  # 6. Add and commit the build
+  git add -f site
+  git commit -m "Deploy Zensical: $(date)" --no-verify
+
+  # 7. Push the contents of the 'site' folder to gh-pages
+  git push origin $(git subtree split --prefix site temp-deploy-docs):gh-pages --force
+
+  echo "Deployment successful! Returning to $START_BRANCH."
+"""
+
+[tasks.publish]
+    help = "Build and publish the package."
+    sequence = [
+        "code-quality",
+        { cmd = "rm -rf dist" },
+        { cmd = "uv build" },
+        { cmd = "uv publish" },
+        "publish-docs",
+    ]

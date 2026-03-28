@@ -1,29 +1,27 @@
 [project]
-name = "sus-inspector"
-version = "0.1.0"
-description = "Add your description here"
-readme = "README.md"
-authors = [
-    { name = "bwrob", email = "bartosz.marcin.wroblewski@gmail.com" }
-]
-requires-python = ">=3.14"
-dependencies = [
-    "rich>=14.3.3",
-    "textual>=8.2.0",
-]
+    authors         = [{ name = "bwrob", email = "bartosz.marcin.wroblewski@gmail.com" }]
+    dependencies    = ["rich>=14.3.3", "textual>=8.2.0"]
+    description     = "The interactive, terminal-based object inspector for suspicious Python objects."
+    name            = "sus-inspector"
+    readme          = "README.md"
+    requires-python = ">=3.10"
+    version         = "0.1.0"
 
-[project.scripts]
-sus-inspector = "sus_inspector:main"
+    [project.scripts]
+        sus = "sus_inspector:main"
 
 [build-system]
-requires = ["uv_build>=0.11.2,<0.12.0"]
-build-backend = "uv_build"
+    build-backend = "uv_build"
+    requires      = ["uv_build>=0.11.2,<0.12.0"]
 
 [dependency-groups]
-dev = [
-    "basedpyright>=1.38.4",
-    "poethepoet>=0.42.1",
-    "pre-commit>=4.5.1",
-    "ruff>=0.15.8",
-    "ty>=0.0.26",
+    dev = [
+        "basedpyright>=1.38.4",
+        "poethepoet>=0.42.1",
+        "pre-commit>=4.5.1",
+        "pydantic>=2.12.5",
+        "pytest>=9.0.2",
+        "pytest-cov>=7.1.0",
+        "ruff>=0.15.8",
+        "ty>=0.0.26",
 ]

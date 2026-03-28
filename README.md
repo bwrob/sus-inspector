@@ -1,88 +1,114 @@
-# sus-inspector
-Debugging inspector. Is this object sus?
-
-## 🔍 sus-debug
+# 🔍 sus-inspector
 
 The interactive, terminal-based object inspector for suspicious Python objects.
 
-sus bridges the gap between the instant gratification of icecream and the deep introspection of wat. When an object in your code is acting suspicious, you don't need a heavy IDE debugger—you just need to poke it, search it, and see what's inside.
+`sus-inspector` bridges the gap between the instant gratification of `icecream` and the deep introspection of `wat`. When an object in your code is acting suspicious, you don't need a heavy IDE debugger—you just need to poke it, search it, and see what's inside.
 
-Powered by textual and rich.
+Powered by **Textual** and **Rich**.
+
+---
 
 ## 🧠 Philosophy
 
-Zero Friction: Inspecting an object should take exactly one line of code and zero setup.
+*   **Zero Friction**: Inspecting an object should take exactly one line of code and zero setup.
+*   **Keyboard First**: Navigating deep API responses or nested classes should be as fast as playing a terminal game.
+*   **Beautiful by Default**: Data is easier to read when it's formatted well. `sus` uses a high-contrast Monokai-inspired theme, rich tables, and syntax highlighting.
+*   **Extensible**: You can teach the debugger how to render your custom data models.
 
-Keyboard First: Navigating deep API responses or nested classes should be as fast as playing a terminal game.
-
-Beautiful by Default: Data is easier to read when it's formatted well. sus uses a high-contrast Monokai theme, rich tables, and syntax highlighting.
-
-Extensible: You should be able to teach the debugger how to render your company's custom data models.
+---
 
 ## 📦 Installation
 
-pip install sus-debug
+```bash
+pip install sus-inspector
+```
 
+*(Note: Requires `textual` and `rich`. `pydantic` is natively supported if installed.)*
 
-(Note: Requires textual and rich. pydantic is natively supported if installed.)
+---
 
 ## 🪄 The Magic Syntax
 
-Import the global sus instance and drop it anywhere in your code. It blocks execution, opens the TUI, and returns the object completely untouched when you exit.
+Import the global `sus` instance and drop it anywhere in your code. It blocks execution, opens the TUI, and returns the object completely untouched when you exit.
 
-1. The Quick Inspect (/)
+### 1. The Quick Inspect (`/`)
 
-Borrowed from the brilliant wat inspector, the division operator allows for lightning-fast typing.
+Borrowed from the brilliant `wat` inspector, the division operator allows for lightning-fast typing.
 
-from sus import sus
+```python
+from sus_inspector import sus
 import requests
 
-response = requests.get("[https://api.github.com](https://api.github.com)")
+response = requests.get("https://api.github.com")
 
-Inspect the suspicious response
+# Inspect the suspicious response
 sus / response
+```
 
+### 2. The Local Scope Sweep (`...`)
 
-2. The Local Scope Sweep (...)
+Want to know everything that is happening in the current function? Pass the Ellipsis (`...`) to instantly inspect all local variables in the caller's frame.
 
-Want to know everything that is happening in the current function? Pass the Ellipsis (...) to instantly inspect all local variables in the caller's frame.
-
+```python
 def calculate_payout(user_id):
     base_score = 42
     multiplier = 1.5
-    
-    # Wait, something is wrong here... 
-    sus / ...  
-    
+
+    # Wait, something is wrong here...
+    sus / ...
+
     return base_score * multiplier
+```
 
-
-3. Standard Call
+### 3. Standard Call
 
 If operator overloading isn't your style, it works like a normal function, too:
 
+```python
 sus(my_data, name="My API Payload")
+```
 
+### 4. Zero-Import Mode (Global Injection)
+
+You can make `sus` available globally in your environment (no import needed) by running:
+
+```bash
+# Targets the active virtual environment (recommended)
+sus --inject
+
+# Targets the global user-site (available in all projects)
+sus --inject --global
+```
+
+This will safely add `sus` to your `builtins`. To undo this, run:
+
+```bash
+sus --remove
+# or
+sus --remove --global
+```
+
+---
 
 ## 🎮 UI Features
 
-Split-Pane Exploration: Navigate the object tree on the left (Arrow Keys); view deep, rich details on the right.
+*   **Split-Pane Exploration**: Navigate the object tree on the left (Arrow Keys); view deep, rich details on the right.
+*   **Smart Lazy-Loading**: Only parses nested dictionaries, lists, or class attributes when you expand them, preventing terminal freezes on massive objects.
+*   **Breadcrumb Path Bar**: A live tracker at the bottom shows your exact traversal path (e.g., `dict.data.users[1].metadata.token`).
+*   **Fuzzy Search (`/`)**: Press `/` to open the search bar. Type a key, press Enter, and the tree will automatically expand and jump to the first matching node.
 
-Smart Lazy-Loading: Only parses nested dictionaries, lists, or class attributes when you expand them, preventing terminal freezes on massive objects.
-
-Breadcrumb Path Bar: A live tracker at the bottom shows your exact traversal path (e.g., dict.data.users[1].metadata.token).
-
-Fuzzy Search (/): Press / to open the search bar. Type a key, press Enter, and the tree will automatically expand and jump to the first matching node.
+---
 
 ## 🛠️ Extensibility (Custom View Hooks)
 
-sus comes with a plugin system so you can define exactly how specific data types should be rendered in the Detail View.
+`sus` comes with a plugin system so you can define exactly how specific data types should be rendered in the Detail View.
 
-By default, it uses rich.inspect, but it ships with native hooks for list (rendered as a truncated table) and pydantic.BaseModel (rendered as a serialized JSON tree).
+By default, it uses `rich.inspect`, but it ships with native hooks for `list` (rendered as a truncated table) and `pydantic.BaseModel` (rendered as a serialized JSON tree).
 
 You can easily register your own:
 
-from sus import sus, register_hook
+```python
+from sus_inspector import sus, register_hook
 from rich.panel import Panel
 import pandas as pd
 
@@ -91,43 +117,42 @@ def pandas_view(df: pd.DataFrame):
     summary = f"Shape: {df.shape}\nColumns: {list(df.columns)}"
     return Panel(summary, title="Pandas DataFrame", border_style="cyan")
 
-Teach sus how to handle DataFrames!
+# Teach sus how to handle DataFrames!
 register_hook(pd.DataFrame, pandas_view)
 
 sus / my_messy_dataframe
+```
 
+---
 
-# 🏗️ Development Context (For AI Prompting & Contributors)
+## 🏗️ Architecture
 
-(Note: This section is to guide the architecture as the project scales out of a single file).
+To move from a single-file prototype to a maintainable package, the codebase will be split into the following structure:
 
-Target Architecture
-
-To move from sus.py to a maintainable package, the codebase should be split into the following structure:
-
-sus-debug/
+```text
+sus-inspector/
 ├── pyproject.toml
-└── sus/
+└── src/sus_inspector/
     ├── __init__.py       # Exports `sus`, `register_hook`
     ├── core.py           # Contains the `InteractiveExplorer` class and operator magic
-    ├── tui.py            # Contains the `ObjectExplorerApp` Textual UI definitions
-    ├── search.py         # Logic for the tree traversal/search algorithm
+    ├── tui/
+    │   ├── app.py        # Textual UI application
+    │   ├── styles.tcss   # External styles
+    │   └── widgets.py    # Custom widgets
+    ├── search.py         # Search logic
     └── hooks/
-        ├── __init__.py   # Hook registry (`VIEW_HOOKS`)
-        ├── builtins.py   # `list`, `dict`, `set` renderers
-        └── pydantic.py   # Safe-imported Pydantic renderers
+        ├── __init__.py   # Hook registry
+        ├── builtins.py   # list, dict, set renderers
+        └── pydantic.py   # Pydantic support
+```
 
+---
 
-Current Roadmap
+## 🗺️ Current Roadmap
 
-[x] Operator Overloading API (sus / obj)
-
-[x] Local Frame Inspection (sus / ...)
-
-[x] Basic Search functionality
-
-[ ] Next: Refactor single-file sus.py into the modular architecture above.
-
-[ ] Add a visual toggle (e.g., pressing d) to show/hide private __dunder__ methods in the tree.
-
-[ ] Add support for evaluating simple expressions in the search bar.
+- [x] Operator Overloading API (`sus / obj`)
+- [x] Local Frame Inspection (`sus / ...`)
+- [x] Basic Search functionality
+- [ ] Refactor prototype into modular architecture
+- [ ] Visual toggle (`d`) to show/hide private `__dunder__` methods
+- [ ] Support for evaluating simple expressions in search bar

@@ -4,6 +4,8 @@
         "tests/assets"
     ],
     "pythonVersion": "3.10",
+    "reportAny": false,
+    "reportExplicitAny": false,
     "strict": [
         "src/debug_dojo/*"
     ],

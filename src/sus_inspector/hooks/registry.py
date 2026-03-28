@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -12,15 +12,15 @@ if TYPE_CHECKING:
 # Type for hook registry: list of (type_checker_func, render_func)
 VIEW_HOOKS: list[
     tuple[
-        type | Callable[[object], bool],
-        Callable[[object], RenderableType],
+        type | Callable[[Any], bool],
+        Callable[[Any], RenderableType],
     ]
 ] = []
 
 
 def register_hook(
-    type_checker: type | Callable[[object], bool],
-    render_func: Callable[[object], RenderableType],
+    type_checker: type | Callable[[Any], bool],
+    render_func: Callable[[Any], RenderableType],
 ) -> None:
     """Register a custom view for a specific object type.
 

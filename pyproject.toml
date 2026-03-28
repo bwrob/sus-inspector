@@ -20,6 +20,8 @@
         "poethepoet>=0.42.1",
         "pre-commit>=4.5.1",
         "pydantic>=2.12.5",
+        "pytest>=9.0.2",
+        "pytest-cov>=7.1.0",
         "ruff>=0.15.8",
         "ty>=0.0.26",
 ]

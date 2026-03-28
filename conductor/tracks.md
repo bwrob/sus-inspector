@@ -29,5 +29,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: change basedpyright configuration to disable reportAny check. fix all typing issues for basedpyright and ty**
+- [x] **Track: change basedpyright configuration to disable reportAny check. fix all typing issues for basedpyright and ty**
   *Link: [./tracks/type_refactor_20260328/](./tracks/type_refactor_20260328/)*

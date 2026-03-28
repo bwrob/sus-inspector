@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, ClassVar, cast
+from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from rich.panel import Panel
 from rich.pretty import Pretty
@@ -37,7 +37,7 @@ class ObjectExplorerApp(App[None]):
         self,
         obj: object,
         obj_name: str = "root",
-        **kwargs: object,
+        **kwargs: Any,
     ) -> None:
         """Initialize the object explorer app.
 
@@ -84,7 +84,7 @@ class ObjectExplorerApp(App[None]):
 
     def on_mount(self) -> None:
         """Initialize the tree root."""
-        tree = self.query_one(Tree)
+        tree = self.query_one(Tree[object])
         tree.root.data = self.root_obj
         self.add_children(tree.root, self.root_obj)
         _ = tree.root.expand()
@@ -104,7 +104,7 @@ class ObjectExplorerApp(App[None]):
 
         """
         query = event.value.lower()
-        tree = self.query_one(Tree)
+        tree = self.query_one(Tree[object])
         search_bar = self.query_one("#search-bar", Input)
 
         def find_node(

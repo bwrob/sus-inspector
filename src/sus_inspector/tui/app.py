@@ -99,10 +99,10 @@ class ObjectExplorerApp(App[None]):
         """Recursively add children to a tree node based on object attributes/keys."""
         try:
             if isinstance(obj, dict):
-                for k, v in obj.items():
+                for k, v in list(obj.items()):
                     node.add(str(k), data=v, allow_expand=self._is_expandable(v))
             elif isinstance(obj, (list, tuple, set)):
-                for i, v in enumerate(obj):
+                for i, v in enumerate(list(obj)):
                     node.add(f"[{i}]", data=v, allow_expand=self._is_expandable(v))
             else:
                 for attr_name in dir(obj):

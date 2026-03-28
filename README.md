@@ -68,6 +68,26 @@ If operator overloading isn't your style, it works like a normal function, too:
 sus(my_data, name="My API Payload")
 ```
 
+### 4. Zero-Import Mode (Global Injection)
+
+You can make `sus` available globally in your environment (no import needed) by running:
+
+```bash
+# Targets the active virtual environment (recommended)
+sus --inject
+
+# Targets the global user-site (available in all projects)
+sus --inject --global
+```
+
+This will safely add `sus` to your `builtins`. To undo this, run:
+
+```bash
+sus --remove
+# or
+sus --remove --global
+```
+
 ---
 
 ## 🎮 UI Features

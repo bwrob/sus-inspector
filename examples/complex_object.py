@@ -10,8 +10,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from pydantic import BaseModel, Field
 
-from sus_inspector import sus
-
 
 class Moon(BaseModel):
     name: str

@@ -9,15 +9,13 @@
 }
 
 #detail-pane {
-    width: 1fr;
-    height: 100%;
+    height: 1fr;
     border: solid $secondary;
     overflow-y: scroll;
 }
 
 #class-pane {
-    width: 1fr;
-    height: 100%;
+    height: 1fr;
     border: solid yellow;
     display: none;
     overflow-y: scroll;

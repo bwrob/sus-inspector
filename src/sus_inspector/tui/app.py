@@ -76,7 +76,7 @@ class ObjectExplorerApp(App[None]):
             tree.border_title = "Object Tree"
             yield tree
 
-            with Horizontal(id="detail-container"):
+            with Vertical(id="detail-container"):
                 with VerticalScroll(id="detail-pane") as vs:
                     vs.border_title = "Inspection View"
                     vs.border_subtitle = "Select an item..."

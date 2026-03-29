@@ -25,4 +25,5 @@ The interactive, terminal-based object inspector for suspicious Python objects. 
 ## Technical & Design Constraints
 - **Minimal Dependencies:** Core functionality must rely only on Textual and Rich to keep the package lightweight.
 - **Performance First:** Utilize smart lazy-loading to ensure the TUI remains responsive even when inspecting massive objects.
+- **Exhaustive Reliability:** Maintain 100% code coverage to ensure the tool is dependable for mission-critical debugging.
 - **Cross-Terminal Support:** Ensure a consistent and high-quality experience across various terminal emulators and environments.

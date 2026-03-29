@@ -10,7 +10,11 @@
         "Topic :: Software Development :: Debuggers",
         "Operating System :: OS Independent",
     ]
-    dependencies    = ["rich>=14.3.3", "textual>=8.2.0"]
+    dependencies    = [
+        "rich>=14.3.3",
+        "textual>=8.2.0",
+        "tzdata; sys_platform == 'win32'",
+    ]
     description     = "The interactive, terminal-based object inspector for suspicious Python objects."
     keywords        = ["inspection", "tui", "textual", "rich", "debugging", "introspection"]
     license         = "MIT"
@@ -34,6 +38,7 @@
 [dependency-groups]
     dev = [
         "basedpyright>=1.38.4",
+        "hypothesis>=6.151.10",
         "mkdocs>=1.6.1",
         "mkdocs-material>=9.7.6",
         "mkdocstrings[python]>=1.0.3",

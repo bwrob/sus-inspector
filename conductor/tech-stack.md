@@ -24,6 +24,7 @@
 
 ### Testing & Verification
 - **Pytest:** The standard testing framework for Python projects.
+- **pytest-asyncio:** Plugin for testing async functions and Textual apps.
 - **Ty:** A lightweight tool for running common Python tasks.
 
 ## Optional Integrations

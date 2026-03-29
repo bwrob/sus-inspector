@@ -14,11 +14,6 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [x] **Track: review rich.inspect usage. remove all of it, using its implementation as inspiration for custom implementations of inspection for different object classes. this will allow for better customization and to align the visual style better**
-  *Link: [./tracks/rich_refactor_20260328/](./tracks/rich_refactor_20260328/)*
-
----
-
 - [ ] **Track: implement pytest tests, unit and regressions that have 100% coverage**
   *Link: [./tracks/pytest_coverage_20260328/](./tracks/pytest_coverage_20260328/)*
 

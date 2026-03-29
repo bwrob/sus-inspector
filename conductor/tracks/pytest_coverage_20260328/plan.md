@@ -22,25 +22,25 @@
 - [x] Task: Conductor - User Manual Verification 'Core Logic & Unit Testing' (Protocol in workflow.md)
 
 ## Phase 3: TUI & Integration Testing
-- [ ] Task: Implement TUI tests using Textual's Pilot.
-    - [ ] Create a feature branch `feat/tui-integration-tests`.
-    - [ ] Use Textual's `Pilot` to verify application startup, key bindings (e.g., 'd', 'c' toggle logic), and UI state changes.
-    - [ ] Verify that UI actions result in the correct object state and rendered output.
-    - [ ] Reach 100% for `sus_inspector/tui/` and `sus_inspector/app.py`.
-- [ ] Task: Implement regression and CLI tests.
-    - [ ] Create a feature branch `feat/regression-cli-tests`.
-    - [ ] Write tests for the CLI interface (`cli.py`, `main.py`).
-    - [ ] Add regression tests for any known edge cases.
-    - [ ] Reach 100% for all remaining files.
-- [ ] Task: Conductor - User Manual Verification 'TUI & Integration Testing' (Protocol in workflow.md)
+- [x] Task: Implement TUI tests using Textual's Pilot.
+    - [x] Create a feature branch `feat/tui-integration-tests`.
+    - [x] Use Textual's `Pilot` to verify application startup, key bindings (e.g., 'd', 'c' toggle logic), and UI state changes.
+    - [x] Verify that UI actions result in the correct object state and rendered output.
+    - [x] Reach 100% for `sus_inspector/tui/` and `sus_inspector/app.py`.
+- [x] Task: Implement regression and CLI tests.
+    - [x] Create a feature branch `feat/regression-cli-tests`.
+    - [x] Write tests for the CLI interface (`cli.py`, `main.py`).
+    - [x] Add regression tests for any known edge cases.
+    - [x] Reach 100% for all remaining files.
+- [x] Task: Conductor - User Manual Verification 'TUI & Integration Testing' (Protocol in workflow.md)
 
 ## Phase 4: Final Verification & Coverage Audit
-- [ ] Task: Perform a complete coverage audit.
-    - [ ] Run the full test suite with coverage reporting enabled.
-    - [ ] Identify and address any remaining coverage gaps.
-    - [ ] Ensure all code paths (including error handling) are exercised.
-- [ ] Task: Final Polish & Verification.
-    - [ ] Verify 100% test coverage globally.
-    - [ ] Run full linting and type-checking suite.
-    - [ ] Confirm all tests pass consistently across environments.
-- [ ] Task: Conductor - User Manual Verification 'Final Polish & Verification' (Protocol in workflow.md)
+- [x] Task: Perform a complete coverage audit.
+    - [x] Run the full test suite with coverage reporting enabled.
+    - [x] Identify and address any remaining coverage gaps.
+    - [x] Ensure all code paths (including error handling) are exercised.
+- [x] Task: Final Polish & Verification.
+    - [x] Verify 100% test coverage globally.
+    - [x] Run full linting and type-checking suite.
+    - [x] Confirm all tests pass consistently across environments.
+- [x] Task: Conductor - User Manual Verification 'Final Polish & Verification' (Protocol in workflow.md)

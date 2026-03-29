@@ -21,13 +21,13 @@
     - [x] Use `action-validator` or equivalent to ensure the YAML is correct.
 
 ## Phase 3: Final Verification & Checkpointing
-- [ ] Task: **Deployment to TestPyPI**.
-    - [ ] Trigger the manual workflow to deploy to TestPyPI.
-    - [ ] Verify the package is successfully uploaded and installable via `pip install --index-url https://test.pypi.org/simple/ sus-inspector`.
-- [ ] Task: **Conductor - User Manual Verification 'Phase 3: Final Verification & Checkpointing' (Protocol in workflow.md)**.
-    - [ ] Self-Review: Confirm the implementation matches the `spec.md`.
-    - [ ] Demonstrate: Show the successful TestPyPI deployment status.
-    - [ ] Confirm: Obtain final user approval.
+- [x] Task: **Deployment to TestPyPI**.
+    - [x] Trigger the manual workflow to deploy to TestPyPI.
+    - [x] Verify the package is successfully uploaded and installable via `pip install --index-url https://test.pypi.org/simple/ sus-inspector`.
+- [x] Task: **Conductor - User Manual Verification 'Phase 3: Final Verification & Checkpointing' (Protocol in workflow.md)**.
+    - [x] Self-Review: Confirm the implementation matches the `spec.md`.
+    - [x] Demonstrate: Show the successful TestPyPI deployment status.
+    - [x] Confirm: Obtain final user approval.
 
 ---
 

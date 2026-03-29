@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from rich.console import Group
 from rich.table import Table
 
 from sus_inspector.hooks.builtins import ObjectInspector
@@ -30,22 +31,25 @@ class MockObject:
 
 
 def test_object_inspector() -> None:
-    """Test that ObjectInspector identifies public members."""
+    """Test that ObjectInspector identifies public members and returns a Group."""
     obj = MockObject()
     inspector = ObjectInspector()
     result = inspector(obj)
 
-    assert isinstance(result, Table)
-    assert "Object: MockObject" in str(result.title)
+    assert isinstance(result, Group)
 
-    # Verify columns and rows content
-    column_names = [str(col.header) for col in result.columns]
-    assert "Member" in column_names
+    # Check for sections
+    tables = [r for r in result.renderables if isinstance(r, Table)]
+    titles = [str(t.title) for t in tables]
 
-    # Check that member1 and attr1 are somewhere in the cells
+    assert "Attributes" in titles
+    assert "Methods" in titles
+
+    # Verify content in tables
     all_cells = []
-    for col in result.columns:
-        all_cells.extend([str(cell) for cell in col._cells])  # noqa: SLF001
+    for table in tables:
+        for col in table.columns:
+            all_cells.extend([str(cell) for cell in col._cells])  # noqa: SLF001
 
     assert "attr1" in all_cells
     assert "method1" in all_cells

@@ -142,72 +142,101 @@ class CallableInspector:
 class ObjectInspector:
     """Inspector for general Python objects and instances."""
 
-    def __call__(self, obj: Any) -> Table:  # noqa: ANN401
+    def __init__(self) -> None:
+        """Initialize the inspector."""
+        self.highlighter = ReprHighlighter()
+
+    def __call__(self, obj: Any) -> Group:  # noqa: ANN401
         """Render an object instance preview.
 
         Args:
             obj: The object to render.
 
         Returns:
-            Table: Rich table representation.
+            Group: Rich renderable showing object info.
 
         """
-        table = self._init_table(obj)
+        sections = []
 
-        # Attributes and Methods (Public only)
+        # Value preview (if not basic type)
+        if not isinstance(
+            obj, (int, float, str, bool, type(None), list, dict, set, tuple)
+        ):
+            sections.append(
+                Panel(
+                    Pretty(
+                        obj, indent_guides=True, max_length=5, max_string=PREVIEW_LENGTH
+                    ),
+                    title="Value Preview",
+                    border_style="dim",
+                )
+            )
+
+        # Categorize members
+        attrs: list[tuple[str, Any]] = []
+        methods: list[tuple[str, Any]] = []
+
         for name in dir(obj):
             if name.startswith("_"):
                 continue
-            self._add_member_row(table, obj, name)
+            try:
+                # Use getattr for now, we want actual values
+                val = getattr(obj, name)
+                if inspect.isroutine(val):
+                    methods.append((name, val))
+                else:
+                    attrs.append((name, val))
+            except Exception:  # noqa: BLE001
+                attrs.append((name, "[red]Error[/red]"))
+
+        # Render Attributes
+        if attrs:
+            sections.append(self._render_member_table(attrs, "Attributes", "cyan"))
+
+        # Render Methods
+        if methods:
+            sections.append(self._render_member_table(methods, "Methods", "magenta"))
+
+        return Group(*sections)
+
+    def _render_member_table(
+        self, members: list[tuple[str, Any]], title: str, name_style: str
+    ) -> Table:
+        """Render a table of members."""
+        table = Table(
+            title=title,
+            title_justify="left",
+            show_edge=False,
+            header_style="bold",
+        )
+        table.add_column("Member", style=name_style)
+        table.add_column("Type", style="dim")
+        table.add_column("Value/Preview")
+
+        for name, val in members:
+            type_name = type(val).__name__ if not isinstance(val, str) else "error"
+            if inspect.isroutine(val):
+                preview = self._get_method_preview(val)
+            else:
+                preview = self.highlighter(self._get_value_preview(val))
+            table.add_row(name, type_name, preview)
 
         return table
 
     @staticmethod
-    def _init_table(obj: Any) -> Table:  # noqa: ANN401
-        """Initialize the result table.
-
-        Args:
-            obj: The object to inspect.
-
-        Returns:
-            Table: The initialized Rich table.
-
-        """
-        table = Table(
-            title=f"Object: {type(obj).__name__}",
-            title_justify="left",
-            show_edge=False,
-        )
-        table.add_column("Member", style="cyan")
-        table.add_column("Type", style="magenta")
-        table.add_column("Value/Doc", style="green")
-        return table
-
-    def _add_member_row(self, table: Table, obj: Any, name: str) -> None:  # noqa: ANN401
-        """Add a single member row to the table."""
+    def _get_method_preview(val: Any) -> Text:  # noqa: ANN401
+        """Get a preview for a method."""
         try:
-            val = getattr(obj, name)
-            if inspect.isroutine(val):
-                table.add_row(name, type(val).__name__, "(method)")
-            else:
-                preview = self._get_value_preview(val)
-                table.add_row(name, type(val).__name__, preview)
-        except (AttributeError, TypeError):
-            table.add_row(name, "error", "[red]Attribute Error[/red]")
-        except Exception:  # noqa: BLE001
-            table.add_row(name, "error", "[red]Unexpected Error[/red]")
+            sig = inspect.signature(val)
+            return Text(f"def {sig}", style="green")
+        except (ValueError, TypeError):
+            return Text("def (...)", style="green")
 
     @staticmethod
     def _get_value_preview(val: Any) -> str:  # noqa: ANN401
-        """Get a string preview of a value.
-
-        Args:
-            val: The value to preview.
-
-        Returns:
-            str: The string representation of the value.
-
-        """
+        """Get a string preview of a value."""
+        if isinstance(val, str) and val.startswith("[red]"):
+            return val
         val_str = str(val)
         if len(val_str) > PREVIEW_LENGTH:
             return val_str[:PREVIEW_LENGTH] + "..."

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+from typing import Any
 
 from rich.console import Group
 from rich.panel import Panel
@@ -85,9 +86,10 @@ def test_default_callable_hooks() -> None:
     assert isinstance(result, Group)
 
     # Verify content (Check if we have multiple panels)
-    panels = [r for r in result.renderables if hasattr(r, "title")]
-    titles = [str(p.title) for p in panels]
-    subtitles = [str(p.subtitle) for p in panels]
+    # Use getattr safely to avoid type checker complaints about Panel attributes
+    panels: list[Any] = [r for r in result.renderables if hasattr(r, "title")]
+    titles = [str(getattr(p, "title", "")) for p in panels]
+    subtitles = [str(getattr(p, "subtitle", "")) for p in panels]
 
     assert "Header Info" in subtitles
     assert "Signature" in titles

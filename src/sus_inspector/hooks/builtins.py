@@ -39,6 +39,8 @@ class PrimitiveInspector:
 class CallableInspector:
     """Inspector for functions, methods, and other callables."""
 
+    highlighter: ReprHighlighter
+
     def __init__(self) -> None:
         """Initialize the inspector."""
         self.highlighter = ReprHighlighter()
@@ -53,13 +55,10 @@ class CallableInspector:
             Group: Rich renderable showing callable info.
 
         """
-        sections = []
-
-        # Header Info (Name, Type, File)
-        sections.append(self._render_header(obj))
-
-        # Signature
-        sections.append(self._render_signature(obj))
+        sections = [
+            self._render_header(obj),
+            self._render_signature(obj),
+        ]
 
         # Docstring
         doc_panel = self._render_docstring(obj)
@@ -73,8 +72,17 @@ class CallableInspector:
 
         return Group(*sections)
 
-    def _render_header(self, obj: Any) -> Panel:  # noqa: ANN401
-        """Render header information."""
+    @staticmethod
+    def _render_header(obj: Any) -> Panel:  # noqa: ANN401
+        """Render header information.
+
+        Args:
+            obj: The callable object.
+
+        Returns:
+            Panel: The header panel.
+
+        """
         name = getattr(obj, "__name__", "unknown")
         type_name = type(obj).__name__
 
@@ -86,20 +94,28 @@ class CallableInspector:
         try:
             file_path = inspect.getfile(obj)
             header_text.append("\n")
-            header_text.append(f"File: {file_path}", style="dim italic")
+            _ = header_text.append(f"File: {file_path}", style="dim italic")
         except (TypeError, OSError):
             pass
 
         return Panel(header_text, subtitle="Header Info")
 
-    def _render_signature(self, obj: Any) -> Panel:  # noqa: ANN401
-        """Render callable signature."""
+    @staticmethod
+    def _render_signature(obj: Any) -> Panel:  # noqa: ANN401
+        """Render callable signature.
+
+        Args:
+            obj: The callable object.
+
+        Returns:
+            Panel: The signature panel.
+
+        """
         try:
             sig = inspect.signature(obj)
-            params = []
-            for param in sig.parameters.values():
-                params.append(f"    {param},")
-            sig_str = f"(\n{'\n'.join(params)}\n) -> {sig.return_annotation}"
+            params = [f"    {param}," for param in sig.parameters.values()]
+            params_str = "\n".join(params)
+            sig_str = f"(\n{params_str}\n) -> {sig.return_annotation}"
             return Panel(
                 Syntax(sig_str, "python", theme="monokai", background_color="default"),
                 title="Signature",
@@ -110,7 +126,15 @@ class CallableInspector:
 
     @staticmethod
     def _render_docstring(obj: Any) -> Panel | None:  # noqa: ANN401
-        """Render docstring if available."""
+        """Render docstring if available.
+
+        Args:
+            obj: The object to get docstring from.
+
+        Returns:
+            Panel | None: The docstring panel if found, else None.
+
+        """
         doc = inspect.getdoc(obj)
         if doc:
             clean_doc = cleandoc(doc)
@@ -123,7 +147,15 @@ class CallableInspector:
 
     @staticmethod
     def _render_metadata(obj: Any) -> Panel | None:  # noqa: ANN401
-        """Render metadata like module and closure."""
+        """Render metadata like module and closure.
+
+        Args:
+            obj: The object to get metadata from.
+
+        Returns:
+            Panel | None: The metadata panel if found, else None.
+
+        """
         metadata = []
         if hasattr(obj, "__module__"):
             metadata.append(Text(f"Module: {obj.__module__}"))
@@ -142,6 +174,8 @@ class CallableInspector:
 class ObjectInspector:
     """Inspector for general Python objects and instances."""
 
+    highlighter: ReprHighlighter
+
     def __init__(self) -> None:
         """Initialize the inspector."""
         self.highlighter = ReprHighlighter()
@@ -159,13 +193,14 @@ class ObjectInspector:
         sections = []
 
         # Value preview (if not basic type)
-        if not isinstance(
-            obj, (int, float, str, bool, type(None), list, dict, set, tuple)
-        ):
+        if self._should_show_value_preview(obj):
             sections.append(
                 Panel(
                     Pretty(
-                        obj, indent_guides=True, max_length=5, max_string=PREVIEW_LENGTH
+                        obj,
+                        indent_guides=True,
+                        max_length=5,
+                        max_string=PREVIEW_LENGTH,
                     ),
                     title="Value Preview",
                     border_style="dim",
@@ -173,6 +208,45 @@ class ObjectInspector:
             )
 
         # Categorize members
+        attrs, methods = self._categorize_members(obj)
+
+        # Render Attributes
+        if attrs:
+            sections.append(self._render_member_table(attrs, "Attributes", "cyan"))
+
+        # Render Methods
+        if methods:
+            sections.append(self._render_member_table(methods, "Methods", "magenta"))
+
+        return Group(*sections)
+
+    @staticmethod
+    def _should_show_value_preview(obj: Any) -> bool:  # noqa: ANN401
+        """Check if we should show a value preview for the object.
+
+        Args:
+            obj: The object.
+
+        Returns:
+            bool: True if we should show preview.
+
+        """
+        basic_types = (int, float, str, bool, type(None), list, dict, set, tuple)
+        return not isinstance(obj, basic_types)
+
+    @staticmethod
+    def _categorize_members(
+        obj: Any,  # noqa: ANN401
+    ) -> tuple[list[tuple[str, Any]], list[tuple[str, Any]]]:
+        """Categorize members into attributes and methods.
+
+        Args:
+            obj: The object.
+
+        Returns:
+            tuple: (attrs, methods)
+
+        """
         attrs: list[tuple[str, Any]] = []
         methods: list[tuple[str, Any]] = []
 
@@ -188,21 +262,22 @@ class ObjectInspector:
                     attrs.append((name, val))
             except Exception:  # noqa: BLE001
                 attrs.append((name, "[red]Error[/red]"))
-
-        # Render Attributes
-        if attrs:
-            sections.append(self._render_member_table(attrs, "Attributes", "cyan"))
-
-        # Render Methods
-        if methods:
-            sections.append(self._render_member_table(methods, "Methods", "magenta"))
-
-        return Group(*sections)
+        return attrs, methods
 
     def _render_member_table(
         self, members: list[tuple[str, Any]], title: str, name_style: str
     ) -> Table:
-        """Render a table of members."""
+        """Render a table of members.
+
+        Args:
+            members: List of (name, value) tuples.
+            title: Table title.
+            name_style: Style for the name column.
+
+        Returns:
+            Table: The rendered table.
+
+        """
         table = Table(
             title=title,
             title_justify="left",
@@ -225,7 +300,15 @@ class ObjectInspector:
 
     @staticmethod
     def _get_method_preview(val: Any) -> Text:  # noqa: ANN401
-        """Get a preview for a method."""
+        """Get a preview for a method.
+
+        Args:
+            val: The method.
+
+        Returns:
+            Text: The preview text.
+
+        """
         try:
             sig = inspect.signature(val)
             return Text(f"def {sig}", style="green")
@@ -234,7 +317,15 @@ class ObjectInspector:
 
     @staticmethod
     def _get_value_preview(val: Any) -> str:  # noqa: ANN401
-        """Get a string preview of a value."""
+        """Get a string preview of a value.
+
+        Args:
+            val: The value.
+
+        Returns:
+            str: The preview string.
+
+        """
         if isinstance(val, str) and val.startswith("[red]"):
             return val
         val_str = str(val)

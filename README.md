@@ -103,7 +103,7 @@ sus --remove --global
 
 `sus` comes with a plugin system so you can define exactly how specific data types should be rendered in the Detail View.
 
-By default, it uses `rich.inspect`, but it ships with native hooks for `list` (rendered as a truncated table) and `pydantic.BaseModel` (rendered as a serialized JSON tree).
+By default, it uses a modular `InspectorRegistry` with specialized viewers for primitives, collections, and callables. It also ships with native hooks for `pydantic.BaseModel` (rendered as a serialized JSON tree).
 
 You can easily register your own:
 

@@ -69,7 +69,10 @@ def register_hook(
     register_instance_hook(type_checker, render_func)
 
 
-def get_renderer(obj: Any, hooks: HookList) -> Callable[[Any], RenderableType] | None:
+def get_renderer(
+    obj: object,
+    hooks: HookList,
+) -> Callable[[Any], RenderableType] | None:
     """Find the first matching renderer for an object.
 
     Args:

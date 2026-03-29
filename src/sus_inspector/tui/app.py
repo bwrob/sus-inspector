@@ -108,8 +108,8 @@ class ObjectExplorerApp(App[None]):
     def action_toggle_class_view(self) -> None:
         """Toggle the class info pane."""
         pane = self.query_one(ClassInfoPane)
-        pane.display = not pane.display
-        if pane.display:
+        pane.is_pane_visible = not pane.is_pane_visible
+        if pane.is_pane_visible:
             tree = self.query_one(Tree[object])
             if tree.cursor_node:
                 pane.update_object(tree.cursor_node.data)
@@ -118,13 +118,13 @@ class ObjectExplorerApp(App[None]):
         """Collapse the currently selected tree node."""
         tree = self.query_one(Tree[object])
         if tree.cursor_node:
-            tree.cursor_node.collapse()
+            _ = tree.cursor_node.collapse()
 
     def action_tree_expand(self) -> None:
         """Expand the currently selected tree node."""
         tree = self.query_one(Tree[object])
         if tree.cursor_node:
-            tree.cursor_node.expand()
+            _ = tree.cursor_node.expand()
 
     def on_input_submitted(self, event: Input.Submitted) -> None:
         """Handle search queries.
@@ -174,7 +174,7 @@ class ObjectExplorerApp(App[None]):
         while curr:
             _ = curr.expand()
             curr = curr.parent
-        tree.select_node(found_node)
+        _ = tree.select_node(found_node)
         _ = tree.scroll_to_node(found_node)
 
     def add_children(self, node: TreeNode[object], obj: object) -> None:
@@ -266,7 +266,7 @@ class ObjectExplorerApp(App[None]):
         self._update_path_bar(path_bar, event.node)
 
         # --- Update the Class Info Pane (if visible) ---
-        if class_pane.display:
+        if class_pane.is_pane_visible:
             class_pane.update_object(obj)
 
         # --- Handle the Data View ---

@@ -30,24 +30,44 @@ class ClassMetadata(NamedTuple):
     inheritance_tree: Tree
 
 
-def get_class_metadata(obj: Any) -> ClassMetadata:
-    """Extract metadata from an object's class.
+def _get_inheritance_tree(cls: type[Any]) -> Tree:
+    """Build the inheritance tree for a class.
 
     Args:
-        obj: The object or class to extract metadata from.
+        cls: The class to build the tree for.
 
     Returns:
-        ClassMetadata: The extracted metadata.
+        Tree: A Rich Tree representing the inheritance hierarchy.
 
     """
-    cls = obj if inspect.isclass(obj) else type(obj)
 
-    # Docstring
-    doc = inspect.getdoc(cls)
+    def build_tree(current_cls: type[Any], branch: Tree) -> None:
+        """Recursively build the inheritance tree."""
+        for base in current_cls.__bases__:
+            if base is object:
+                continue
+            sub_branch = branch.add(Text(base.__name__, style="blue"))
+            build_tree(base, sub_branch)
 
-    # Class Fields and Methods
-    class_fields = {}
-    class_methods = []
+    root_text = Text(cls.__name__, style="bold green")
+    tree = Tree(root_text)
+    build_tree(cls, tree)
+    return tree
+
+
+def _get_class_members(cls: type[Any]) -> tuple[dict[str, Any], list[str]]:
+    """Extract class fields and methods.
+
+    Args:
+        cls: The class to extract members from.
+
+    Returns:
+        tuple[dict[str, Any], list[str]]: A tuple containing class fields
+            and a list of class method names.
+
+    """
+    class_fields: dict[str, Any] = {}
+    class_methods: list[str] = []
 
     for name, value in inspect.getmembers(cls):
         if name.startswith("__"):
@@ -59,21 +79,25 @@ def get_class_metadata(obj: Any) -> ClassMetadata:
         elif not inspect.isroutine(value):
             class_fields[name] = value
 
-    # MRO
+    return class_fields, class_methods
+
+
+def get_class_metadata(obj: object) -> ClassMetadata:
+    """Extract metadata from an object's class.
+
+    Args:
+        obj: The object or class to extract metadata from.
+
+    Returns:
+        ClassMetadata: The extracted metadata.
+
+    """
+    cls = obj if inspect.isclass(obj) else type(obj)
+
+    doc = inspect.getdoc(cls)
     mro = [c.__name__ for c in inspect.getmro(cls)]
-
-    # Inheritance Tree
-    def build_tree(current_cls: type, branch: Tree) -> None:
-        """Recursively build the inheritance tree."""
-        for base in current_cls.__bases__:
-            if base is object:
-                continue
-            sub_branch = branch.add(Text(base.__name__, style="blue"))
-            build_tree(base, sub_branch)
-
-    root_text = Text(cls.__name__, style="bold green")
-    tree = Tree(root_text)
-    build_tree(cls, tree)
+    class_fields, class_methods = _get_class_members(cls)
+    inheritance_tree = _get_inheritance_tree(cls)
 
     return ClassMetadata(
         name=cls.__name__,
@@ -81,5 +105,5 @@ def get_class_metadata(obj: Any) -> ClassMetadata:
         class_fields=class_fields,
         class_methods=class_methods,
         mro=mro,
-        inheritance_tree=tree,
+        inheritance_tree=inheritance_tree,
     )

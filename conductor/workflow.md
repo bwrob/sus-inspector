@@ -48,8 +48,10 @@ For every item in `plan.md`, execute this exact cycle:
 
 ## 5. Phase Completion & Checkpointing
 When all tasks in a **Phase** are complete:
-1. **Full Suite:** Run the complete test and linting suite.
-2. **User Manual Verification:** Execute the meta-task: `- [ ] Task: Conductor - User Manual Verification '<Phase Name>' (Protocol in workflow.md)`.
+1. **Code Quality:** Run `uv run poe code-quality` and fix all reported issues (linting, formatting, type-checking, complexity).
+2. **Full Suite:** Run the complete test suite.
+3. **User Manual Verification:** Execute the meta-task: `- [ ] Task: Conductor - User Manual Verification '<Phase Name>' (Protocol in workflow.md)`.
+
 
 ## 6. Protocol: Conductor - User Manual Verification
 This meta-task requires the Conductor agent to:

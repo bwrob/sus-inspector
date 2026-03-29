@@ -19,7 +19,7 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: implement colapsable class information pane in the view. double registry system.**
+- [x] **Track: implement colapsable class information pane in the view. double registry system.**
   *Link: [./tracks/class_view_20260328/](./tracks/class_view_20260328/)*
 
 ---

@@ -1,15 +1,15 @@
 # Implementation Plan: MkDocs Documentation Site
 
 ## Phase 1: Setup & Configuration
-- [ ] Task: Install MkDocs and essential plugins.
-    - [ ] Create a feature branch `feat/mkdocs-setup`.
-    - [ ] Add `mkdocs`, `mkdocs-material`, and `mkdocstrings` to the project's developer dependencies using `uv`.
-    - [ ] Initialize a new MkDocs project at the repository root.
-- [ ] Task: Configure `mkdocs.yml` for `sus-inspector`.
-    - [ ] Set site name, description, and author.
-    - [ ] Configure the `material` theme (primary color, accent color, logo, and favicon).
-    - [ ] Enable the `mkdocstrings` plugin with `python` handler.
-    - [ ] Define the navigation structure for the documentation.
+- [x] Task: Install MkDocs and essential plugins.
+    - [x] Create a feature branch `feat/mkdocs-setup`.
+    - [x] Add `mkdocs`, `mkdocs-material`, and `mkdocstrings` to the project's developer dependencies using `uv`.
+    - [x] Initialize a new MkDocs project at the repository root.
+- [x] Task: Configure `mkdocs.yml` for `sus-inspector`.
+    - [x] Set site name, description, and author.
+    - [x] Configure the `material` theme (primary color, accent color, logo, and favicon).
+    - [x] Enable the `mkdocstrings` plugin with `python` handler.
+    - [x] Define the navigation structure for the documentation.
 - [ ] Task: Conductor - User Manual Verification 'Setup & Configuration' (Protocol in workflow.md)
 
 ## Phase 2: Core Documentation Content

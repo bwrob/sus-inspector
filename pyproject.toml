@@ -17,6 +17,9 @@
 [dependency-groups]
     dev = [
         "basedpyright>=1.38.4",
+        "mkdocs>=1.6.1",
+        "mkdocs-material>=9.7.6",
+        "mkdocstrings[python]>=1.0.3",
         "poethepoet>=0.42.1",
         "pre-commit>=4.5.1",
         "pydantic>=2.12.5",

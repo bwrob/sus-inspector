@@ -29,5 +29,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: set up pypi deployment with manual versioning and OIDC**
+- [~] **Track: set up pypi deployment with manual versioning and OIDC**
 *Link: [./tracks/pypi_deployment_20260329/](./tracks/pypi_deployment_20260329/)*

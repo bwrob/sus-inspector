@@ -9,15 +9,15 @@
 - [x] Task: Conductor - User Manual Verification 'Research & Double Registry Design' (Protocol in workflow.md)
 
 ## Phase 2: Class Metadata Extraction & Rendering
-- [ ] Task: Implement a default class-level metadata extractor.
-    - [ ] Create a feature branch `feat/class-metadata-extractor`.
-    - [ ] Extract docstrings, class fields, class methods, MRO, and inheritance tree.
-    - [ ] Write tests to verify the extraction logic for complex class hierarchies.
-- [ ] Task: Implement the default class-level renderer (UI component).
-    - [ ] Design the layout (stacked) for displaying class metadata.
-    - [ ] Implement the `ClassInfoPane` Textual widget.
-    - [ ] Write TUI tests for rendering the class metadata correctly.
-- [ ] Task: Conductor - User Manual Verification 'Class Metadata Extraction & Rendering' (Protocol in workflow.md)
+- [x] Task: Implement a default class-level metadata extractor.
+    - [x] Create a feature branch `feat/class-metadata-extractor`.
+    - [x] Extract docstrings, class fields, class methods, MRO, and inheritance tree.
+    - [x] Write tests to verify the extraction logic for complex class hierarchies.
+- [x] Task: Implement the default class-level renderer (UI component).
+    - [x] Design the layout (stacked) for displaying class metadata.
+    - [x] Implement the `ClassInfoPane` Textual widget.
+    - [x] Write TUI tests for rendering the class metadata correctly.
+- [x] Task: Conductor - User Manual Verification 'Class Metadata Extraction & Rendering' (Protocol in workflow.md)
 
 ## Phase 3: TUI Integration & Key Bindings
 - [ ] Task: Integrate the `ClassInfoPane` into the main TUI.

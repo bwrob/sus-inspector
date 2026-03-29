@@ -18,7 +18,7 @@ The interactive, terminal-based object inspector for suspicious Python objects. 
 ## Core Features (Next Steps)
 - **Visual Toggle ('d'):** Quickly show or hide private `__dunder__` methods for cleaner inspection.
 - **Expression Evaluation:** Allow users to evaluate simple Python expressions directly within the search bar or TUI.
-- **Interactive Class Views:** Dedicated views for inspecting class-level metadata, methods, and inheritance trees.
+- **Interactive Class Views:** Dedicated views for inspecting class-level metadata, methods, and inheritance trees (Toggle with 'c').
 - **Enhanced Custom Handlers:** Expand the plugin system with more robust, interactive handlers for common libraries and data structures.
 
 ## Technical & Design Constraints

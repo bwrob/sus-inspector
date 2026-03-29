@@ -386,7 +386,7 @@ def dict_view(obj: dict[Any, Any]) -> Table:
     return table
 
 
-def list_view(obj: Any) -> Table:
+def list_view(obj: Any) -> Table:  # noqa: ANN401
     """Render a list as a Rich Table.
 
     Args:

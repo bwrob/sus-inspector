@@ -1,12 +1,12 @@
 # Implementation Plan: Collapsible Class Information Pane with Double Registry
 
 ## Phase 1: Research & Double Registry Design
-- [ ] Task: Design the Double Registry system.
-    - [ ] Create a feature branch `feat/double-registry`.
-    - [ ] Define separate registry objects for instance and class-level inspectors.
-    - [ ] Implement a lookup mechanism that falls back to default inspectors if a specific one is not found.
-    - [ ] Write unit tests for the double registry (various combinations of custom and default).
-- [ ] Task: Conductor - User Manual Verification 'Research & Double Registry Design' (Protocol in workflow.md)
+- [x] Task: Design the Double Registry system.
+    - [x] Create a feature branch `feat/double-registry`.
+    - [x] Define separate registry objects for instance and class-level inspectors.
+    - [x] Implement a lookup mechanism that falls back to default inspectors if a specific one is not found.
+    - [x] Write unit tests for the double registry (various combinations of custom and default).
+- [x] Task: Conductor - User Manual Verification 'Research & Double Registry Design' (Protocol in workflow.md)
 
 ## Phase 2: Class Metadata Extraction & Rendering
 - [ ] Task: Implement a default class-level metadata extractor.

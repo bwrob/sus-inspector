@@ -36,3 +36,6 @@
     - [x] Verify 95% test coverage (for new modules).
     - [x] Run full linting and type-checking suite.
 - [x] Task: Conductor - User Manual Verification 'Final Polish & Verification' (Protocol in workflow.md)
+
+## Phase: Review Fixes
+- [x] Task: Apply review suggestions 6baf7dc

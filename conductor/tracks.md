@@ -19,11 +19,6 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [x] **Track: implement colapsable class information pane in the view. double registry system.**
-  *Link: [./tracks/class_view_20260328/](./tracks/class_view_20260328/)*
-
----
-
 - [ ] **Track: implement pytest tests, unit and regressions that have 100% coverage**
   *Link: [./tracks/pytest_coverage_20260328/](./tracks/pytest_coverage_20260328/)*
 

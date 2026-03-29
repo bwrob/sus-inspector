@@ -23,14 +23,14 @@
     - [x] Add `reference.md` and use `mkdocstrings` to extract documentation for `sus_inspector.core` and `sus_inspector.cli`.
     - [x] Ensure docstrings are formatted correctly for `mkdocstrings` (Google or NumPy style).
     - [x] Verify the rendered API reference in the local build.
-- [ ] Task: Conductor - User Manual Verification 'Core Documentation Content' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Core Documentation Content' (Protocol in workflow.md)
 
 ## Phase 3: Deployment & CI Integration
-- [ ] Task: Setup GitHub Actions for documentation deployment.
-    - [ ] Create a feature branch `feat/mkdocs-ci-deployment`.
-    - [ ] Draft a GitHub Action workflow to build and deploy MkDocs to GitHub Pages.
-    - [ ] Configure the workflow to trigger on pushes to the `main` branch.
-    - [ ] Verify the build and deployment process (mock or actual test).
+- [x] Task: Setup GitHub Actions for documentation deployment.
+    - [x] Create a feature branch `feat/mkdocs-ci-deployment`.
+    - [x] Draft a GitHub Action workflow to build and deploy MkDocs to GitHub Pages.
+    - [x] Configure the workflow to trigger on pushes to the `main` branch.
+    - [x] Verify the build and deployment process (mock or actual test).
 - [ ] Task: Conductor - User Manual Verification 'Deployment & CI Integration' (Protocol in workflow.md)
 
 ## Phase 4: Final Polish & Verification

@@ -88,7 +88,7 @@ class CallableInspector:
         if doc:
             sections.append(
                 Panel(
-                    Syntax(doc, "python", theme="monokai", background_color="default"),
+                    Text(doc, style="italic"),
                     title="Docstring",
                     border_style="blue",
                 )

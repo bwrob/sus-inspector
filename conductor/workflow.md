@@ -58,3 +58,11 @@ This meta-task requires the Conductor agent to:
 1.  **Self-Review:** Compare the implementation against the `spec.md` and `plan.md`.
 2.  **Demonstrate:** Provide a summary or example of the feature in action (e.g., a code snippet or TUI screenshot description).
 3.  **Confirm:** Ask the user to confirm the phase meets their expectations before proceeding to the next phase.
+
+## 7. Protocol: Track Finalization & PR
+After a track is successfully implemented and archived (moved to `conductor/archive/`):
+1.  **PR Creation:** Open a Pull Request from the track branch to `main` using the GitHub CLI (`gh`).
+2.  **PR Details:**
+    - **Title:** Use the track description (e.g., `feat(conductor): <Track Description>`).
+    - **Body:** Briefly summarize the changes and link to the archived track's `index.md`.
+3.  **Command:** `rtk gh pr create --fill --label "track-complete"`.

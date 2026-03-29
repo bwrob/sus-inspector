@@ -10,12 +10,14 @@
 #detail-pane {
     height: 1fr;
     border: solid $secondary;
+    overflow-y: scroll;
 }
 
 #class-pane {
     height: 1fr;
     border: solid yellow;
     display: none;
+    overflow-y: scroll;
 }
 
 #path-bar {

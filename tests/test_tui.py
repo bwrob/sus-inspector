@@ -85,6 +85,27 @@ async def test_class_pane_none_object():
 
 
 @pytest.mark.asyncio
+async def test_class_pane_scrollable():
+    """Test that the class info pane is scrollable when content overflows."""
+
+    class BigClass:
+        """A very big class."""
+
+        pass
+
+    # Dynamically add many fields to BigClass
+    for i in range(100):
+        setattr(BigClass, f"field_{i}", i)
+
+    app = ObjectExplorerApp(BigClass())
+    async with app.run_test() as pilot:
+        await pilot.press("c")
+        class_pane = app.query_one(ClassInfoPane)
+        # Check that overflow-y style is set to scroll
+        assert class_pane.styles.overflow_y == "scroll"
+
+
+@pytest.mark.asyncio
 async def test_class_pane_with_fields_and_methods():
     """Test that the class info pane displays class fields and methods."""
 

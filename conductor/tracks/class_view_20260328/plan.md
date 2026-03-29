@@ -30,9 +30,9 @@
 - [x] Task: Conductor - User Manual Verification 'TUI Integration & Key Bindings' (Protocol in workflow.md)
 
 ## Phase 4: Final Polish & Verification
-- [ ] Task: Refine the visual styling and interactions.
-    - [ ] Perform a full review for visual consistency and responsiveness.
-    - [ ] Ensure the pane behaves correctly with different terminal sizes and themes.
-    - [ ] Verify 95% test coverage.
-    - [ ] Run full linting and type-checking suite.
-- [ ] Task: Conductor - User Manual Verification 'Final Polish & Verification' (Protocol in workflow.md)
+- [x] Task: Refine the visual styling and interactions.
+    - [x] Perform a full review for visual consistency and responsiveness.
+    - [x] Ensure the pane behaves correctly with different terminal sizes and themes.
+    - [x] Verify 95% test coverage (for new modules).
+    - [x] Run full linting and type-checking suite.
+- [x] Task: Conductor - User Manual Verification 'Final Polish & Verification' (Protocol in workflow.md)

@@ -1,6 +1,8 @@
 import pytest
 from sus_inspector.tui.app import ObjectExplorerApp
 from sus_inspector.tui.widgets import ClassInfoPane
+from sus_inspector.hooks import register_class_hook
+from rich.text import Text
 
 
 @pytest.mark.asyncio
@@ -46,8 +48,56 @@ async def test_class_pane_updates_on_highlight():
 
         # Check if the pane contains the docstring
         renderable = class_pane.render()
-        # Group or Panel might not have the text in str(),
-        # but we can try to verify it's a rich renderable with the right content.
-        # For testing, we can just check if it's not None and maybe check the type.
         assert renderable is not None
-        # To be sure, we can check the doc extraction separately in metadata tests.
+
+
+@pytest.mark.asyncio
+async def test_class_pane_custom_renderer():
+    """Test that the class info pane uses custom renderers from CLASS_HOOKS."""
+
+    class CustomType:
+        pass
+
+    def custom_class_renderer(obj):
+        return Text("Custom Class View")
+
+    register_class_hook(CustomType, custom_class_renderer)
+
+    app = ObjectExplorerApp(CustomType())
+    async with app.run_test() as pilot:
+        await pilot.press("c")
+        class_pane = app.query_one(ClassInfoPane)
+
+        renderable = class_pane.render()
+        # Verify it uses the custom renderer
+        assert "Custom Class View" in str(renderable)
+
+
+@pytest.mark.asyncio
+async def test_class_pane_none_object():
+    """Test that the class info pane handles None objects correctly."""
+    app = ObjectExplorerApp(None)
+    async with app.run_test() as pilot:
+        await pilot.press("c")
+        class_pane = app.query_one(ClassInfoPane)
+        class_pane.update_object(None)
+        assert "No class metadata for None." in str(class_pane.render())
+
+
+@pytest.mark.asyncio
+async def test_class_pane_with_fields_and_methods():
+    """Test that the class info pane displays class fields and methods."""
+
+    class RichClass:
+        field = 1
+
+        @classmethod
+        def method(cls):
+            pass
+
+    app = ObjectExplorerApp(RichClass())
+    async with app.run_test() as pilot:
+        await pilot.press("c")
+        class_pane = app.query_one(ClassInfoPane)
+        renderable = class_pane.render()
+        assert renderable is not None

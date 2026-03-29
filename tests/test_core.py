@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from typing import final
 from unittest.mock import MagicMock, patch
-
 
 from sus_inspector.core import InteractiveExplorer
 
@@ -33,7 +33,7 @@ def test_explorer_truediv_returns_object() -> None:
 def test_explorer_truediv_ellipsis() -> None:
     """The explorer should capture locals when using '/' with Ellipsis."""
     explorer = InteractiveExplorer()
-    local_var = "hello"  # noqa: F841
+    local_var = "hello"  # pyright: ignore[reportUnusedVariable] # noqa: F841
 
     with patch.object(InteractiveExplorer, "_run") as mock_run:
         result = explorer / ...
@@ -48,8 +48,9 @@ def test_explorer_truediv_ellipsis() -> None:
 def test_explorer_truediv_with_name() -> None:
     """The explorer should use __name__ if available."""
 
+    @final
     class NamedObj:
-        __name__ = "Named"
+        __name__: str = "Named"
 
     explorer = InteractiveExplorer()
     obj = NamedObj()
@@ -67,7 +68,7 @@ def test_explorer_run_starts_app(mock_app_class: MagicMock) -> None:
     explorer = InteractiveExplorer()
     obj = {"key": "value"}
 
-    explorer._run(obj, "test")
+    explorer._run(obj, "test")  # pyright: ignore[reportPrivateUsage] # noqa: SLF001
 
     mock_app_class.assert_called_once_with(obj, obj_name="test")
     mock_app_instance.run.assert_called_once()

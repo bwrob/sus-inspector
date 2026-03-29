@@ -14,7 +14,8 @@ def test_list_view_basic() -> None:
     assert isinstance(table, Table)
     assert "length: 3" in str(table.title)
     # Check number of rows (3 items)
-    assert len(table.rows) == 3
+    expected_rows = 3
+    assert len(table.rows) == expected_rows
 
 
 def test_list_view_long() -> None:
@@ -24,7 +25,8 @@ def test_list_view_long() -> None:
     assert isinstance(table, Table)
     assert "length: 1000" in str(table.title)
     # 100 preview rows + 1 ellipsis row
-    assert len(table.rows) == 101
+    expected_rows = 101
+    assert len(table.rows) == expected_rows
 
 
 def test_list_view_long_items() -> None:
@@ -35,7 +37,6 @@ def test_list_view_long_items() -> None:
     # The last column (Preview) should have the truncated string
     # We can't easily check the content of the cell without a console,
     # but we covered the line in coverage.
-    pass
 
 
 def test_list_view_invalid() -> None:

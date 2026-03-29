@@ -3,20 +3,29 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
+from typing import Any, final
 from unittest.mock import MagicMock, patch
 
 import pytest
 from rich.console import Console
 from rich.text import Text
 from textual.widgets import Input, Static, Tree
+from typing_extensions import override
 
 from sus_inspector.hooks.registry import INSTANCE_HOOKS, register_hook
 from sus_inspector.tui.app import ObjectExplorerApp
 
 
 def get_static_content(static: Static) -> str:
-    """Helper to get rendered content of a Static widget."""
+    """Get the rendered content of a Static widget.
+
+    Args:
+        static: The Static widget to render.
+
+    Returns:
+        str: The rendered string content.
+
+    """
     console = Console(width=100, force_terminal=False)
     with console.capture() as capture:
         console.print(static.render())
@@ -41,7 +50,9 @@ async def test_search_functionality() -> None:
         # Search bar should be hidden and tree node selected
         assert search_bar.display is False
         tree = app.query_one(Tree[object])
-        assert "target_node" in str(tree.cursor_node.label)
+        node = tree.cursor_node
+        assert node is not None
+        assert "target_node" in str(node.label)
 
 
 @pytest.mark.asyncio
@@ -59,31 +70,35 @@ async def test_search_not_found() -> None:
         assert search_bar.display is False
 
 
-@pytest.mark.asyncio
-async def test_is_expandable() -> None:
+def test_is_expandable() -> None:
     """Test the _is_expandable logic for different types."""
     app = ObjectExplorerApp({})
 
     # Collections
-    assert app._is_expandable({"a": 1}) is True
-    assert app._is_expandable({}) is False
-    assert app._is_expandable([1]) is True
-    assert app._is_expandable([]) is False
+    assert app._is_expandable({"a": 1}) is True  # pyright: ignore[reportPrivateUsage] # noqa: SLF001
+    assert app._is_expandable({}) is False  # pyright: ignore[reportPrivateUsage] # noqa: SLF001
+    assert app._is_expandable([1]) is True  # pyright: ignore[reportPrivateUsage] # noqa: SLF001
+    assert app._is_expandable([]) is False  # pyright: ignore[reportPrivateUsage] # noqa: SLF001
 
     # Objects with __dict__ or __slots__
+    @final
     class DictObj:
+        x: int
+
         def __init__(self) -> None:
             self.x = 1
 
+    @final
     class SlotObj:
-        __slots__ = ("y",)
+        __slots__: tuple[str, ...] = ("y",)
+        y: int
 
         def __init__(self) -> None:
             self.y = 2
 
-    assert app._is_expandable(DictObj()) is True
-    assert app._is_expandable(SlotObj()) is True
-    assert app._is_expandable(123) is False
+    assert app._is_expandable(DictObj()) is True  # pyright: ignore[reportPrivateUsage] # noqa: SLF001
+    assert app._is_expandable(SlotObj()) is True  # pyright: ignore[reportPrivateUsage] # noqa: SLF001
+    assert app._is_expandable(123) is False  # pyright: ignore[reportPrivateUsage] # noqa: SLF001
 
 
 @pytest.mark.asyncio
@@ -93,7 +108,8 @@ async def test_add_object_attributes_error_handling() -> None:
     class BrokenObj:
         @property
         def broken(self) -> Any:  # noqa: ANN401
-            raise ValueError("Prop error")
+            msg = "Prop error"
+            raise ValueError(msg)
 
     app = ObjectExplorerApp(BrokenObj())
     async with app.run_test():
@@ -109,6 +125,7 @@ def test_add_object_attributes_generic_exception(
     """Test that generic exceptions in getattr are caught and logged."""
 
     class Normal:
+        @override
         def __dir__(self) -> list[str]:
             return ["prop"]
 
@@ -118,17 +135,20 @@ def test_add_object_attributes_generic_exception(
     mock_node = MagicMock()
 
     # Use a side_effect that raises for our specific attribute
-    def side_effect(o: Any, name: str) -> Any:  # noqa: ANN401
+    def side_effect(_o: Any, name: str) -> Any:  # noqa: ANN401
         if name == "prop":
-            raise Exception("Generic error")
+            msg = "Generic error"
+            raise RuntimeError(msg)
         raise AttributeError
 
-    with patch("sus_inspector.tui.app.getattr", side_effect=side_effect):
-        with caplog.at_level(logging.ERROR):
-            app._add_object_attributes(mock_node, obj)
-            assert any(
-                "Failed to get attribute" in record.message for record in caplog.records
-            )
+    with (
+        patch("sus_inspector.tui.app.getattr", side_effect=side_effect),
+        caplog.at_level(logging.ERROR),
+    ):
+        app._add_object_attributes(mock_node, obj)  # pyright: ignore[reportPrivateUsage] # noqa: SLF001
+        assert any(
+            "Failed to get attribute" in record.message for record in caplog.records
+        )
 
 
 @pytest.mark.asyncio
@@ -167,18 +187,20 @@ async def test_highlight_with_class_pane_visible() -> None:
         await pilot.press("c")  # Show class pane
         await pilot.press("down")  # Highlight 'a'
         # This covers the line: if class_pane.is_pane_visible:
-        pass
 
 
 @pytest.mark.asyncio
-async def test_try_view_hooks_error_handling(caplog: pytest.LogCaptureFixture) -> None:
+async def test_try_view_hooks_error_handling(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
     """Test that failing view hooks are handled gracefully."""
 
     class TestObj:
         pass
 
     def broken_renderer(_obj: Any) -> Text:  # noqa: ANN401
-        raise ValueError("Render error")
+        msg = "Render error"
+        raise ValueError(msg)
 
     INSTANCE_HOOKS.clear()
     register_hook(TestObj, broken_renderer)

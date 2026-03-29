@@ -9,7 +9,7 @@ from sus_inspector.main import main
 
 
 def test_main_inject() -> None:
-    """main should call inject_permanently if --inject is passed."""
+    """Main should call inject_permanently if --inject is passed."""
     with (
         patch("argparse.ArgumentParser.parse_args") as mock_args,
         patch("sus_inspector.main.inject_permanently") as mock_inject,
@@ -22,7 +22,7 @@ def test_main_inject() -> None:
 
 
 def test_main_remove() -> None:
-    """main should call remove_injection if --remove is passed."""
+    """Main should call remove_injection if --remove is passed."""
     with (
         patch("argparse.ArgumentParser.parse_args") as mock_args,
         patch("sus_inspector.main.remove_injection") as mock_remove,
@@ -35,7 +35,7 @@ def test_main_remove() -> None:
 
 
 def test_main_default() -> None:
-    """main should call sus / sys.modules by default."""
+    """Main should call sus / sys.modules by default."""
     with (
         patch("argparse.ArgumentParser.parse_args") as mock_args,
         patch("sus_inspector.main.sus") as mock_sus,

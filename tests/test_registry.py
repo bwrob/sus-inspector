@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any, cast
 from unittest.mock import patch
 
+from pydantic import BaseModel
 from rich.text import Text
 
 from sus_inspector.hooks.registry import (
@@ -94,7 +95,7 @@ def test_get_renderer_with_callable_checker() -> None:
     register_hook(checker, renderer)
 
     class SpecialObj:
-        special_attr = True
+        special_attr: bool = True
 
     obj = SpecialObj()
     assert get_renderer(obj, INSTANCE_HOOKS) == renderer
@@ -125,7 +126,8 @@ def test_ensure_default_hooks_no_pydantic() -> None:
 
     def mocked_import(name: str, *args: Any, **kwargs: Any) -> Any:  # noqa: ANN401
         if name == "pydantic":
-            raise ImportError("Mocked error")
+            msg = "Mocked error"
+            raise ImportError(msg)
         return orig_import(name, *args, **kwargs)
 
     with patch("builtins.__import__", side_effect=mocked_import):
@@ -133,12 +135,10 @@ def test_ensure_default_hooks_no_pydantic() -> None:
         # Should have registered list, but not pydantic
         # Assuming list_view is always registered first
         assert len(INSTANCE_HOOKS) == 1
-        assert INSTANCE_HOOKS[0][0] == list
+        assert INSTANCE_HOOKS[0][0] is list
 
     # Restore and verify it registers both now
     INSTANCE_HOOKS.clear()
     ensure_default_hooks()
     # It should register list and BaseModel (since pydantic is available in env)
-    from pydantic import BaseModel
-
-    assert any(h[0] == BaseModel for h in INSTANCE_HOOKS)
+    assert any(h[0] is BaseModel for h in INSTANCE_HOOKS)

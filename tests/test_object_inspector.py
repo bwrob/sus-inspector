@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from rich.console import Group
 from rich.table import Table
 
@@ -46,9 +48,10 @@ def test_object_inspector() -> None:
     assert "Methods" in titles
 
     # Verify content in tables
-    all_cells = []
+    all_cells: list[Any] = []
     for table in tables:
         for col in table.columns:
+            # Column._cells is private but necessary for testing content
             all_cells.extend([str(cell) for cell in col._cells])  # noqa: SLF001
 
     assert "attr1" in all_cells

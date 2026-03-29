@@ -1,4 +1,10 @@
 {
+    "executionEnvironments": [
+        {
+            "reportPrivateUsage": "none",
+            "root": "tests"
+        }
+    ],
     "ignore": [
         "examples",
         "tests/assets"

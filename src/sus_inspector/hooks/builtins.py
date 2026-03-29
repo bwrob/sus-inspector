@@ -55,7 +55,7 @@ class CallableInspector:
             Group: Rich renderable showing callable info.
 
         """
-        sections = [
+        sections: list[Any] = [
             self._render_header(obj),
             self._render_signature(obj),
         ]
@@ -93,7 +93,7 @@ class CallableInspector:
 
         try:
             file_path = inspect.getfile(obj)
-            header_text.append("\n")
+            _ = header_text.append("\n")
             _ = header_text.append(f"File: {file_path}", style="dim italic")
         except (TypeError, OSError):
             pass
@@ -156,7 +156,7 @@ class CallableInspector:
             Panel | None: The metadata panel if found, else None.
 
         """
-        metadata = []
+        metadata: list[Any] = []
         if hasattr(obj, "__module__"):
             metadata.append(Text(f"Module: {obj.__module__}"))
         if hasattr(obj, "__closure__") and obj.__closure__:
@@ -190,7 +190,7 @@ class ObjectInspector:
             Group: Rich renderable showing object info.
 
         """
-        sections = []
+        sections: list[Any] = []
 
         # Value preview (if not basic type)
         if self._should_show_value_preview(obj):
@@ -294,7 +294,7 @@ class ObjectInspector:
                 preview = self._get_method_preview(val)
             else:
                 preview = self.highlighter(self._get_value_preview(val))
-            table.add_row(name, type_name, preview)
+            table.add_row(name, type_name, cast("Any", preview))
 
         return table
 
@@ -348,9 +348,9 @@ class CollectionInspector:
 
         """
         if isinstance(obj, (list, tuple, set)):
-            return list_view(obj)
+            return list_view(cast("Any", obj))
         if isinstance(obj, dict):
-            return dict_view(obj)
+            return dict_view(cast("Any", obj))
         return Table(title=f"Not a collection: {type(obj).__name__}")
 
 
@@ -386,7 +386,7 @@ def dict_view(obj: dict[Any, Any]) -> Table:
     return table
 
 
-def list_view(obj: object) -> Table:
+def list_view(obj: list[Any] | tuple[Any, ...] | set[Any]) -> Table:
     """Render a list as a Rich Table.
 
     Args:
@@ -396,11 +396,7 @@ def list_view(obj: object) -> Table:
         Table: Rich table representation.
 
     """
-    if not isinstance(obj, (list, tuple, set)):
-        # This shouldn't happen if type checker is correct
-        return Table(title="Not a supported collection")
-
-    obj_list = list(cast("list[object]", obj))
+    obj_list = list(obj)
     type_name = type(obj).__name__.capitalize()
     title = f"{type_name} (length: {len(obj_list)})"
     table = Table(title=title, title_justify="left", show_edge=False)

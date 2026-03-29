@@ -29,7 +29,7 @@ def test_registry_register_condition() -> None:
     def string_inspector(obj: str) -> Text:
         return Text(f"String: {obj}")
 
-    registry.register(lambda x: isinstance(x, str), string_inspector)
+    registry.register(lambda x: isinstance(x, str), string_inspector)  # pyright: ignore[reportUnknownArgumentType, reportUnknownLambdaType]
 
     inspector = registry.get_inspector("hello")
     assert inspector == string_inspector

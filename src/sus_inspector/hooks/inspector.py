@@ -39,6 +39,23 @@ class InspectorRegistry:
             ]
         ] = []
 
+    @property
+    def inspectors(
+        self,
+    ) -> list[
+        tuple[
+            type | Callable[[Any], bool],
+            Inspector | Callable[[Any], RenderableType],
+        ]
+    ]:
+        """Return the list of registered inspectors.
+
+        Returns:
+            The internal list of inspectors.
+
+        """
+        return self._inspectors
+
     def register(
         self,
         type_checker: type | Callable[[Any], bool],

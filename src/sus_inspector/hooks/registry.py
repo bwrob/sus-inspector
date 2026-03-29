@@ -12,8 +12,8 @@ if TYPE_CHECKING:
     from rich.console import RenderableType
 
 # For backward compatibility with existing code
-INSTANCE_HOOKS = INSTANCE_REGISTRY._inspectors  # noqa: SLF001
-CLASS_HOOKS = CLASS_REGISTRY._inspectors  # noqa: SLF001
+INSTANCE_HOOKS = INSTANCE_REGISTRY.inspectors
+CLASS_HOOKS = CLASS_REGISTRY.inspectors
 VIEW_HOOKS = INSTANCE_HOOKS
 
 
@@ -90,7 +90,7 @@ def get_renderer(
 
 def ensure_default_hooks() -> None:
     """Register default hooks if the registry is empty."""
-    if INSTANCE_REGISTRY._inspectors:  # noqa: SLF001
+    if INSTANCE_REGISTRY.inspectors:
         return
 
     # Register built-in hooks lazily

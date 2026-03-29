@@ -15,7 +15,7 @@ from sus_inspector.hooks.registry import ensure_default_hooks
 
 def test_default_primitive_hooks() -> None:
     """Test that primitives are handled by PrimitiveInspector."""
-    INSTANCE_REGISTRY._inspectors = []  # noqa: SLF001
+    INSTANCE_REGISTRY.inspectors.clear()
     ensure_default_hooks()
 
     for val in [10, math.pi, "hello", True, None]:
@@ -28,7 +28,7 @@ def test_default_primitive_hooks() -> None:
 
 def test_default_collection_hooks() -> None:
     """Test that collections are handled by CollectionInspector."""
-    INSTANCE_REGISTRY._inspectors = []  # noqa: SLF001
+    INSTANCE_REGISTRY.inspectors.clear()
     ensure_default_hooks()
 
     # List
@@ -66,7 +66,7 @@ def test_default_collection_hooks() -> None:
 
 def test_default_callable_hooks() -> None:
     """Test that callables are handled by CallableInspector."""
-    INSTANCE_REGISTRY._inspectors = []  # noqa: SLF001
+    INSTANCE_REGISTRY.inspectors.clear()
     ensure_default_hooks()
 
     def my_func(a: int, b: str = "default") -> int:

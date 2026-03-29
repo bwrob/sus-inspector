@@ -68,7 +68,7 @@ def test_explorer_run_starts_app(mock_app_class: MagicMock) -> None:
     explorer = InteractiveExplorer()
     obj = {"key": "value"}
 
-    explorer._run(obj, "test")  # pyright: ignore[reportPrivateUsage] # noqa: SLF001
+    explorer._run(obj, "test")  # noqa: SLF001
 
     mock_app_class.assert_called_once_with(obj, obj_name="test")
     mock_app_instance.run.assert_called_once()

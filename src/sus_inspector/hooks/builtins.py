@@ -386,7 +386,7 @@ def dict_view(obj: dict[Any, Any]) -> Table:
     return table
 
 
-def list_view(obj: list[Any] | tuple[Any, ...] | set[Any]) -> Table:
+def list_view(obj: Any) -> Table:
     """Render a list as a Rich Table.
 
     Args:
@@ -399,8 +399,9 @@ def list_view(obj: list[Any] | tuple[Any, ...] | set[Any]) -> Table:
     if not isinstance(obj, (list, tuple, set)):
         return Table(title="Not a list")
 
-    obj_list = list(obj)
-    type_name = type(obj).__name__.capitalize()
+    obj_collection = cast("list[Any] | tuple[Any, ...] | set[Any]", obj)
+    obj_list = list(obj_collection)
+    type_name = type(obj_collection).__name__.capitalize()
     title = f"{type_name} (length: {len(obj_list)})"
     table = Table(title=title, title_justify="left", show_edge=False)
     table.add_column("Index", justify="right", style="cyan")

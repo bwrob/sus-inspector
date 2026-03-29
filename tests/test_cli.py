@@ -34,11 +34,11 @@ def test_get_target_info() -> None:
         patch("site.getsitepackages", return_value=["/env/site"]),
     ):
         dir_global, file_global = get_target_info(is_global_user=True)
-        assert str(dir_global) == "/user/site"
+        assert dir_global == Path("/user/site")
         assert file_global == "usercustomize.py"
 
         dir_local, file_local = get_target_info(is_global_user=False)
-        assert str(dir_local) == "/env/site"
+        assert dir_local == Path("/env/site")
         assert file_local == "sitecustomize.py"
 
     # Test empty site_packages fallback
@@ -47,7 +47,7 @@ def test_get_target_info() -> None:
         patch("site.getsitepackages", return_value=[]),
     ):
         dir_local, _ = get_target_info(is_global_user=False)
-        assert str(dir_local) == "/user/site"
+        assert dir_local == Path("/user/site")
 
 
 def test_ensure_dir(tmp_path: Path) -> None:

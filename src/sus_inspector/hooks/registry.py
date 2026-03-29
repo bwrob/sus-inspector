@@ -12,14 +12,15 @@ if TYPE_CHECKING:
     from rich.console import RenderableType
 
 # For backward compatibility with existing code
-INSTANCE_HOOKS = INSTANCE_REGISTRY._inspectors
-CLASS_HOOKS = CLASS_REGISTRY._inspectors
+INSTANCE_HOOKS = INSTANCE_REGISTRY._inspectors  # noqa: SLF001
+CLASS_HOOKS = CLASS_REGISTRY._inspectors  # noqa: SLF001
 VIEW_HOOKS = INSTANCE_HOOKS
 
 
 def register_instance_hook(
     type_checker: type | Callable[[Any], bool],
     render_func: Callable[[Any], RenderableType],
+    *,
     append: bool = False,
 ) -> None:
     """Register a custom instance view for a specific object type.
@@ -36,6 +37,7 @@ def register_instance_hook(
 def register_class_hook(
     type_checker: type | Callable[[Any], bool],
     render_func: Callable[[Any], RenderableType],
+    *,
     append: bool = False,
 ) -> None:
     """Register a custom class view for a specific object type.
@@ -52,6 +54,7 @@ def register_class_hook(
 def register_hook(
     type_checker: type | Callable[[Any], bool],
     render_func: Callable[[Any], RenderableType],
+    *,
     append: bool = False,
 ) -> None:
     """Register a custom instance view (alias for register_instance_hook).
@@ -87,7 +90,7 @@ def get_renderer(
 
 def ensure_default_hooks() -> None:
     """Register default hooks if the registry is empty."""
-    if INSTANCE_REGISTRY._inspectors:
+    if INSTANCE_REGISTRY._inspectors:  # noqa: SLF001
         return
 
     # Register built-in hooks lazily

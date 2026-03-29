@@ -1,22 +1,35 @@
 """Tests for ObjectInspector."""
 
+from __future__ import annotations
+
 from rich.table import Table
+
 from sus_inspector.hooks.builtins import ObjectInspector
 
 
 class MockObject:
     """Mock object for testing ObjectInspector."""
 
-    def __init__(self):
+    attr1: str
+    _private: str
+
+    def __init__(self) -> None:
+        """Initialize mock object."""
         self.attr1 = "value1"
         self._private = "secret"
 
-    def method1(self):
-        """Method 1 docstring."""
+    @staticmethod
+    def method1() -> bool:
+        """Return True for testing.
+
+        Returns:
+            bool: Always True.
+
+        """
         return True
 
 
-def test_object_inspector():
+def test_object_inspector() -> None:
     """Test that ObjectInspector identifies public members."""
     obj = MockObject()
     inspector = ObjectInspector()
@@ -32,7 +45,7 @@ def test_object_inspector():
     # Check that member1 and attr1 are somewhere in the cells
     all_cells = []
     for col in result.columns:
-        all_cells.extend([str(cell) for cell in col._cells])
+        all_cells.extend([str(cell) for cell in col._cells])  # noqa: SLF001
 
     assert "__doc__" in all_cells
     assert "attr1" in all_cells

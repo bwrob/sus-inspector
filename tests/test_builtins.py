@@ -1,16 +1,23 @@
 """Tests for built-in inspectors."""
 
+from __future__ import annotations
+
+import math
+
+from rich.console import Group
 from rich.panel import Panel
 from rich.table import Table
-from sus_inspector.hooks.registry import INSTANCE_REGISTRY, ensure_default_hooks
+
+from sus_inspector.hooks.inspector import INSTANCE_REGISTRY
+from sus_inspector.hooks.registry import ensure_default_hooks
 
 
-def test_default_primitive_hooks():
+def test_default_primitive_hooks() -> None:
     """Test that primitives are handled by PrimitiveInspector."""
-    INSTANCE_REGISTRY._inspectors = []
+    INSTANCE_REGISTRY._inspectors = []  # noqa: SLF001
     ensure_default_hooks()
 
-    for val in [10, 3.14, "hello", True, None]:
+    for val in [10, math.pi, "hello", True, None]:
         inspector = INSTANCE_REGISTRY.get_inspector(val)
         assert inspector is not None
         result = inspector(val)
@@ -18,9 +25,9 @@ def test_default_primitive_hooks():
         assert "Primitive:" in str(result.title)
 
 
-def test_default_collection_hooks():
+def test_default_collection_hooks() -> None:
     """Test that collections are handled by CollectionInspector."""
-    INSTANCE_REGISTRY._inspectors = []
+    INSTANCE_REGISTRY._inspectors = []  # noqa: SLF001
     ensure_default_hooks()
 
     # List
@@ -56,19 +63,24 @@ def test_default_collection_hooks():
     assert "Set" in str(result.title)
 
 
-def test_default_callable_hooks():
+def test_default_callable_hooks() -> None:
     """Test that callables are handled by CallableInspector."""
-    INSTANCE_REGISTRY._inspectors = []
+    INSTANCE_REGISTRY._inspectors = []  # noqa: SLF001
     ensure_default_hooks()
 
-    def my_func(a: int, b: str = "default"):
-        """My docstring."""
+    def my_func(a: int, b: str = "default") -> int:
+        """My docstring.
+
+        Returns:
+            int: The input a.
+
+        """
+        _ = b  # Unused
         return a
 
     inspector = INSTANCE_REGISTRY.get_inspector(my_func)
     assert inspector is not None
     result = inspector(my_func)
-    from rich.console import Group
 
     assert isinstance(result, Group)
 

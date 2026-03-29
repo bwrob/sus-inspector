@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 class Inspector(Protocol):
     """Protocol for custom object inspectors."""
 
-    def __call__(self, obj: Any) -> RenderableType:
+    def __call__(self, obj: Any) -> RenderableType:  # noqa: ANN401
         """Inspect an object and return a Rich renderable.
 
         Args:
@@ -43,13 +43,14 @@ class InspectorRegistry:
         self,
         type_checker: type | Callable[[Any], bool],
         inspector: Inspector | Callable[[Any], RenderableType],
+        *,
         append: bool = False,
     ) -> None:
         """Register an inspector for a specific type or condition.
 
         Args:
             type_checker: A type or a function that returns True if the object matches.
-            inspector: An Inspector instance or a callable that returns a RenderableType.
+            inspector: An Inspector or a callable that returns a RenderableType.
             append: If True, append to the end of the list (lower priority).
 
         """
@@ -60,7 +61,7 @@ class InspectorRegistry:
 
     def get_inspector(
         self,
-        obj: Any,
+        obj: Any,  # noqa: ANN401
     ) -> Inspector | Callable[[Any], RenderableType] | None:
         """Find the first matching inspector for an object.
 
@@ -68,7 +69,7 @@ class InspectorRegistry:
             obj: The object to inspect.
 
         Returns:
-            Inspector | Callable[[Any], RenderableType] | None: The inspector if found, else None.
+            The inspector if found, else None.
 
         """
         for type_checker, inspector in self._inspectors:

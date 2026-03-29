@@ -34,7 +34,7 @@ class PydanticInspector:
         )
 
 
-def pydantic_view(obj: Any) -> RenderableType:
+def pydantic_view(obj: Any) -> RenderableType:  # noqa: ANN401
     """Compatibility wrapper for Pydantic model rendering.
 
     Args:

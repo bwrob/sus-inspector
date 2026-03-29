@@ -60,8 +60,8 @@ def test_fallback_logic() -> None:
     class MyType:
         pass
 
-    INSTANCE_REGISTRY._inspectors = []
-    CLASS_REGISTRY._inspectors = []
+    INSTANCE_REGISTRY._inspectors = []  # noqa: SLF001
+    CLASS_REGISTRY._inspectors = []  # noqa: SLF001
 
     obj = MyType()
     assert get_renderer(obj, INSTANCE_HOOKS) is None

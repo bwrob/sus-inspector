@@ -7,6 +7,7 @@ from typing import Any, cast
 from rich.panel import Panel
 from rich.pretty import Pretty
 from rich.table import Table
+from rich.text import Text
 
 
 class PrimitiveInspector:
@@ -28,44 +29,75 @@ class PrimitiveInspector:
 class CallableInspector:
     """Inspector for functions, methods, and other callables."""
 
-    def __call__(self, obj: Any) -> Table:
-        """Render a callable preview.
+    def __call__(self, obj: Any) -> Any:
+        """Render a callable preview with section-based layout.
 
         Args:
             obj: The callable object to render.
 
         Returns:
-            Table: Rich table representation.
+            RenderableType: Rich renderable showing callable info.
 
         """
         import inspect  # noqa: PLC0415
 
-        table = Table(
-            title=f"Callable: {type(obj).__name__}",
-            title_justify="left",
-            show_edge=False,
-        )
-        table.add_column("Property", style="cyan")
-        table.add_column("Value", style="green")
+        from rich.columns import Columns
+        from rich.console import Group
+        from rich.syntax import Syntax
 
-        # Basic Info
-        table.add_row("Name", getattr(obj, "__name__", "unknown"))
-        doc = inspect.getdoc(obj)
-        if doc:
-            table.add_row("Docstring", doc)
+        sections = []
+
+        # Header Info
+        name = getattr(obj, "__name__", "unknown")
+        type_name = type(obj).__name__
+        sections.append(
+            Panel(
+                Text.assemble(
+                    (f"{type_name}: ", "bold cyan"),
+                    (name, "bold yellow"),
+                ),
+                subtitle="Header Info",
+            )
+        )
 
         # Signature
         try:
             sig = inspect.signature(obj)
-            table.add_row("Signature", str(sig))
+            sig_text = Text(str(sig), style="green")
+            sections.append(Panel(sig_text, title="Signature", border_style="green"))
         except (ValueError, TypeError):
-            table.add_row("Signature", "(not available)")
+            sections.append(
+                Panel(Text("(not available)"), title="Signature", border_style="red")
+            )
 
-        # Closure / Cells
+        # Docstring
+        doc = inspect.getdoc(obj)
+        if doc:
+            sections.append(
+                Panel(
+                    Syntax(doc, "python", theme="monokai", background_color="default"),
+                    title="Docstring",
+                    border_style="blue",
+                )
+            )
+
+        # Metadata (Closure, Module, etc.)
+        metadata = []
+        if hasattr(obj, "__module__"):
+            metadata.append(Text(f"Module: {obj.__module__}"))
         if hasattr(obj, "__closure__") and obj.__closure__:
-            table.add_row("Closure Cells", str(len(obj.__closure__)))
+            metadata.append(Text(f"Closure Cells: {len(obj.__closure__)}"))
 
-        return table
+        if metadata:
+            sections.append(
+                Panel(
+                    Columns(metadata, padding=(0, 2)),
+                    title="Metadata",
+                    border_style="magenta",
+                )
+            )
+
+        return Group(*sections)
 
 
 class ObjectInspector:

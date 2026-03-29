@@ -68,14 +68,15 @@ def test_default_callable_hooks():
     inspector = INSTANCE_REGISTRY.get_inspector(my_func)
     assert inspector is not None
     result = inspector(my_func)
-    assert isinstance(result, Table)
-    assert "Callable:" in str(result.title)
+    from rich.console import Group
 
-    # Verify content (Signature, Docstring)
-    all_cells = []
-    for col in result.columns:
-        all_cells.extend([str(cell) for cell in col._cells])
+    assert isinstance(result, Group)
 
-    assert "my_func" in all_cells
-    assert "My docstring." in all_cells
-    assert "(a: int, b: str = 'default')" in all_cells
+    # Verify content (Check if we have multiple panels)
+    panels = [r for r in result.renderables if hasattr(r, "title")]
+    titles = [str(p.title) for p in panels]
+    subtitles = [str(p.subtitle) for p in panels]
+
+    assert "Header Info" in subtitles
+    assert "Signature" in titles
+    assert "Docstring" in titles

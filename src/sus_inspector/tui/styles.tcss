@@ -3,9 +3,19 @@
     border: solid $primary;
 }
 
-#detail-pane {
+#detail-container {
     width: 70%;
+}
+
+#detail-pane {
+    height: 1fr;
     border: solid $secondary;
+}
+
+#class-pane {
+    height: 1fr;
+    border: solid yellow;
+    display: none;
 }
 
 #path-bar {

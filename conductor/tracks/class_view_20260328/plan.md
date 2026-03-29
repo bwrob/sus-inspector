@@ -20,14 +20,14 @@
 - [x] Task: Conductor - User Manual Verification 'Class Metadata Extraction & Rendering' (Protocol in workflow.md)
 
 ## Phase 3: TUI Integration & Key Bindings
-- [ ] Task: Integrate the `ClassInfoPane` into the main TUI.
-    - [ ] Create a feature branch `feat/tui-class-pane-integration`.
-    - [ ] Add the `ClassInfoPane` to the `Explorer` or `App` layout.
-    - [ ] Set its initial visibility to `False`.
-    - [ ] Map the 'c' key to toggle the `visible` property of the pane.
-    - [ ] Add a distinct colored border to the class pane.
-    - [ ] Write TUI tests for the 'c' key toggle behavior.
-- [ ] Task: Conductor - User Manual Verification 'TUI Integration & Key Bindings' (Protocol in workflow.md)
+- [x] Task: Integrate the `ClassInfoPane` into the main TUI.
+    - [x] Create a feature branch `feat/tui-class-pane-integration`.
+    - [x] Add the `ClassInfoPane` to the `Explorer` or `App` layout.
+    - [x] Set its initial visibility to `False`.
+    - [x] Map the 'c' key to toggle the `visible` property of the pane.
+    - [x] Add a distinct colored border to the class pane.
+    - [x] Write TUI tests for the 'c' key toggle behavior.
+- [x] Task: Conductor - User Manual Verification 'TUI Integration & Key Bindings' (Protocol in workflow.md)
 
 ## Phase 4: Final Polish & Verification
 - [ ] Task: Refine the visual styling and interactions.

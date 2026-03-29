@@ -9,11 +9,12 @@ from rich.panel import Panel
 from rich.pretty import Pretty
 from textual.app import App, ComposeResult
 from textual.binding import Binding, BindingType
-from textual.containers import Horizontal, VerticalScroll
+from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.widgets import Footer, Header, Input, Static, Tree
 from typing_extensions import override
 
 from sus_inspector.hooks.registry import VIEW_HOOKS, ensure_default_hooks
+from sus_inspector.tui.widgets import ClassInfoPane
 
 if TYPE_CHECKING:
     from textual._path import CSSPathType
@@ -31,6 +32,7 @@ class ObjectExplorerApp(App[None]):
         Binding("q", "quit", "Quit"),
         Binding("escape", "quit", "Quit"),
         Binding("/", "search", "Search Tree"),
+        Binding("c", "toggle_class_view", "Toggle Class Info"),
     ]
 
     def __init__(
@@ -72,10 +74,15 @@ class ObjectExplorerApp(App[None]):
             tree.border_title = "Object Tree"
             yield tree
 
-            with VerticalScroll(id="detail-pane") as vs:
-                vs.border_title = "Inspection View"
-                vs.border_subtitle = "Select an item..."
-                yield Static("Select a node to inspect...", id="detail-view")
+            with Vertical(id="detail-container"):
+                with VerticalScroll(id="detail-pane") as vs:
+                    vs.border_title = "Inspection View"
+                    vs.border_subtitle = "Select an item..."
+                    yield Static("Select a node to inspect...", id="detail-view")
+
+                class_pane = ClassInfoPane(id="class-pane")
+                class_pane.border_title = "Class Information"
+                yield class_pane
 
         yield Static(f"Path: {self.root_name}", id="path-bar")
         msg = "Search keys (Press Enter to find next)..."
@@ -95,6 +102,15 @@ class ObjectExplorerApp(App[None]):
         search_bar = self.query_one("#search-bar", Input)
         search_bar.display = True
         _ = search_bar.focus()
+
+    def action_toggle_class_view(self) -> None:
+        """Toggle the class info pane."""
+        pane = self.query_one(ClassInfoPane)
+        pane.display = not pane.display
+        if pane.display:
+            tree = self.query_one(Tree[object])
+            if tree.cursor_node:
+                pane.update_object(tree.cursor_node.data)
 
     def on_input_submitted(self, event: Input.Submitted) -> None:
         """Handle search queries.
@@ -229,10 +245,15 @@ class ObjectExplorerApp(App[None]):
         detail_view = self.query_one("#detail-view", Static)
         detail_pane = self.query_one("#detail-pane")
         path_bar = self.query_one("#path-bar", Static)
+        class_pane = self.query_one(ClassInfoPane)
         obj = event.node.data
 
         # --- Update the Tree Path Bar ---
         self._update_path_bar(path_bar, event.node)
+
+        # --- Update the Class Info Pane (if visible) ---
+        if class_pane.display:
+            class_pane.update_object(obj)
 
         # --- Handle the Data View ---
         if obj is None:

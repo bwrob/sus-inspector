@@ -10,19 +10,19 @@
     - [x] Configure the `material` theme (primary color, accent color, logo, and favicon).
     - [x] Enable the `mkdocstrings` plugin with `python` handler.
     - [x] Define the navigation structure for the documentation.
-- [ ] Task: Conductor - User Manual Verification 'Setup & Configuration' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Setup & Configuration' (Protocol in workflow.md)
 
 ## Phase 2: Core Documentation Content
-- [ ] Task: Create Home and Getting Started pages.
-    - [ ] Create a feature branch `feat/mkdocs-content-core`.
-    - [ ] Draft a comprehensive `index.md` (Home) with a project overview.
-    - [ ] Write a detailed `getting-started.md` guide covering installation and basic usage.
-    - [ ] Verify the local build with `mkdocs serve`.
-- [ ] Task: Configure Automated API Reference.
-    - [ ] Create a feature branch `feat/mkdocs-api-reference`.
-    - [ ] Add `reference.md` and use `mkdocstrings` to extract documentation for `sus_inspector.core` and `sus_inspector.cli`.
-    - [ ] Ensure docstrings are formatted correctly for `mkdocstrings` (Google or NumPy style).
-    - [ ] Verify the rendered API reference in the local build.
+- [x] Task: Create Home and Getting Started pages.
+    - [x] Create a feature branch `feat/mkdocs-content-core`.
+    - [x] Draft a comprehensive `index.md` (Home) with a project overview.
+    - [x] Write a detailed `getting-started.md` guide covering installation and basic usage.
+    - [x] Verify the local build with `mkdocs serve`.
+- [x] Task: Configure Automated API Reference.
+    - [x] Create a feature branch `feat/mkdocs-api-reference`.
+    - [x] Add `reference.md` and use `mkdocstrings` to extract documentation for `sus_inspector.core` and `sus_inspector.cli`.
+    - [x] Ensure docstrings are formatted correctly for `mkdocstrings` (Google or NumPy style).
+    - [x] Verify the rendered API reference in the local build.
 - [ ] Task: Conductor - User Manual Verification 'Core Documentation Content' (Protocol in workflow.md)
 
 ## Phase 3: Deployment & CI Integration

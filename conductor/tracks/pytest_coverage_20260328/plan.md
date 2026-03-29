@@ -44,3 +44,6 @@
     - [x] Run full linting and type-checking suite.
     - [x] Confirm all tests pass consistently across environments.
 - [x] Task: Conductor - User Manual Verification 'Final Polish & Verification' (Protocol in workflow.md)
+
+## Phase: Review Fixes
+- [x] Task: Apply review suggestions e5384ee

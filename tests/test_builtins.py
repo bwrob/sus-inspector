@@ -54,3 +54,28 @@ def test_default_collection_hooks():
     result = inspector(val_set)
     assert isinstance(result, Table)
     assert "Set" in str(result.title)
+
+
+def test_default_callable_hooks():
+    """Test that callables are handled by CallableInspector."""
+    INSTANCE_REGISTRY._inspectors = []
+    ensure_default_hooks()
+
+    def my_func(a: int, b: str = "default"):
+        """My docstring."""
+        return a
+
+    inspector = INSTANCE_REGISTRY.get_inspector(my_func)
+    assert inspector is not None
+    result = inspector(my_func)
+    assert isinstance(result, Table)
+    assert "Callable:" in str(result.title)
+
+    # Verify content (Signature, Docstring)
+    all_cells = []
+    for col in result.columns:
+        all_cells.extend([str(cell) for cell in col._cells])
+
+    assert "my_func" in all_cells
+    assert "My docstring." in all_cells
+    assert "(a: int, b: str = 'default')" in all_cells

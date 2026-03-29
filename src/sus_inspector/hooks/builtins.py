@@ -25,6 +25,49 @@ class PrimitiveInspector:
         return Panel(Pretty(obj), title=f"Primitive: {type(obj).__name__}")
 
 
+class CallableInspector:
+    """Inspector for functions, methods, and other callables."""
+
+    def __call__(self, obj: Any) -> Table:
+        """Render a callable preview.
+
+        Args:
+            obj: The callable object to render.
+
+        Returns:
+            Table: Rich table representation.
+
+        """
+        import inspect  # noqa: PLC0415
+
+        table = Table(
+            title=f"Callable: {type(obj).__name__}",
+            title_justify="left",
+            show_edge=False,
+        )
+        table.add_column("Property", style="cyan")
+        table.add_column("Value", style="green")
+
+        # Basic Info
+        table.add_row("Name", getattr(obj, "__name__", "unknown"))
+        doc = inspect.getdoc(obj)
+        if doc:
+            table.add_row("Docstring", doc)
+
+        # Signature
+        try:
+            sig = inspect.signature(obj)
+            table.add_row("Signature", str(sig))
+        except (ValueError, TypeError):
+            table.add_row("Signature", "(not available)")
+
+        # Closure / Cells
+        if hasattr(obj, "__closure__") and obj.__closure__:
+            table.add_row("Closure Cells", str(len(obj.__closure__)))
+
+        return table
+
+
 class ObjectInspector:
     """Inspector for general Python objects and instances."""
 

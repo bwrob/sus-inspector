@@ -92,6 +92,7 @@ def ensure_default_hooks() -> None:
 
     # Register built-in hooks lazily
     from sus_inspector.hooks.builtins import (  # noqa: PLC0415
+        CallableInspector,
         CollectionInspector,
         ObjectInspector,
         PrimitiveInspector,
@@ -106,6 +107,9 @@ def ensure_default_hooks() -> None:
     collection_inspector = CollectionInspector()
     for t in (list, tuple, dict, set):
         register_hook(t, collection_inspector)
+
+    # Callables
+    register_hook(callable, CallableInspector())
 
     # General Object fallback (registered last, so it's lower priority than above)
     register_hook(object, ObjectInspector(), append=True)

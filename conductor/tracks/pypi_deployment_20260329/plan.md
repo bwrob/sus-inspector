@@ -1,24 +1,24 @@
 # Implementation Plan: PyPI Deployment (pypi_deployment_20260329)
 
 ## Phase 1: Preparation & Configuration
-- [ ] Task: **Verify `pyproject.toml` metadata**.
-    - [ ] Ensure all required fields for PyPI are present (name, version, authors, description, readme, requires-python).
-    - [ ] Check classifiers and keywords (optional but recommended).
-- [ ] Task: **Build verification**.
-    - [ ] Manually test build using `uv build` to ensure artifacts are correct.
-    - [ ] Verify that `dist/` contains valid `.tar.gz` and `.whl` files.
-- [ ] Task: **PyPI/TestPyPI Trusted Publishing Setup**.
-    - [ ] Document the required steps to enable OIDC for the `sus-inspector` repository on PyPI and TestPyPI.
+- [x] Task: **Verify `pyproject.toml` metadata**.
+    - [x] Ensure all required fields for PyPI are present (name, version, authors, description, readme, requires-python).
+    - [x] Check classifiers and keywords (optional but recommended).
+- [x] Task: **Build verification**.
+    - [x] Manually test build using `uv build` to ensure artifacts are correct.
+    - [x] Verify that `dist/` contains valid `.tar.gz` and `.whl` files.
+- [x] Task: **PyPI/TestPyPI Trusted Publishing Setup**.
+    - [x] Document the required steps to enable OIDC for the `sus-inspector` repository on PyPI and TestPyPI.
 
 ## Phase 2: GitHub Actions Implementation
-- [ ] Task: **Create `.github/workflows/publish.yml`**.
-    - [ ] Define jobs for building artifacts using `uv`.
-    - [ ] Implement job for publishing to **TestPyPI** on push to `main` or manual `workflow_dispatch`.
-    - [ ] Implement job for publishing to **PyPI** on new GitHub releases or version tags (`v*`).
-- [ ] Task: **Configure OIDC permissions**.
-    - [ ] Ensure the workflow has `permissions: id-token: write` and `contents: read`.
-- [ ] Task: **Verify workflow syntax**.
-    - [ ] Use `action-validator` or equivalent to ensure the YAML is correct.
+- [x] Task: **Create `.github/workflows/publish.yml`**.
+    - [x] Define jobs for building artifacts using `uv`.
+    - [x] Implement job for publishing to **TestPyPI** on push to `main` or manual `workflow_dispatch`.
+    - [x] Implement job for publishing to **PyPI** on new GitHub releases or version tags (`v*`).
+- [x] Task: **Configure OIDC permissions**.
+    - [x] Ensure the workflow has `permissions: id-token: write` and `contents: read`.
+- [x] Task: **Verify workflow syntax**.
+    - [x] Use `action-validator` or equivalent to ensure the YAML is correct.
 
 ## Phase 3: Final Verification & Checkpointing
 - [ ] Task: **Deployment to TestPyPI**.

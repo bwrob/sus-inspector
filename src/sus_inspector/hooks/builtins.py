@@ -65,8 +65,19 @@ class CallableInspector:
         # Signature
         try:
             sig = inspect.signature(obj)
-            sig_text = Text(str(sig), style="green")
-            sections.append(Panel(sig_text, title="Signature", border_style="green"))
+            params = []
+            for param in sig.parameters.values():
+                params.append(f"    {param},")
+            sig_str = f"(\n{'\n'.join(params)}\n) -> {sig.return_annotation}"
+            sections.append(
+                Panel(
+                    Syntax(
+                        sig_str, "python", theme="monokai", background_color="default"
+                    ),
+                    title="Signature",
+                    border_style="green",
+                )
+            )
         except (ValueError, TypeError):
             sections.append(
                 Panel(Text("(not available)"), title="Signature", border_style="red")

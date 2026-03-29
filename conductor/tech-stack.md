@@ -22,6 +22,11 @@
 ### Task Management
 - **Poethepoet:** A task runner for Python projects, used to automate common development workflows.
 
+### Documentation
+- **MkDocs:** A fast and simple static site generator that's geared towards building project documentation.
+- **MkDocs-Material:** A powerful, feature-rich Material Design theme for MkDocs.
+- **mkdocstrings:** Automatic documentation from docstrings.
+
 ### Testing & Verification
 - **Pytest:** The standard testing framework for Python projects.
 - **pytest-asyncio:** Plugin for testing async functions and Textual apps.

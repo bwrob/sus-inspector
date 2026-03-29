@@ -16,6 +16,7 @@ The interactive, terminal-based object inspector for suspicious Python objects. 
 - **API Consumers:** Exploring deeply nested JSON structures or class-based responses from external services.
 
 ## Core Features (Next Steps)
+- **Comprehensive Documentation Site:** A central resource for users and developers, including automated API reference and getting started guides.
 - **Visual Toggle ('d'):** Quickly show or hide private `__dunder__` methods for cleaner inspection.
 - **Expression Evaluation:** Allow users to evaluate simple Python expressions directly within the search bar or TUI.
 - **Interactive Class Views:** Dedicated views for inspecting class-level metadata, methods, and inheritance trees (Toggle with 'c').

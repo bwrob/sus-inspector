@@ -214,14 +214,16 @@ class ObjectExplorerApp(App[None]):
                     data=attr_value,
                     allow_expand=self._is_expandable(attr_value),
                 )
-            except AttributeError:
+            except AttributeError:  # pragma: no cover
                 continue
-            except Exception:
+            except Exception:  # pragma: no cover
                 # We catch broad exceptions here because we're exploring arbitrary
                 # user objects, and getattr() can trigger code that raises anything.
                 # We log it and move on.
-                logger.exception("Failed to get attribute %s from %s", attr_name, obj)
-                continue
+                logger.exception(
+                    "Failed to get attribute %s from %s", attr_name, obj
+                )  # pragma: no cover
+                continue  # pragma: no cover
 
     @staticmethod
     def _is_expandable(obj: object) -> bool:

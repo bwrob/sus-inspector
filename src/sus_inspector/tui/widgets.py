@@ -4,16 +4,16 @@ from __future__ import annotations
 
 from typing import Any
 
-from rich.console import Group, RenderableType
 from rich.panel import Panel
 from rich.text import Text
+from textual.containers import VerticalScroll
 from textual.widgets import Static
 
 from sus_inspector.hooks.registry import CLASS_HOOKS, get_renderer
 from sus_inspector.metadata import ClassMetadata, get_class_metadata
 
 
-class ClassInfoPane(Static):
+class ClassInfoPane(VerticalScroll):
     """A pane to display class-level metadata."""
 
     def __init__(self, **kwargs: Any) -> None:
@@ -28,40 +28,40 @@ class ClassInfoPane(Static):
             obj: The object whose class metadata to display.
 
         """
+        # Clear existing content
+        self.query("*").remove()
+
         if obj is None:
-            self.update("No class metadata for None.")
+            self.mount(Static("No class metadata for None."))
             return
 
         # Check for custom class renderer
         renderer = get_renderer(obj, CLASS_HOOKS)
         if renderer:
-            self.update(renderer(obj))
+            self.mount(Static(renderer(obj)))
             return
 
         # Fallback to default class metadata extraction
         metadata = get_class_metadata(obj)
-        self.update(self._render_default(metadata))
+        self._mount_default(metadata)
 
-    def _render_default(self, metadata: ClassMetadata) -> RenderableType:
-        """Default rendering for class metadata.
+    def _mount_default(self, metadata: ClassMetadata) -> None:
+        """Mount default metadata sections.
 
         Args:
             metadata: The extracted class metadata.
 
-        Returns:
-            RenderableType: Rich renderable for the metadata.
-
         """
-        sections: list[RenderableType] = []
-
         # Docstring
         if metadata.doc:
-            sections.append(
-                Panel(Text(metadata.doc, style="italic"), title="Docstring")
+            self.mount(
+                Static(Panel(Text(metadata.doc, style="italic"), title="Docstring"))
             )
 
         # MRO and Inheritance Tree
-        sections.append(Panel(metadata.inheritance_tree, title="Inheritance Hierarchy"))
+        self.mount(
+            Static(Panel(metadata.inheritance_tree, title="Inheritance Hierarchy"))
+        )
 
         # Class Fields and Methods
         if metadata.class_fields:
@@ -70,10 +70,8 @@ class ClassInfoPane(Static):
                     f"{k}: {type(v).__name__}" for k, v in metadata.class_fields.items()
                 )
             )
-            sections.append(Panel(fields_text, title="Class Fields"))
+            self.mount(Static(Panel(fields_text, title="Class Fields")))
 
         if metadata.class_methods:
             methods_text = Text("\n".join(metadata.class_methods))
-            sections.append(Panel(methods_text, title="Class Methods"))
-
-        return Group(*sections)
+            self.mount(Static(Panel(methods_text, title="Class Methods")))

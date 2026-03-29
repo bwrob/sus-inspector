@@ -106,6 +106,35 @@ async def test_class_pane_scrollable():
 
 
 @pytest.mark.asyncio
+async def test_tree_navigation_arrows():
+    """Test that left and right arrows collapse and expand tree nodes."""
+    from textual.widgets import Tree
+
+    obj = {"item": [1, 2, 3]}
+    app = ObjectExplorerApp(obj)
+    async with app.run_test() as pilot:
+        tree = app.query_one(Tree)
+
+        # Initially root is expanded.
+        # Press down to select "item"
+        await pilot.press("down")
+        item_node = tree.cursor_node
+        assert item_node is not None
+        assert str(item_node.label) == "item"
+
+        # Initially "item" is not expanded
+        assert item_node.is_expanded is False
+
+        # Press right to expand "item"
+        await pilot.press("right")
+        assert item_node.is_expanded is True
+
+        # Press left to collapse "item"
+        await pilot.press("left")
+        assert item_node.is_expanded is False
+
+
+@pytest.mark.asyncio
 async def test_class_pane_with_fields_and_methods():
     """Test that the class info pane displays class fields and methods."""
 

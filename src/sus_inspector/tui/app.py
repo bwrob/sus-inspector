@@ -33,6 +33,8 @@ class ObjectExplorerApp(App[None]):
         Binding("escape", "quit", "Quit"),
         Binding("/", "search", "Search Tree"),
         Binding("c", "toggle_class_view", "Toggle Class Info"),
+        Binding("left", "tree_collapse", "Collapse Node", show=False),
+        Binding("right", "tree_expand", "Expand Node", show=False),
     ]
 
     def __init__(
@@ -111,6 +113,18 @@ class ObjectExplorerApp(App[None]):
             tree = self.query_one(Tree[object])
             if tree.cursor_node:
                 pane.update_object(tree.cursor_node.data)
+
+    def action_tree_collapse(self) -> None:
+        """Collapse the currently selected tree node."""
+        tree = self.query_one(Tree[object])
+        if tree.cursor_node:
+            tree.cursor_node.collapse()
+
+    def action_tree_expand(self) -> None:
+        """Expand the currently selected tree node."""
+        tree = self.query_one(Tree[object])
+        if tree.cursor_node:
+            tree.cursor_node.expand()
 
     def on_input_submitted(self, event: Input.Submitted) -> None:
         """Handle search queries.

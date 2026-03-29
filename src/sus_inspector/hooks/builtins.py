@@ -128,12 +128,6 @@ class ObjectInspector:
         """
         table = self._init_table(obj)
 
-        # Basic Info
-        doc = inspect.getdoc(obj)
-        if doc:
-            first_line = doc.split("\n")[0]
-            table.add_row("__doc__", "str", first_line)
-
         # Attributes and Methods (Public only)
         for name in dir(obj):
             if name.startswith("_"):

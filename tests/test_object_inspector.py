@@ -47,7 +47,7 @@ def test_object_inspector() -> None:
     for col in result.columns:
         all_cells.extend([str(cell) for cell in col._cells])  # noqa: SLF001
 
-    assert "__doc__" in all_cells
     assert "attr1" in all_cells
     assert "method1" in all_cells
+    assert "__doc__" not in all_cells
     assert "_private" not in all_cells

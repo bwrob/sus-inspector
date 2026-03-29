@@ -10,6 +10,9 @@
 
 ### Build & Package Management
 - **uv_build:** A fast and efficient build-backend for Python packages.
+- **GitHub Actions:** CI/CD platform used for automated testing and deployment.
+- **PyPI / TestPyPI:** The primary package repositories for distributing `sus-inspector`.
+- **OIDC (Trusted Publishing):** Secure, secret-less authentication for publishing to PyPI.
 
 ## Developer Tools
 ### Linting & Formatting

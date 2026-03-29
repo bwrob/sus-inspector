@@ -1,7 +1,19 @@
 [project]
     authors         = [{ name = "bwrob", email = "bartosz.marcin.wroblewski@gmail.com" }]
+    classifiers     = [
+        "Development Status :: 3 - Alpha",
+        "Intended Audience :: Developers",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+        "Topic :: Software Development :: Debuggers",
+        "Operating System :: OS Independent",
+    ]
     dependencies    = ["rich>=14.3.3", "textual>=8.2.0"]
     description     = "The interactive, terminal-based object inspector for suspicious Python objects."
+    keywords        = ["inspection", "tui", "textual", "rich", "debugging", "introspection"]
+    license         = "MIT"
     name            = "sus-inspector"
     readme          = "README.md"
     requires-python = ">=3.10"
@@ -9,6 +21,11 @@
 
     [project.scripts]
         sus = "sus_inspector:main"
+
+    [project.urls]
+        Homepage   = "https://github.com/bwrob/sus-inspector"
+        Issues     = "https://github.com/bwrob/sus-inspector/issues"
+        Repository = "https://github.com/bwrob/sus-inspector.git"
 
 [build-system]
     build-backend = "uv_build"

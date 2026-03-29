@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import inspect
+from inspect import cleandoc
 from typing import Any, cast
 
 from rich.columns import Columns
 from rich.console import Group
+from rich.highlighter import ReprHighlighter
 from rich.panel import Panel
 from rich.pretty import Pretty
 from rich.syntax import Syntax
@@ -37,6 +39,10 @@ class PrimitiveInspector:
 class CallableInspector:
     """Inspector for functions, methods, and other callables."""
 
+    def __init__(self) -> None:
+        """Initialize the inspector."""
+        self.highlighter = ReprHighlighter()
+
     def __call__(self, obj: Any) -> Group:  # noqa: ANN401
         """Render a callable preview with section-based layout.
 
@@ -49,52 +55,75 @@ class CallableInspector:
         """
         sections = []
 
-        # Header Info
-        name = getattr(obj, "__name__", "unknown")
-        type_name = type(obj).__name__
-        sections.append(
-            Panel(
-                Text.assemble(
-                    (f"{type_name}: ", "bold cyan"),
-                    (name, "bold yellow"),
-                ),
-                subtitle="Header Info",
-            )
-        )
+        # Header Info (Name, Type, File)
+        sections.append(self._render_header(obj))
 
         # Signature
+        sections.append(self._render_signature(obj))
+
+        # Docstring
+        doc_panel = self._render_docstring(obj)
+        if doc_panel:
+            sections.append(doc_panel)
+
+        # Metadata (Closure, Module, etc.)
+        meta_panel = self._render_metadata(obj)
+        if meta_panel:
+            sections.append(meta_panel)
+
+        return Group(*sections)
+
+    def _render_header(self, obj: Any) -> Panel:  # noqa: ANN401
+        """Render header information."""
+        name = getattr(obj, "__name__", "unknown")
+        type_name = type(obj).__name__
+
+        header_text = Text.assemble(
+            (f"{type_name}: ", "bold cyan"),
+            (name, "bold yellow"),
+        )
+
+        try:
+            file_path = inspect.getfile(obj)
+            header_text.append("\n")
+            header_text.append(f"File: {file_path}", style="dim italic")
+        except (TypeError, OSError):
+            pass
+
+        return Panel(header_text, subtitle="Header Info")
+
+    def _render_signature(self, obj: Any) -> Panel:  # noqa: ANN401
+        """Render callable signature."""
         try:
             sig = inspect.signature(obj)
             params = []
             for param in sig.parameters.values():
                 params.append(f"    {param},")
             sig_str = f"(\n{'\n'.join(params)}\n) -> {sig.return_annotation}"
-            sections.append(
-                Panel(
-                    Syntax(
-                        sig_str, "python", theme="monokai", background_color="default"
-                    ),
-                    title="Signature",
-                    border_style="green",
-                )
+            return Panel(
+                Syntax(sig_str, "python", theme="monokai", background_color="default"),
+                title="Signature",
+                border_style="green",
             )
         except (ValueError, TypeError):
-            sections.append(
-                Panel(Text("(not available)"), title="Signature", border_style="red")
-            )
+            return Panel(Text("(not available)"), title="Signature", border_style="red")
 
-        # Docstring
+    @staticmethod
+    def _render_docstring(obj: Any) -> Panel | None:  # noqa: ANN401
+        """Render docstring if available."""
         doc = inspect.getdoc(obj)
         if doc:
-            sections.append(
-                Panel(
-                    Text(doc, style="italic"),
-                    title="Docstring",
-                    border_style="blue",
-                )
+            clean_doc = cleandoc(doc)
+            return Panel(
+                Text(clean_doc, style="italic"),
+                title="Docstring",
+                border_style="blue",
             )
+        return None
 
-        # Metadata (Closure, Module, etc.)
+    @staticmethod
+    def _render_metadata(obj: Any) -> Panel | None:  # noqa: ANN401
+        """Render metadata like module and closure."""
         metadata = []
         if hasattr(obj, "__module__"):
             metadata.append(Text(f"Module: {obj.__module__}"))
@@ -102,15 +131,12 @@ class CallableInspector:
             metadata.append(Text(f"Closure Cells: {len(obj.__closure__)}"))
 
         if metadata:
-            sections.append(
-                Panel(
-                    Columns(metadata, padding=(0, 2)),
-                    title="Metadata",
-                    border_style="magenta",
-                )
+            return Panel(
+                Columns(metadata, padding=(0, 2)),
+                title="Metadata",
+                border_style="magenta",
             )
-
-        return Group(*sections)
+        return None
 
 
 class ObjectInspector:

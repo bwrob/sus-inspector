@@ -33,8 +33,8 @@ class ObjectExplorerApp(App[None]):
         Binding("escape", "quit", "Quit"),
         Binding("/", "search", "Search Tree"),
         Binding("c", "toggle_class_view", "Toggle Class Info"),
-        Binding("left", "tree_collapse", "Collapse Node", show=False),
-        Binding("right", "tree_expand", "Expand Node", show=False),
+        Binding("left", "tree_collapse", "Collapse Node", show=False, priority=True),
+        Binding("right", "tree_expand", "Expand Node", show=False, priority=True),
     ]
 
     def __init__(

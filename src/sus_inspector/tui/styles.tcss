@@ -1,6 +1,7 @@
 #tree-pane {
     width: 30%;
     border: solid $primary;
+    overflow-x: hidden;
 }
 
 #detail-container {

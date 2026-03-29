@@ -31,8 +31,9 @@ For every item in `plan.md`, execute this exact cycle:
 ### Phase C: Polish & Verify
 1. **Format & Lint:** Run `ruff check --fix` and `ruff format`.
 2. **Type Check:** Run `basedpyright`.
-3. **Coverage:** Ensure the new code maintains or exceeds the **95% test coverage** requirement.
-4. **Refactor:** Clean up the code if necessary, re-running all tests afterward.
+3. **MANDATORY Code-Quality:** ALWAYS run `rtk poe code-quality` before marking ANY task as complete in `plan.md` if it involves code changes.
+4. **Coverage:** Ensure the new code maintains or exceeds the **95% test coverage** requirement.
+5. **Refactor:** Clean up the code if necessary, re-running all tests afterward.
 
 ### Phase D: Commit & Document
 1. **Update Plan:** Mark the task in `plan.md` as `[x]`.

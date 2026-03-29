@@ -10,9 +10,9 @@ import pytest
 
 from sus_inspector.cli import (
     INJECTION_MARKER,
-    _check_already_injected,  # pyright: ignore[reportPrivateUsage] # noqa: PLC2701
-    _ensure_dir,  # pyright: ignore[reportPrivateUsage] # noqa: PLC2701
-    _write_injection,  # pyright: ignore[reportPrivateUsage] # noqa: PLC2701
+    _check_already_injected,  # noqa: PLC2701
+    _ensure_dir,  # noqa: PLC2701
+    _write_injection,  # noqa: PLC2701
     get_injection_code,
     get_target_info,
     inject_permanently,

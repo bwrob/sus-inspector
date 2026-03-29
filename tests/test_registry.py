@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
-from typing import Any, cast
+from typing import Any
 from unittest.mock import patch
 
 from pydantic import BaseModel
 from rich.text import Text
 
+from sus_inspector.hooks.inspector import CLASS_REGISTRY, INSTANCE_REGISTRY
 from sus_inspector.hooks.registry import (
     CLASS_HOOKS,
     INSTANCE_HOOKS,
@@ -20,41 +21,30 @@ from sus_inspector.hooks.registry import (
 
 
 def test_double_registry_lookup() -> None:
-    """Test that instance and class registries can have different hooks."""
+    """Test that looking up in different registries works."""
+
+    def instance_view(obj: Any) -> Text:  # noqa: ANN401
+        return Text(f"Instance: {obj}")
+
+    def class_view(obj: Any) -> Text:  # noqa: ANN401
+        return Text(f"Class: {obj}")
 
     class MyType:
         pass
 
-    def instance_renderer(_obj: Any) -> Text:  # noqa: ANN401
-        return Text("Instance")
-
-    def class_renderer(_obj: Any) -> Text:  # noqa: ANN401
-        return Text("Class")
-
-    # Clear hooks for test
-    INSTANCE_HOOKS.clear()
-    CLASS_HOOKS.clear()
-
-    register_instance_hook(MyType, instance_renderer)
-    register_class_hook(MyType, class_renderer)
+    register_instance_hook(MyType, instance_view)
+    register_class_hook(MyType, class_view)
 
     obj = MyType()
 
-    # Test instance lookup
-    inst_render = get_renderer(obj, INSTANCE_HOOKS)
-    assert inst_render == instance_renderer
-    if inst_render:
-        res = inst_render(obj)
-        label = cast("Text", res)
-        assert label.plain == "Instance"
+    renderer = get_renderer(obj, INSTANCE_HOOKS)
+    assert renderer is not None
+    # Check startswith to avoid long line length issues
+    assert str(renderer(obj)).startswith("Instance: <tests.test_registry")
 
-    # Test class lookup
-    class_render = get_renderer(obj, CLASS_HOOKS)
-    assert class_render == class_renderer
-    if class_render:
-        res = class_render(obj)
-        label = cast("Text", res)
-        assert label.plain == "Class"
+    renderer = get_renderer(obj, CLASS_HOOKS)
+    assert renderer is not None
+    assert str(renderer(obj)).startswith("Class: <tests.test_registry")
 
 
 def test_fallback_logic() -> None:
@@ -63,8 +53,8 @@ def test_fallback_logic() -> None:
     class MyType:
         pass
 
-    INSTANCE_HOOKS.clear()
-    CLASS_HOOKS.clear()
+    INSTANCE_REGISTRY.inspectors.clear()
+    CLASS_REGISTRY.inspectors.clear()
 
     obj = MyType()
     assert get_renderer(obj, INSTANCE_HOOKS) is None
@@ -132,13 +122,15 @@ def test_ensure_default_hooks_no_pydantic() -> None:
 
     with patch("builtins.__import__", side_effect=mocked_import):
         ensure_default_hooks()
-        # Should have registered list, but not pydantic
-        # Assuming list_view is always registered first
-        assert len(INSTANCE_HOOKS) == 1
-        assert INSTANCE_HOOKS[0][0] is list
+        # Should NOT have registered pydantic
+        assert not any(h[0] is BaseModel for h in INSTANCE_HOOKS)
+        # But should have registered others
+        assert any(h[0] is list for h in INSTANCE_HOOKS)
+        assert len(INSTANCE_HOOKS) > 1
 
     # Restore and verify it registers both now
     INSTANCE_HOOKS.clear()
     ensure_default_hooks()
     # It should register list and BaseModel (since pydantic is available in env)
+    assert any(h[0] is list for h in INSTANCE_HOOKS)
     assert any(h[0] is BaseModel for h in INSTANCE_HOOKS)

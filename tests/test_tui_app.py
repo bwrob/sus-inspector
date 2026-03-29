@@ -75,10 +75,10 @@ def test_is_expandable() -> None:
     app = ObjectExplorerApp({})
 
     # Collections
-    assert app._is_expandable({"a": 1}) is True  # pyright: ignore[reportPrivateUsage] # noqa: SLF001
-    assert app._is_expandable({}) is False  # pyright: ignore[reportPrivateUsage] # noqa: SLF001
-    assert app._is_expandable([1]) is True  # pyright: ignore[reportPrivateUsage] # noqa: SLF001
-    assert app._is_expandable([]) is False  # pyright: ignore[reportPrivateUsage] # noqa: SLF001
+    assert app._is_expandable({"a": 1}) is True  # noqa: SLF001
+    assert app._is_expandable({}) is False  # noqa: SLF001
+    assert app._is_expandable([1]) is True  # noqa: SLF001
+    assert app._is_expandable([]) is False  # noqa: SLF001
 
     # Objects with __dict__ or __slots__
     @final
@@ -96,9 +96,9 @@ def test_is_expandable() -> None:
         def __init__(self) -> None:
             self.y = 2
 
-    assert app._is_expandable(DictObj()) is True  # pyright: ignore[reportPrivateUsage] # noqa: SLF001
-    assert app._is_expandable(SlotObj()) is True  # pyright: ignore[reportPrivateUsage] # noqa: SLF001
-    assert app._is_expandable(123) is False  # pyright: ignore[reportPrivateUsage] # noqa: SLF001
+    assert app._is_expandable(DictObj()) is True  # noqa: SLF001
+    assert app._is_expandable(SlotObj()) is True  # noqa: SLF001
+    assert app._is_expandable(123) is False  # noqa: SLF001
 
 
 @pytest.mark.asyncio
@@ -145,7 +145,7 @@ def test_add_object_attributes_generic_exception(
         patch("sus_inspector.tui.app.getattr", side_effect=side_effect),
         caplog.at_level(logging.ERROR),
     ):
-        app._add_object_attributes(mock_node, obj)  # pyright: ignore[reportPrivateUsage] # noqa: SLF001
+        app._add_object_attributes(mock_node, obj)  # noqa: SLF001
         assert any(
             "Failed to get attribute" in record.message for record in caplog.records
         )

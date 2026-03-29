@@ -9,7 +9,7 @@ The interactive, terminal-based object inspector for suspicious Python objects. 
 ### Primary Objectives
 - **Zero Friction:** Inspection should take exactly one line of code and zero setup.
 - **Keyboard First:** Navigation should be as fast as a terminal game, prioritizing speed and efficiency.
-- **Beautiful by Default:** Data should be richly formatted and easy to read using a consistent, high-contrast theme.
+- **Beautiful by Default:** Data should be richly formatted and easy to read using a consistent, high-contrast theme and modular inspectors.
 
 ## Target Audience
 - **Python Developers:** Debugging complex nested objects, class instances, and functional logic in real-time.
@@ -17,6 +17,8 @@ The interactive, terminal-based object inspector for suspicious Python objects. 
 
 ## Core Features (Next Steps)
 - **Comprehensive Documentation Site:** A central resource for users and developers, including automated API reference and getting started guides.
+- **Inspector Registry:** A modular system for custom object-specific rendering logic, allowing for highly tailored inspection views.
+- **Side-by-side TUI layout:** Optimized dual-pane display for simultaneous instance and class metadata inspection.
 - **Visual Toggle ('d'):** Quickly show or hide private `__dunder__` methods for cleaner inspection.
 - **Expression Evaluation:** Allow users to evaluate simple Python expressions directly within the search bar or TUI.
 - **Interactive Class Views:** Dedicated views for inspecting class-level metadata, methods, and inheritance trees (Toggle with 'c').

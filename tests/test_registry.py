@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, cast
+from typing import Any
 from unittest.mock import patch
 
 from pydantic import BaseModel
@@ -122,13 +122,15 @@ def test_ensure_default_hooks_no_pydantic() -> None:
 
     with patch("builtins.__import__", side_effect=mocked_import):
         ensure_default_hooks()
-        # Should have registered list, but not pydantic
-        # Assuming list_view is always registered first
-        assert len(INSTANCE_HOOKS) == 1
-        assert INSTANCE_HOOKS[0][0] is list
+        # Should NOT have registered pydantic
+        assert not any(h[0] is BaseModel for h in INSTANCE_HOOKS)
+        # But should have registered others
+        assert any(h[0] is list for h in INSTANCE_HOOKS)
+        assert len(INSTANCE_HOOKS) > 1
 
     # Restore and verify it registers both now
     INSTANCE_HOOKS.clear()
     ensure_default_hooks()
     # It should register list and BaseModel (since pydantic is available in env)
+    assert any(h[0] is list for h in INSTANCE_HOOKS)
     assert any(h[0] is BaseModel for h in INSTANCE_HOOKS)

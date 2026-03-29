@@ -396,6 +396,9 @@ def list_view(obj: list[Any] | tuple[Any, ...] | set[Any]) -> Table:
         Table: Rich table representation.
 
     """
+    if not isinstance(obj, (list, tuple, set)):
+        return Table(title="Not a list")
+
     obj_list = list(obj)
     type_name = type(obj).__name__.capitalize()
     title = f"{type_name} (length: {len(obj_list)})"

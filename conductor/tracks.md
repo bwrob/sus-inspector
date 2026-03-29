@@ -19,7 +19,7 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: implement pytest tests, unit and regressions that have 100% coverage**
+- [~] **Track: implement pytest tests, unit and regressions that have 100% coverage**
   *Link: [./tracks/pytest_coverage_20260328/](./tracks/pytest_coverage_20260328/)*
 
 ---

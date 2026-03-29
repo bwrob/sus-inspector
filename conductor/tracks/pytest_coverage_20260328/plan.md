@@ -1,25 +1,25 @@
 # Implementation Plan: Comprehensive Testing & 100% Coverage
 
 ## Phase 1: Test Environment & Tooling Setup
-- [ ] Task: Configure `pytest` and coverage tools.
-    - [ ] Create a feature branch `feat/testing-infrastructure`.
-    - [ ] Add `pytest-cov` and `hypothesis` to the project's developer dependencies using `uv`.
-    - [ ] Update `pyproject.toml` or `pytest.ini` with coverage settings (e.g., `--cov=src/sus_inspector`, `--cov-fail-under=100`).
-    - [ ] Create a basic `conftest.py` if needed for shared fixtures or settings.
-- [ ] Task: Conductor - User Manual Verification 'Test Environment & Tooling Setup' (Protocol in workflow.md)
+- [x] Task: Configure `pytest` and coverage tools.
+    - [x] Create a feature branch `feat/testing-infrastructure`.
+    - [x] Add `pytest-cov` and `hypothesis` to the project's developer dependencies using `uv`.
+    - [x] Update `pyproject.toml` or `pytest.ini` with coverage settings (e.g., `--cov=src/sus_inspector`, `--cov-fail-under=100`).
+    - [x] Create a basic `conftest.py` if needed for shared fixtures or settings.
+- [x] Task: Conductor - User Manual Verification 'Test Environment & Tooling Setup' (Protocol in workflow.md)
 
 ## Phase 2: Core Logic & Unit Testing
-- [ ] Task: Implement unit tests for `sus_inspector.core` and utilities.
-    - [ ] Create a feature branch `feat/unit-tests-core`.
-    - [ ] Write unit tests for object metadata extraction and property-based tests with `hypothesis`.
-    - [ ] Verify coverage for `core.py` and `instances.py`.
-    - [ ] Reach 100% for these core modules.
-- [ ] Task: Implement unit tests for hooks and registry system.
-    - [ ] Create a feature branch `feat/unit-tests-hooks`.
-    - [ ] Write tests for the hook registry and built-in handlers (Pydantic, etc.).
-    - [ ] Mock external dependencies if necessary.
-    - [ ] Reach 100% for all files in `sus_inspector/hooks/`.
-- [ ] Task: Conductor - User Manual Verification 'Core Logic & Unit Testing' (Protocol in workflow.md)
+- [x] Task: Implement unit tests for `sus_inspector.core` and utilities.
+    - [x] Create a feature branch `feat/unit-tests-core`.
+    - [x] Write unit tests for object metadata extraction and property-based tests with `hypothesis`.
+    - [x] Verify coverage for `core.py` and `instances.py`.
+    - [x] Reach 100% for these core modules.
+- [x] Task: Implement unit tests for hooks and registry system.
+    - [x] Create a feature branch `feat/unit-tests-hooks`.
+    - [x] Write tests for the hook registry and built-in handlers (Pydantic, etc.).
+    - [x] Mock external dependencies if necessary.
+    - [x] Reach 100% for all files in `sus_inspector/hooks/`.
+- [x] Task: Conductor - User Manual Verification 'Core Logic & Unit Testing' (Protocol in workflow.md)
 
 ## Phase 3: TUI & Integration Testing
 - [ ] Task: Implement TUI tests using Textual's Pilot.

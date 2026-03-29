@@ -6,6 +6,7 @@ from typing import Any, cast
 
 from rich.text import Text
 
+from sus_inspector.hooks.inspector import CLASS_REGISTRY, INSTANCE_REGISTRY
 from sus_inspector.hooks.registry import (
     CLASS_HOOKS,
     INSTANCE_HOOKS,
@@ -59,8 +60,8 @@ def test_fallback_logic() -> None:
     class MyType:
         pass
 
-    INSTANCE_HOOKS.clear()
-    CLASS_HOOKS.clear()
+    INSTANCE_REGISTRY._inspectors = []
+    CLASS_REGISTRY._inspectors = []
 
     obj = MyType()
     assert get_renderer(obj, INSTANCE_HOOKS) is None

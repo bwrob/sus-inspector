@@ -9,7 +9,7 @@ from rich.panel import Panel
 from rich.pretty import Pretty
 from textual.app import App, ComposeResult
 from textual.binding import Binding, BindingType
-from textual.containers import Horizontal, Vertical, VerticalScroll
+from textual.containers import Horizontal, VerticalScroll
 from textual.widgets import Footer, Header, Input, Static, Tree
 from typing_extensions import override
 
@@ -76,7 +76,7 @@ class ObjectExplorerApp(App[None]):
             tree.border_title = "Object Tree"
             yield tree
 
-            with Vertical(id="detail-container"):
+            with Horizontal(id="detail-container"):
                 with VerticalScroll(id="detail-pane") as vs:
                     vs.border_title = "Inspection View"
                     vs.border_subtitle = "Select an item..."

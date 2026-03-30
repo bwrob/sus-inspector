@@ -71,3 +71,10 @@ def ensure_handlers() -> None:
         HANDLER_REGISTRY.register(PydanticHandler())
     except ImportError:
         pass
+
+    try:
+        from sus_inspector.hooks.attrs import AttrsHandler  # noqa: PLC0415
+
+        HANDLER_REGISTRY.register(AttrsHandler())
+    except ImportError:
+        pass

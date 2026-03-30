@@ -17,9 +17,9 @@
 - [x] Task: Implement the `Pydantic` Handler.
     - [x] Detect and handle `pydantic` (v1 and v2) `BaseModel` instances.
     - [x] Handle internal Pydantic metadata and configurations.
-- [ ] Task: Implement the `attrs` Handler.
-    - [ ] Add support for `attrs` (and its alias `attr`) classes.
-    - [ ] Correct extraction of fields and validation of attributes.
+- [x] Task: Implement the `attrs` Handler.
+    - [x] Add support for `attrs` (and its alias `attr`) classes.
+    - [x] Correct extraction of fields and validation of attributes.
 - [ ] Task: Implement the `msgspec` Handler.
     - [ ] Add support for `msgspec` structs.
     - [ ] Ensure it handles highly optimized data structures without overhead.

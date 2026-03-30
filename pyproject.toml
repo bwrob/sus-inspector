@@ -33,6 +33,7 @@
 
 [dependency-groups]
     dev = [
+        "attrs>=26.1.0",
         "basedpyright>=1.38.4",
         "hypothesis>=6.151.10",
         "mkdocs>=1.6.1",
@@ -46,4 +47,4 @@
         "pytest-cov>=7.1.0",
         "ruff>=0.15.8",
         "ty>=0.0.26",
-    ]
+]

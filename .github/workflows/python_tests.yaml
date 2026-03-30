@@ -46,7 +46,7 @@ jobs:
         run: uv run poe format
 
       - name: 🐍 Run basedpyright type checker
-        if: always()
+        if: always() && matrix.python-version != '3.10'
         run: uv run poe type-check
 
       - name: 🐍 Run pytest

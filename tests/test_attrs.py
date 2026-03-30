@@ -72,5 +72,5 @@ def test_attrs_handler_render() -> None:
 
     # Complex object
     large = LargeAttr()
-    renderable_complex = cast(Any, handler.render(large, expanded=False))
+    renderable_complex = cast("Any", handler.render(large, expanded=False))
     assert f"({F_COUNT_12} fields) ..." in str(renderable_complex.renderables[1])

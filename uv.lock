@@ -1182,6 +1182,7 @@ source = { editable = "." }
 dependencies = [
     { name = "rich" },
     { name = "textual" },
+    { name = "typing-extensions" },
     { name = "tzdata", marker = "sys_platform == 'win32'" },
 ]
 
@@ -1206,6 +1207,7 @@ dev = [
 requires-dist = [
     { name = "rich", specifier = ">=13.0.0" },
     { name = "textual", specifier = ">=8.0.0" },
+    { name = "typing-extensions", specifier = ">=4.0.0" },
     { name = "tzdata", marker = "sys_platform == 'win32'" },
 ]
 

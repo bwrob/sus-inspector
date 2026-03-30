@@ -1,9 +1,10 @@
 # Implementation Plan: Unified Custom Object Viewers (track/custom-viewers-20260329)
 
 ## Phase 1: Foundation & Generic Handler Interface
-- [ ] Task: Design the `BaseObjectHandler` interface and unified registry for specialized viewers.
-    - [ ] Define the base class for all library handlers.
-    - [ ] Implement a dynamic registry to detect and load handlers for available libraries.
+- [x] Task: Design the BaseObjectHandler interface and unified registry for specialized viewers.
+    - [x] Define the base class for all library handlers.
+    - [x] Implement a dynamic registry to detect and load handlers for available libraries.
+
 - [ ] Task: Implement the Complexity Heuristic.
     - [ ] Create a utility to assess object complexity based on depth, field count, and size.
     - [ ] Define a standard `is_complex()` check for all handlers.

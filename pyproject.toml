@@ -20,7 +20,7 @@
     version = "0.2.0"
 
     [project.scripts]
-        sus = "sus_inspector:main"
+        sus = "sus_inspector.main:main"
 
     [project.urls]
         Homepage   = "https://github.com/bwrob/sus-inspector"

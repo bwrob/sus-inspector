@@ -23,15 +23,15 @@
 - [x] Task: Implement the `msgspec` Handler.
     - [x] Add support for `msgspec` structs.
     - [x] Ensure it handles highly optimized data structures without overhead.
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Library-Specific Specialized Handlers' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Library-Specific Specialized Handlers' (Protocol in workflow.md)
 
 ## Phase 3: Interactive Tree Navigation & Dynamic Content
-- [ ] Task: Update the TUI for Nested Object Expansion.
-    - [ ] Refactor the Textual view to use a tree-like structure for nested objects.
-    - [ ] Implement keyboard/mouse triggers for expanding and collapsing nodes.
-- [ ] Task: Integrate Dynamic Content Logic.
-    - [ ] Use the complexity assessment to decide if an object should be initially collapsed.
-    - [ ] Ensure nested objects trigger their own library-specific handlers recursively.
+- [x] Task: Update the TUI for Nested Object Expansion.
+    - [x] Refactor the Textual view to use a tree-like structure for nested objects.
+    - [x] Implement keyboard/mouse triggers for expanding and collapsing nodes.
+- [x] Task: Integrate Dynamic Content Logic.
+    - [x] Use the complexity assessment to decide if an object should be initially collapsed.
+    - [x] Ensure nested objects trigger their own library-specific handlers recursively.
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Interactive Tree Navigation & Dynamic Content' (Protocol in workflow.md)
 
 ## Phase 4: Optimization & Verification

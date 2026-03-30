@@ -19,7 +19,7 @@ def test_entry_point_resolution() -> None:
         AssertionError: If the entry point is missing or invalid.
 
     """
-    import tomllib  # noqa: PLC0415 # pyright: ignore[reportMissingImports, reportMissingTypeStubs] # ty: ignore[unresolved-import]
+    import tomllib  # noqa: PLC0415 # pyright: ignore[reportMissingTypeStubs] # ty: ignore[unresolved-import]
 
     root_dir = Path(__file__).parent.parent
     pyproject_path = root_dir / "pyproject.toml"

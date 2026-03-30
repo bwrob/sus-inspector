@@ -1,0 +1,46 @@
+# Tach configuration for sus-inspector
+source_roots = ["src"]
+
+[[modules]]
+path = "sus_inspector.tui"
+depends_on = [
+    "sus_inspector.hooks",
+    "sus_inspector.metadata",
+]
+
+[[modules]]
+path = "sus_inspector.cli"
+depends_on = [
+    "sus_inspector.core",
+    "sus_inspector.instances",
+]
+
+[[modules]]
+path = "sus_inspector.core"
+depends_on = [
+    "sus_inspector.tui",
+]
+
+[[modules]]
+path = "sus_inspector.hooks"
+depends_on = [
+    "sus_inspector.metadata",
+]
+
+[[modules]]
+path = "sus_inspector.metadata"
+depends_on = []
+
+[[modules]]
+path = "sus_inspector.instances"
+depends_on = [
+    "sus_inspector.core",
+]
+
+[[modules]]
+path = "sus_inspector"
+depends_on = [
+    "sus_inspector.cli",
+    "sus_inspector.hooks",
+    "sus_inspector.instances",
+]

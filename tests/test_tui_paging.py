@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-
 import pytest
 from textual.widgets import Tree
 
-from sus_inspector.tui.app import ObjectExplorerApp, MAX_TREE_CHILDREN
+from sus_inspector.tui.app import MAX_TREE_CHILDREN, ObjectExplorerApp
 
 
 @pytest.mark.asyncio

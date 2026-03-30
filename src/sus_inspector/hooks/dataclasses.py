@@ -5,9 +5,6 @@ from __future__ import annotations
 import dataclasses
 from typing import Any
 
-from rich.console import Group
-from rich.pretty import Pretty
-from rich.text import Text
 from typing_extensions import override
 
 from sus_inspector.hooks.base import BaseObjectHandler
@@ -37,45 +34,21 @@ class DataclassHandler(BaseObjectHandler):
         return "Dataclass"
 
     @override
+    def get_tag_style(self) -> str:
+        """Return the style for the Dataclass tag.
+
+        Returns:
+            str: "bold cyan"
+
+        """
+        return "bold cyan"
+
+    @override
     def get_fields(self, obj: Any) -> dict[str, Any]:
-        """Extract fields using dataclasses.asdict or manual extraction.
+        """Extract fields using manual extraction to keep original objects.
 
         Returns:
             dict[str, Any]: Fields and values.
 
         """
-        # We don't use asdict to avoid recursive conversion of nested dataclasses
         return {f.name: getattr(obj, f.name) for f in dataclasses.fields(obj)}
-
-    @override
-    def render(
-        self,
-        obj: Any,
-        *,
-        expanded: bool = False,
-    ) -> Group:
-        """Render the dataclass instance.
-
-        Returns:
-            Group: Rich group containing the tag and data.
-
-        """
-        model_name = type(obj).__name__
-        tag = self.get_type_tag(obj)
-
-        header = Text.assemble(
-            ("[", "dim"),
-            (tag, "bold cyan"),
-            ("] ", "dim"),
-            (model_name, "bold"),
-        )
-
-        if not expanded and self.is_complex(obj):
-            fields = self.get_fields(obj)
-            summary = f"({len(fields)} fields) ..."
-            return Group(header, Text(summary, style="italic dim"))
-
-        return Group(
-            header,
-            Pretty(obj, expand_all=True),
-        )

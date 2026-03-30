@@ -4,9 +4,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from rich.console import Group
-from rich.pretty import Pretty
-from rich.text import Text
 from typing_extensions import override
 
 from sus_inspector.hooks.base import BaseObjectHandler
@@ -43,51 +40,29 @@ class PydanticHandler(BaseObjectHandler):
         return "Pydantic"
 
     @override
+    def get_tag_style(self) -> str:
+        """Return the style for the Pydantic tag.
+
+        Returns:
+            str: "bold yellow"
+
+        """
+        return "bold yellow"
+
+    @override
     def get_fields(self, obj: Any) -> dict[str, Any]:
-        """Extract fields using model_dump or dict.
+        """Extract fields without recursion to keep original objects.
 
         Returns:
             dict[str, Any]: Fields and values.
 
         """
-        if hasattr(obj, "model_dump"):
-            return obj.model_dump()
-        if hasattr(obj, "dict"):
-            return obj.dict()
-        return {}
-
-    @override
-    def render(
-        self,
-        obj: Any,
-        *,
-        expanded: bool = False,
-    ) -> RenderableType:
-        """Render the Pydantic model.
-
-        Returns:
-            RenderableType: Rich group containing the tag and data.
-
-        """
-        model_name = type(obj).__name__
-        tag = self.get_type_tag(obj)
-
-        header = Text.assemble(
-            ("[", "dim"),
-            (tag, "bold yellow"),
-            ("] ", "dim"),
-            (model_name, "bold"),
-        )
-
-        if not expanded and self.is_complex(obj):
-            fields = self.get_fields(obj)
-            summary = f"({len(fields)} fields) ..."
-            return Group(header, Text(summary, style="italic dim"))
-
-        return Group(
-            header,
-            Pretty(obj, expand_all=True),
-        )
+        # We want the original objects, not a serialized dict
+        fields = dict(obj.__dict__)
+        # For Pydantic v2, we might also want model_extra
+        if hasattr(obj, "model_extra") and obj.model_extra:
+            fields.update(obj.model_extra)
+        return fields
 
 
 class PydanticInspector(PydanticHandler):

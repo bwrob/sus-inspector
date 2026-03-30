@@ -4,9 +4,6 @@ from __future__ import annotations
 
 from typing import Any, cast
 
-from rich.console import Group
-from rich.pretty import Pretty
-from rich.text import Text
 from typing_extensions import override
 
 from sus_inspector.hooks.base import BaseObjectHandler
@@ -41,6 +38,16 @@ class AttrsHandler(BaseObjectHandler):
         return "Attrs"
 
     @override
+    def get_tag_style(self) -> str:
+        """Return the style for the Attrs tag.
+
+        Returns:
+            str: "bold magenta"
+
+        """
+        return "bold magenta"
+
+    @override
     def get_fields(self, obj: Any) -> dict[str, Any]:
         """Extract fields using attr.asdict or manual extraction.
 
@@ -51,36 +58,3 @@ class AttrsHandler(BaseObjectHandler):
         import attr  # noqa: PLC0415
 
         return attr.asdict(obj, recurse=False)
-
-    @override
-    def render(
-        self,
-        obj: Any,
-        *,
-        expanded: bool = False,
-    ) -> Any:
-        """Render the attrs instance.
-
-        Returns:
-            Group: Rich group containing the tag and data.
-
-        """
-        model_name = type(obj).__name__
-        tag = self.get_type_tag(obj)
-
-        header = Text.assemble(
-            ("[", "dim"),
-            (tag, "bold magenta"),
-            ("] ", "dim"),
-            (model_name, "bold"),
-        )
-
-        if not expanded and self.is_complex(obj):
-            fields = self.get_fields(obj)
-            summary = f"({len(fields)} fields) ..."
-            return Group(header, Text(summary, style="italic dim"))
-
-        return Group(
-            header,
-            Pretty(obj, expand_all=True),
-        )

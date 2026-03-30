@@ -4,9 +4,6 @@ from __future__ import annotations
 
 from typing import Any
 
-from rich.console import Group
-from rich.pretty import Pretty
-from rich.text import Text
 from typing_extensions import override
 
 from sus_inspector.hooks.base import BaseObjectHandler
@@ -40,45 +37,21 @@ class MsgspecHandler(BaseObjectHandler):
         return "Msgspec"
 
     @override
+    def get_tag_style(self) -> str:
+        """Return the style for the Msgspec tag.
+
+        Returns:
+            str: "bold green"
+
+        """
+        return "bold green"
+
+    @override
     def get_fields(self, obj: Any) -> dict[str, Any]:
-        """Extract fields using msgspec.structs.asdict or manual extraction.
+        """Extract fields to keep original objects.
 
         Returns:
             dict[str, Any]: Fields and values.
 
         """
-        # msgspec.structs.asdict is fast and handles structs well
         return {f: getattr(obj, f) for f in obj.__struct_fields__}
-
-    @override
-    def render(
-        self,
-        obj: Any,
-        *,
-        expanded: bool = False,
-    ) -> Any:
-        """Render the msgspec struct.
-
-        Returns:
-            Group: Rich group containing the tag and data.
-
-        """
-        model_name = type(obj).__name__
-        tag = self.get_type_tag(obj)
-
-        header = Text.assemble(
-            ("[", "dim"),
-            (tag, "bold green"),
-            ("] ", "dim"),
-            (model_name, "bold"),
-        )
-
-        if not expanded and self.is_complex(obj):
-            fields = self.get_fields(obj)
-            summary = f"({len(fields)} fields) ..."
-            return Group(header, Text(summary, style="italic dim"))
-
-        return Group(
-            header,
-            Pretty(obj, expand_all=True),
-        )

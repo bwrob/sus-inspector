@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Final
+from typing import Any, Final, cast
 
 import attr
 from rich.console import Group
@@ -72,5 +72,5 @@ def test_attrs_handler_render() -> None:
 
     # Complex object
     large = LargeAttr()
-    renderable_complex = handler.render(large, expanded=False)
+    renderable_complex = cast(Any, handler.render(large, expanded=False))
     assert f"({F_COUNT_12} fields) ..." in str(renderable_complex.renderables[1])

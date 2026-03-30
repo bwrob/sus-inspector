@@ -1,8 +1,0 @@
-{
-    "created_at": "2026-03-29T00:00:00Z",
-    "description": "set up pypi deployment with manual versioning and OIDC",
-    "status": "new",
-    "track_id": "pypi_deployment_20260329",
-    "type": "chore",
-    "updated_at": "2026-03-29T00:00:00Z"
-}

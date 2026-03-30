@@ -1,7 +1,7 @@
 {
     "created_at": "2026-03-28T12:00:00Z",
     "description": "implement pytest tests, unit and regressions that have 100% coverage",
-    "status": "new",
+    "status": "completed",
     "track_id": "pytest_coverage_20260328",
     "type": "chore",
     "updated_at": "2026-03-28T12:00:00Z"

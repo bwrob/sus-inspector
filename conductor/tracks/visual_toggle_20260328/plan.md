@@ -1,30 +1,35 @@
-# Implementation Plan: Visual Toggle ('d')
+# Implementation Plan: Visual Toggle ('d') and Smart Grouping
 
-## Phase 1: Preparation & Design
-- [ ] Task: Define state management for private method visibility.
-    - [ ] Add `show_private` boolean flag to the TUI `App` or `Explorer` class.
-    - [ ] Set default state to `False`.
-- [ ] Task: Conductor - User Manual Verification 'Preparation & Design' (Protocol in workflow.md)
+## Phase 1: Preparation & State Management
+- [ ] Task: Add state flags and threshold settings to `ObjectExplorerApp`.
+    - [ ] Add `show_private: bool = False`.
+    - [ ] Add `grouping_threshold: int = 10`.
+- [ ] Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)
 
-## Phase 2: Core Logic & Key Bindings
-- [ ] Task: Implement 'd' key binding in the TUI.
-    - [ ] Create a feature branch `feat/visual-toggle-logic`.
-    - [ ] Write tests for the toggle logic (independent of the UI if possible).
-    - [ ] Map the 'd' key to a method that toggles the `show_private` flag.
-    - [ ] Verify the flag toggles correctly.
-- [ ] Task: Conductor - User Manual Verification 'Core Logic & Key Bindings' (Protocol in workflow.md)
+## Phase 2: Tree Categorization & Grouping
+- [ ] Task: Implement smart categorization logic.
+    - [ ] Function to partition members into `fields` and `methods`.
+    - [ ] Implement logic to decide whether to group based on total count vs `grouping_threshold`.
+- [ ] Task: Update `ObjectExplorerApp.add_children` to support virtual nodes.
+    - [ ] Add "Fields (N)" and "Methods (M)" virtual nodes for large objects.
+    - [ ] Implement auto-expansion for the "Fields" node.
+- [ ] Task: Add visual styling to tree labels.
+    - [ ] Use `•` and `ƒ` prefixes and appropriate colors for fields vs methods.
+- [ ] Task: Conductor - User Manual Verification 'Phase 2' (Protocol in workflow.md)
 
-## Phase 3: UI Integration
-- [ ] Task: Update the object tree to respect the `show_private` flag.
-    - [ ] Create a feature branch `feat/visual-toggle-ui`.
-    - [ ] Modify the tree population logic to filter out items starting with `_` when `show_private` is `False`.
-    - [ ] Trigger a refresh/re-population of the tree when the flag changes.
-    - [ ] Write TUI tests (using Textual's testing utilities) to verify the filtering works.
-- [ ] Task: Conductor - User Manual Verification 'UI Integration' (Protocol in workflow.md)
+## Phase 3: Bindings & UI Feedback
+- [ ] Task: Implement 'd' toggle and tree re-rendering.
+    - [ ] Refresh the tree when `show_private` changes.
+    - [ ] Update Footer/Status Bar with toggle state info.
+- [ ] Task: Write TUI tests for smart grouping.
+    - [ ] Verify that small objects stay flat.
+    - [ ] Verify that large objects (e.g., Pydantic models) get grouped.
+    - [ ] Verify 'd' toggle correctly hides/shows private members.
+- [ ] Task: Conductor - User Manual Verification 'Phase 3' (Protocol in workflow.md)
 
 ## Phase 4: Final Polish & Verification
-- [ ] Task: Add visual feedback for the toggle state.
-    - [ ] Add a status bar indicator or a subtle notification when the toggle is flipped.
+- [ ] Task: Refine Pydantic/Boilerplate noise filtering.
+    - [ ] Explicitly hide common internal dunders for cleaner view.
     - [ ] Verify 95% test coverage.
-    - [ ] Run full linting and type-checking suite.
-- [ ] Task: Conductor - User Manual Verification 'Final Polish & Verification' (Protocol in workflow.md)
+    - [ ] Final code quality check (`rtk poe code-quality`).
+- [ ] Task: Conductor - User Manual Verification 'Phase 4' (Protocol in workflow.md)

@@ -1,22 +1,20 @@
-# Specification: Visual Toggle ('d') to Show/Hide Private Methods
+# Specification: Visual Toggle ('d') and Smart Tree Grouping
 
 ## Overview
-Currently, the object inspector shows all attributes and methods of an object. This can lead to a cluttered view, especially with Python's many `__dunder__` methods. This feature will add a toggle (mapped to the 'd' key) to show or hide private (prefixed with `_` or `__`) methods in the TUI.
-
-## User Story
-As a developer, I want to toggle the visibility of private methods so that I can focus on the public API of the object I am inspecting, but still see the internals when needed.
+Currently, the object inspector shows all attributes and methods in a flat list. This feature adds a toggle for private members and implements a "Smart Grouping" system to handle complex objects like Pydantic models or large classes.
 
 ## Functional Requirements
-- **Key Binding:** Pressing 'd' in the TUI will toggle the visibility of private and `__dunder__` methods in the object tree.
-- **Visual Feedback:** The TUI should clearly indicate whether private methods are currently hidden or shown.
-- **Persistence:** The toggle state should ideally persist across different object inspections during the same session (optional, but nice-to-have).
-- **Default State:** By default, private methods should be hidden to ensure a "Zero Friction" and clean initial view.
-
-## Non-Functional Requirements
-- **Performance:** Toggling should be instantaneous and not require re-parsing the entire object tree.
-- **Consistency:** The toggle should affect all levels of the tree consistently.
+- **Key Binding ('d'):** Toggle visibility of members starting with `_`.
+- **Smart Grouping (Threshold = 10):**
+    - If total members < 10: Display in a flat list (Sorted: Fields then Methods).
+    - If total members >= 10: Group into "📁 Fields (N)" and "📁 Methods (M)" virtual nodes.
+- **Auto-Expand:** The "Fields" virtual node should be auto-expanded upon the first visit to the object.
+- **Visual Cues:**
+    - Fields: Prefixed with `• ` and styled in `cyan`.
+    - Methods: Prefixed with `ƒ ` and styled in `magenta`.
+- **Boilerplate Filtering:** When `show_private` is OFF, specifically hide common library noise (e.g., Pydantic internal dunders).
 
 ## Technical Details
-- **TUI Framework:** Textual.
-- **Tree Widget:** Update the existing tree widget to filter out attributes/methods starting with `_`.
-- **State Management:** Add a boolean flag in the `InteractiveExplorer` or TUI `App` class to track the toggle state.
+- **Categorization:** Use `inspect.isroutine()` to identify behavior vs state.
+- **Tree Refresh:** Toggling 'd' must clear and re-populate the current node's children to reflect the new filter/grouping.
+- **State:** `show_private: bool` (default False), `grouping_threshold: int` (default 10).

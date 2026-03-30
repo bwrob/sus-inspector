@@ -1,22 +1,36 @@
-# Specification: Visual Toggle ('d') to Show/Hide Private Methods
+# Specification: Visual Toggle ('d') and Tree Grouping
 
 ## Overview
-Currently, the object inspector shows all attributes and methods of an object. This can lead to a cluttered view, especially with Python's many `__dunder__` methods. This feature will add a toggle (mapped to the 'd' key) to show or hide private (prefixed with `_` or `__`) methods in the TUI.
+Currently, the object inspector shows all attributes and methods of an object in a single flat list within the selection tree. This can lead to a cluttered view, especially with many `__dunder__` methods and mixed member types. This feature will add:
+1.  A toggle (mapped to the 'd' key) to show or hide private (prefixed with `_` or `__`) members.
+2.  A structural separation of **Fields** (attributes) and **Methods** into distinct sub-nodes in the selection tree to improve scannability.
 
 ## User Story
-As a developer, I want to toggle the visibility of private methods so that I can focus on the public API of the object I am inspecting, but still see the internals when needed.
+As a developer, I want to toggle the visibility of private members and see fields separated from methods so that I can quickly navigate the public API and distinguish state from behavior.
 
 ## Functional Requirements
-- **Key Binding:** Pressing 'd' in the TUI will toggle the visibility of private and `__dunder__` methods in the object tree.
-- **Visual Feedback:** The TUI should clearly indicate whether private methods are currently hidden or shown.
-- **Persistence:** The toggle state should ideally persist across different object inspections during the same session (optional, but nice-to-have).
-- **Default State:** By default, private methods should be hidden to ensure a "Zero Friction" and clean initial view.
+- **Key Binding (Private Toggle):** Pressing 'd' in the TUI will toggle the visibility of private and `__dunder__` members in the object tree.
+- **Tree Grouping:** Members of an object should be grouped into "Fields" and "Methods" virtual folders in the tree.
+- **Visual Feedback:** The TUI should indicate whether private members are currently hidden or shown (e.g., in the footer or a status bar).
+- **Default State:**
+    - Private members: **Hidden** by default.
+    - Grouping: **Enabled** by default.
+- **Persistence:** The toggle state should persist across different object inspections during the same session.
 
 ## Non-Functional Requirements
-- **Performance:** Toggling should be instantaneous and not require re-parsing the entire object tree.
-- **Consistency:** The toggle should affect all levels of the tree consistently.
+- **Performance:** Toggling and grouping should be fast, utilizing lazy-loading of tree nodes.
+- **Consistency:** The grouping and filtering should apply recursively to all objects in the tree.
 
 ## Technical Details
 - **TUI Framework:** Textual.
-- **Tree Widget:** Update the existing tree widget to filter out attributes/methods starting with `_`.
-- **State Management:** Add a boolean flag in the `InteractiveExplorer` or TUI `App` class to track the toggle state.
+- **Tree Widget (`ObjectExplorerApp`):**
+    - Update `add_children` to handle grouping logic.
+    - Use `inspect.isroutine` to distinguish methods from fields.
+    - Implement filtering logic based on the `show_private` flag.
+- **State Management:** Add `show_private` (bool) and `group_members` (bool) flags to the `ObjectExplorerApp` class.
+
+## Acceptance Criteria
+- [ ] Pressing 'd' toggles visibility of members starting with `_`.
+- [ ] Objects in the tree have "Fields" and "Methods" sub-nodes.
+- [ ] Private methods/fields are hidden when the toggle is OFF.
+- [ ] The tree correctly re-renders when the toggle is changed.

@@ -1,30 +1,33 @@
-# Implementation Plan: Visual Toggle ('d')
+# Implementation Plan: Visual Toggle ('d') and Tree Grouping
 
-## Phase 1: Preparation & Design
-- [ ] Task: Define state management for private method visibility.
-    - [ ] Add `show_private` boolean flag to the TUI `App` or `Explorer` class.
-    - [ ] Set default state to `False`.
-- [ ] Task: Conductor - User Manual Verification 'Preparation & Design' (Protocol in workflow.md)
+## Phase 1: Preparation & State Management
+- [ ] Task: Add state flags to the TUI `ObjectExplorerApp`.
+    - [ ] Add `show_private: bool = False`.
+    - [ ] Add `group_members: bool = True`.
+- [ ] Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)
 
-## Phase 2: Core Logic & Key Bindings
-- [ ] Task: Implement 'd' key binding in the TUI.
-    - [ ] Create a feature branch `feat/visual-toggle-logic`.
-    - [ ] Write tests for the toggle logic (independent of the UI if possible).
-    - [ ] Map the 'd' key to a method that toggles the `show_private` flag.
-    - [ ] Verify the flag toggles correctly.
-- [ ] Task: Conductor - User Manual Verification 'Core Logic & Key Bindings' (Protocol in workflow.md)
+## Phase 2: Tree Logic & Grouping
+- [ ] Task: Implement method/field categorization.
+    - [ ] Use `inspect.isroutine` to identify methods in `ObjectExplorerApp.add_children`.
+- [ ] Task: Refactor `ObjectExplorerApp.add_children` to support grouping.
+    - [ ] Create virtual "Fields" and "Methods" nodes for complex objects.
+    - [ ] Ensure lazy loading still works correctly with grouping.
+- [ ] Task: Implement private member filtering.
+    - [ ] Filter out members starting with `_` unless `show_private` is `True`.
+- [ ] Task: Conductor - User Manual Verification 'Phase 2' (Protocol in workflow.md)
 
-## Phase 3: UI Integration
-- [ ] Task: Update the object tree to respect the `show_private` flag.
-    - [ ] Create a feature branch `feat/visual-toggle-ui`.
-    - [ ] Modify the tree population logic to filter out items starting with `_` when `show_private` is `False`.
-    - [ ] Trigger a refresh/re-population of the tree when the flag changes.
-    - [ ] Write TUI tests (using Textual's testing utilities) to verify the filtering works.
-- [ ] Task: Conductor - User Manual Verification 'UI Integration' (Protocol in workflow.md)
+## Phase 3: UI Integration & Bindings
+- [ ] Task: Implement 'd' key binding logic.
+    - [ ] Toggle `show_private` and trigger a tree refresh.
+    - [ ] Update the `Footer` to show the current toggle status.
+- [ ] Task: Write TUI tests for filtering and grouping.
+    - [ ] Verify that fields and methods are correctly categorized.
+    - [ ] Verify that toggling 'd' shows/hides the expected members.
+- [ ] Task: Conductor - User Manual Verification 'Phase 3' (Protocol in workflow.md)
 
 ## Phase 4: Final Polish & Verification
-- [ ] Task: Add visual feedback for the toggle state.
-    - [ ] Add a status bar indicator or a subtle notification when the toggle is flipped.
+- [ ] Task: Refine visual feedback for toggle state.
+    - [ ] Add indicators to the UI (e.g., status bar, footer).
     - [ ] Verify 95% test coverage.
-    - [ ] Run full linting and type-checking suite.
-- [ ] Task: Conductor - User Manual Verification 'Final Polish & Verification' (Protocol in workflow.md)
+    - [ ] Final code quality check (`rtk poe code-quality`).
+- [ ] Task: Conductor - User Manual Verification 'Phase 4' (Protocol in workflow.md)

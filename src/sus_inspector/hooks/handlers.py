@@ -78,3 +78,10 @@ def ensure_handlers() -> None:
         HANDLER_REGISTRY.register(AttrsHandler())
     except ImportError:
         pass
+
+    try:
+        from sus_inspector.hooks.msgspec import MsgspecHandler  # noqa: PLC0415
+
+        HANDLER_REGISTRY.register(MsgspecHandler())
+    except ImportError:
+        pass

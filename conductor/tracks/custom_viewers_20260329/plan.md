@@ -11,12 +11,12 @@
 - [x] Task: Implement the `dataclasses` Handler (Standard Library).
     - [x] Create a specialized handler for Python's `dataclasses.dataclass`.
     - [x] Ensure it correctly extracts fields and values.
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Foundation & Generic Handler Interface' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Foundation & Generic Handler Interface' (Protocol in workflow.md)
 
 ## Phase 2: Library-Specific Specialized Handlers
-- [ ] Task: Implement the `Pydantic` Handler.
-    - [ ] Detect and handle `pydantic` (v1 and v2) `BaseModel` instances.
-    - [ ] Handle internal Pydantic metadata and configurations.
+- [x] Task: Implement the `Pydantic` Handler.
+    - [x] Detect and handle `pydantic` (v1 and v2) `BaseModel` instances.
+    - [x] Handle internal Pydantic metadata and configurations.
 - [ ] Task: Implement the `attrs` Handler.
     - [ ] Add support for `attrs` (and its alias `attr`) classes.
     - [ ] Correct extraction of fields and validation of attributes.

@@ -63,3 +63,11 @@ def ensure_handlers() -> None:
     from sus_inspector.hooks.dataclasses import DataclassHandler  # noqa: PLC0415
 
     HANDLER_REGISTRY.register(DataclassHandler())
+
+    # Phase 2: Optional libraries
+    try:
+        from sus_inspector.hooks.pydantic import PydanticHandler  # noqa: PLC0415
+
+        HANDLER_REGISTRY.register(PydanticHandler())
+    except ImportError:
+        pass

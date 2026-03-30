@@ -8,9 +8,9 @@
 - [x] Task: Implement the Complexity Heuristic.
     - [x] Create a utility to assess object complexity based on depth, field count, and size.
     - [x] Define a standard `is_complex()` check for all handlers.
-- [ ] Task: Implement the `dataclasses` Handler (Standard Library).
-    - [ ] Create a specialized handler for Python's `dataclasses.dataclass`.
-    - [ ] Ensure it correctly extracts fields and values.
+- [x] Task: Implement the `dataclasses` Handler (Standard Library).
+    - [x] Create a specialized handler for Python's `dataclasses.dataclass`.
+    - [x] Ensure it correctly extracts fields and values.
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Foundation & Generic Handler Interface' (Protocol in workflow.md)
 
 ## Phase 2: Library-Specific Specialized Handlers

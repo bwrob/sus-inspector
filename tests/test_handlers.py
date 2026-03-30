@@ -7,9 +7,9 @@ from typing import Any
 from rich.text import Text
 from typing_extensions import override
 
+from sus_inspector.hooks.base import BaseObjectHandler
 from sus_inspector.hooks.handlers import (
     HANDLER_REGISTRY,
-    BaseObjectHandler,
     HandlerRegistry,
     ensure_handlers,
 )

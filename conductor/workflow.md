@@ -14,7 +14,18 @@
 - **Per-Task Commits:** Commit changes after every completed task in `plan.md`.
 - **Git Notes Summaries:** Store detailed task summaries in Git notes metadata to keep the commit history clean.
 
-## 3. The Development Loop (Per Task)
+## 3. Track Status Definitions
+Tracks MUST use one of the following statuses in their `metadata.json`:
+- **`new`**: Track has been defined (`spec.md` and `plan.md` created) but no implementation has started.
+- **`in_progress`**: Implementation has started (at least one task in `plan.md` is marked as `[x]`).
+- **`completed`**: All tasks in `plan.md` are finished and verified.
+- **`cancelled`**: Track was abandoned or superseded.
+
+### Track States and File Location
+- **Active Tracks**: Located in `conductor/tracks/`. These are `new` or `in_progress`.
+- **Archived Tracks**: Located in `conductor/archive/`. These are `completed` or `cancelled`.
+
+## 4. The Development Loop (Per Task)
 For every item in `plan.md`, execute this exact cycle:
 
 ### Phase A: Design & Specification

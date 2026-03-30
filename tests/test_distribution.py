@@ -6,6 +6,7 @@ import importlib
 import importlib.util
 import sys
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -18,7 +19,7 @@ def test_entry_point_resolution() -> None:
         AssertionError: If the entry point is missing or invalid.
 
     """
-    import tomllib  # noqa: PLC0415 # pyright: ignore[reportMissingTypeStubs] # ty: ignore[unresolved-import]
+    import tomllib  # noqa: PLC0415 # pyright: ignore[reportMissingImports, reportMissingTypeStubs] # ty: ignore[unresolved-import]
 
     root_dir = Path(__file__).parent.parent
     pyproject_path = root_dir / "pyproject.toml"
@@ -26,11 +27,11 @@ def test_entry_point_resolution() -> None:
     assert pyproject_path.exists(), "pyproject.toml not found"
 
     with pyproject_path.open("rb") as f:
-        pyproject = tomllib.load(f)
+        pyproject: dict[str, Any] = tomllib.load(f)
 
-    project = pyproject.get("project", {})
-    scripts = project.get("scripts", {})
-    sus_entry = scripts.get("sus")
+    project: dict[str, Any] = pyproject.get("project", {})
+    scripts: dict[str, Any] = project.get("scripts", {})
+    sus_entry: str | None = scripts.get("sus")
 
     assert sus_entry is not None, "Entry point 'sus' not found in [project.scripts]"
 

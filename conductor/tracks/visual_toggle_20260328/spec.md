@@ -1,36 +1,20 @@
-# Specification: Visual Toggle ('d') and Tree Grouping
+# Specification: Visual Toggle ('d') and Smart Tree Grouping
 
 ## Overview
-Currently, the object inspector shows all attributes and methods of an object in a single flat list within the selection tree. This can lead to a cluttered view, especially with many `__dunder__` methods and mixed member types. This feature will add:
-1.  A toggle (mapped to the 'd' key) to show or hide private (prefixed with `_` or `__`) members.
-2.  A structural separation of **Fields** (attributes) and **Methods** into distinct sub-nodes in the selection tree to improve scannability.
-
-## User Story
-As a developer, I want to toggle the visibility of private members and see fields separated from methods so that I can quickly navigate the public API and distinguish state from behavior.
+Currently, the object inspector shows all attributes and methods in a flat list. This feature adds a toggle for private members and implements a "Smart Grouping" system to handle complex objects like Pydantic models or large classes.
 
 ## Functional Requirements
-- **Key Binding (Private Toggle):** Pressing 'd' in the TUI will toggle the visibility of private and `__dunder__` members in the object tree.
-- **Tree Grouping:** Members of an object should be grouped into "Fields" and "Methods" virtual folders in the tree.
-- **Visual Feedback:** The TUI should indicate whether private members are currently hidden or shown (e.g., in the footer or a status bar).
-- **Default State:**
-    - Private members: **Hidden** by default.
-    - Grouping: **Enabled** by default.
-- **Persistence:** The toggle state should persist across different object inspections during the same session.
-
-## Non-Functional Requirements
-- **Performance:** Toggling and grouping should be fast, utilizing lazy-loading of tree nodes.
-- **Consistency:** The grouping and filtering should apply recursively to all objects in the tree.
+- **Key Binding ('d'):** Toggle visibility of members starting with `_`.
+- **Smart Grouping (Threshold = 10):**
+    - If total members < 10: Display in a flat list (Sorted: Fields then Methods).
+    - If total members >= 10: Group into "📁 Fields (N)" and "📁 Methods (M)" virtual nodes.
+- **Auto-Expand:** The "Fields" virtual node should be auto-expanded upon the first visit to the object.
+- **Visual Cues:**
+    - Fields: Prefixed with `• ` and styled in `cyan`.
+    - Methods: Prefixed with `ƒ ` and styled in `magenta`.
+- **Boilerplate Filtering:** When `show_private` is OFF, specifically hide common library noise (e.g., Pydantic internal dunders).
 
 ## Technical Details
-- **TUI Framework:** Textual.
-- **Tree Widget (`ObjectExplorerApp`):**
-    - Update `add_children` to handle grouping logic.
-    - Use `inspect.isroutine` to distinguish methods from fields.
-    - Implement filtering logic based on the `show_private` flag.
-- **State Management:** Add `show_private` (bool) and `group_members` (bool) flags to the `ObjectExplorerApp` class.
-
-## Acceptance Criteria
-- [ ] Pressing 'd' toggles visibility of members starting with `_`.
-- [ ] Objects in the tree have "Fields" and "Methods" sub-nodes.
-- [ ] Private methods/fields are hidden when the toggle is OFF.
-- [ ] The tree correctly re-renders when the toggle is changed.
+- **Categorization:** Use `inspect.isroutine()` to identify behavior vs state.
+- **Tree Refresh:** Toggling 'd' must clear and re-populate the current node's children to reflect the new filter/grouping.
+- **State:** `show_private: bool` (default False), `grouping_threshold: int` (default 10).

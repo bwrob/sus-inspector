@@ -5,11 +5,10 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any
 
+from sus_inspector.hooks.complexity import is_complex_object
+
 if TYPE_CHECKING:
     from rich.console import RenderableType
-
-# Constants for complexity assessment
-COMPLEXITY_FIELD_THRESHOLD = 10
 
 
 class BaseObjectHandler(ABC):
@@ -54,7 +53,7 @@ class BaseObjectHandler(ABC):
         """
         ...
 
-    def is_complex(self, obj: Any) -> bool:  # noqa: ANN401
+    def is_complex(self, obj: Any) -> bool:  # noqa: ANN401, PLR6301
         """Assess if the object is complex based on heuristics.
 
         Args:
@@ -64,9 +63,7 @@ class BaseObjectHandler(ABC):
             bool: True if the object is considered complex.
 
         """
-        # Default implementation (can be overridden by specialized handlers)
-        fields = self.get_fields(obj)
-        return len(fields) > COMPLEXITY_FIELD_THRESHOLD
+        return is_complex_object(obj)
 
     @abstractmethod
     def render(

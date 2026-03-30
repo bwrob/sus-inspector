@@ -5,9 +5,9 @@
     - [x] Define the base class for all library handlers.
     - [x] Implement a dynamic registry to detect and load handlers for available libraries.
 
-- [ ] Task: Implement the Complexity Heuristic.
-    - [ ] Create a utility to assess object complexity based on depth, field count, and size.
-    - [ ] Define a standard `is_complex()` check for all handlers.
+- [x] Task: Implement the Complexity Heuristic.
+    - [x] Create a utility to assess object complexity based on depth, field count, and size.
+    - [x] Define a standard `is_complex()` check for all handlers.
 - [ ] Task: Implement the `dataclasses` Handler (Standard Library).
     - [ ] Create a specialized handler for Python's `dataclasses.dataclass`.
     - [ ] Ensure it correctly extracts fields and values.

@@ -22,6 +22,8 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+MAX_TREE_CHILDREN = 100
+
 
 class ObjectExplorerApp(App[None]):
     """Textual TUI for exploring Python objects."""
@@ -183,7 +185,7 @@ class ObjectExplorerApp(App[None]):
         _ = tree.scroll_to_node(found_node)
 
     def add_children(self, node: TreeNode[object], obj: object) -> None:
-        """Recursively add children to a tree node based on object attributes/keys.
+        """Recursively add children to a tree node.
 
         Args:
             node: The current tree node.
@@ -193,23 +195,60 @@ class ObjectExplorerApp(App[None]):
         from sus_inspector.hooks.handlers import HANDLER_REGISTRY  # noqa: PLC0415
 
         handler = HANDLER_REGISTRY.get_handler(obj)
-
         if handler:
-            fields = handler.get_fields(obj)
-            for k, v in fields.items():
-                _ = node.add(str(k), data=v, allow_expand=self._is_expandable(v))
+            self._add_handler_fields(node, obj, handler)
             return
 
         if isinstance(obj, dict):
-            obj_dict = cast("dict[object, object]", obj)
-            for k, v in list(obj_dict.items()):
-                _ = node.add(str(k), data=v, allow_expand=self._is_expandable(v))
+            self._add_dict_children(node, cast("dict[object, object]", obj))
         elif isinstance(obj, (list, tuple, set)):
-            obj_list = list(cast("list[object]", obj))
-            for i, v in enumerate(obj_list):
-                _ = node.add(f"[{i}]", data=v, allow_expand=self._is_expandable(v))
+            self._add_collection_children(node, list(cast("list[object]", obj)))
         else:
             self._add_object_attributes(node, obj)
+
+    def _add_handler_fields(
+        self,
+        node: TreeNode[object],
+        obj: object,
+        handler: Any,  # noqa: ANN401
+    ) -> None:
+        """Add fields from a specialized handler."""
+        fields = list(handler.get_fields(obj).items())
+        for k, v in fields[:MAX_TREE_CHILDREN]:
+            _ = node.add(str(k), data=v, allow_expand=self._is_expandable(v))
+        if len(fields) > MAX_TREE_CHILDREN:
+            _ = node.add(
+                f"... and {len(fields) - MAX_TREE_CHILDREN} more fields",
+                data=None,
+                allow_expand=False,
+            )
+
+    def _add_dict_children(
+        self, node: TreeNode[object], obj_dict: dict[object, object]
+    ) -> None:
+        """Add children from a dictionary."""
+        items = list(obj_dict.items())
+        for k, v in items[:MAX_TREE_CHILDREN]:
+            _ = node.add(str(k), data=v, allow_expand=self._is_expandable(v))
+        if len(items) > MAX_TREE_CHILDREN:
+            _ = node.add(
+                f"... and {len(items) - MAX_TREE_CHILDREN} more",
+                data=None,
+                allow_expand=False,
+            )
+
+    def _add_collection_children(
+        self, node: TreeNode[object], obj_list: list[object]
+    ) -> None:
+        """Add children from a list/tuple/set."""
+        for i, v in enumerate(obj_list[:MAX_TREE_CHILDREN]):
+            _ = node.add(f"[{i}]", data=v, allow_expand=self._is_expandable(v))
+        if len(obj_list) > MAX_TREE_CHILDREN:
+            _ = node.add(
+                f"... and {len(obj_list) - MAX_TREE_CHILDREN} more",
+                data=None,
+                allow_expand=False,
+            )
 
     def _add_object_attributes(self, node: TreeNode[object], obj: object) -> None:
         """Add attributes of an object to the tree node.
@@ -219,9 +258,8 @@ class ObjectExplorerApp(App[None]):
             obj: The object.
 
         """
-        for attr_name in dir(obj):
-            if attr_name.startswith("_"):
-                continue
+        all_attrs = [a for p in [dir(obj)] for a in p if not a.startswith("_")]
+        for attr_name in all_attrs[:MAX_TREE_CHILDREN]:
             try:
                 attr_value = getattr(obj, attr_name)
                 _ = node.add(
@@ -229,16 +267,20 @@ class ObjectExplorerApp(App[None]):
                     data=attr_value,
                     allow_expand=self._is_expandable(attr_value),
                 )
-            except AttributeError:  # pragma: no cover
+            except AttributeError:  # noqa: PERF203 # pragma: no cover
                 continue
             except Exception:  # pragma: no cover
-                # We catch broad exceptions here because we're exploring arbitrary
-                # user objects, and getattr() can trigger code that raises anything.
-                # We log it and move on.
                 logger.exception(
                     "Failed to get attribute %s from %s", attr_name, obj
                 )  # pragma: no cover
                 continue  # pragma: no cover
+
+        if len(all_attrs) > MAX_TREE_CHILDREN:
+            _ = node.add(
+                f"... and {len(all_attrs) - MAX_TREE_CHILDREN} more attributes",
+                data=None,
+                allow_expand=False,
+            )
 
     @staticmethod
     def _is_expandable(obj: object) -> bool:

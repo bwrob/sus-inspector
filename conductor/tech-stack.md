@@ -34,6 +34,10 @@
 - **Pytest:** The standard testing framework for Python projects.
 - **pytest-asyncio:** Plugin for testing async functions and Textual apps.
 - **Ty:** A lightweight tool for running common Python tasks.
+- **Tach:** A tool for enforcing architectural boundaries and dependency layers.
 
 ## Optional Integrations
 - **Pydantic:** Natively supported if installed, used for specialized rendering of `BaseModel` instances.
+- **attrs:** Natively supported if installed, used for specialized rendering of `attr.s` classes.
+- **msgspec:** Natively supported if installed, used for specialized rendering of `msgspec.Struct` instances.
+- **Dataclasses:** Natively supported (Standard Library).

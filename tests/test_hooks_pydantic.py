@@ -4,12 +4,13 @@ from __future__ import annotations
 
 from typing import Any, Final, cast
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from rich.console import Group
 
 from sus_inspector.hooks.pydantic import PydanticHandler, pydantic_view
 
 F_COUNT_12: Final = 12
+METADATA_COUNT_2: Final = 2
 
 
 class User(BaseModel):
@@ -70,10 +71,29 @@ def test_pydantic_handler_render() -> None:
 
     # Complex object
     large = LargeModel()
-    renderable_complex = handler.render(large, expanded=False)
+    renderable_complex = cast("Any", handler.render(large, expanded=False))
     assert isinstance(renderable_complex, Group)
     group = cast("Any", renderable_complex)
     assert f"({F_COUNT_12} fields) ..." in str(group.renderables[1])
+
+
+def test_pydantic_handler_field_metadata() -> None:
+    """Test get_field_metadata method."""
+
+    class MetaModel(BaseModel):
+        """Model with metadata."""
+
+        id: int = Field(..., description="The unique identifier")
+        name: str = "Anonymous"
+
+    handler = PydanticHandler()
+    metadata = handler.get_field_metadata(MetaModel)
+
+    assert len(metadata) == METADATA_COUNT_2
+    assert metadata[0]["name"] == "id"
+    assert metadata[0]["description"] == "The unique identifier"
+    assert metadata[1]["name"] == "name"
+    assert metadata[1]["default_value"] == "Anonymous"
 
 
 def test_pydantic_view_wrapper() -> None:

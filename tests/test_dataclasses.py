@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Final
+from typing import Any, Final, cast
 
 from rich.console import Group
 
@@ -73,11 +73,11 @@ def test_dataclass_handler_render() -> None:
 
     # Complex object (many fields)
     large = LargeDataclass()
-    renderable_complex = handler.render(large, expanded=False)
+    renderable_complex = cast("Any", handler.render(large, expanded=False))
     # Check that it's a summary (contains "(12 fields) ...")
     assert f"({F_COUNT_12} fields) ..." in str(renderable_complex.renderables[1])
 
     # Expanded view
-    renderable_expanded = handler.render(large, expanded=True)
+    renderable_expanded = cast("Any", handler.render(large, expanded=True))
     # Should not contain summary
     assert f"({F_COUNT_12} fields) ..." not in str(renderable_expanded.renderables[1])

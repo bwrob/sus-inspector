@@ -7,7 +7,7 @@ from typing import Any
 
 from typing_extensions import override
 
-from sus_inspector.hooks.base import BaseObjectHandler
+from sus_inspector.hooks.base import BaseObjectHandler, FieldMetadata
 
 
 class DataclassHandler(BaseObjectHandler):
@@ -52,3 +52,29 @@ class DataclassHandler(BaseObjectHandler):
 
         """
         return {f.name: getattr(obj, f.name) for f in dataclasses.fields(obj)}
+
+    @override
+    def get_field_metadata(self, obj: Any) -> list[FieldMetadata]:
+        """Extract metadata for dataclass fields.
+
+        Returns:
+            list[FieldMetadata]: List of field metadata dictionaries.
+
+        """
+        cls = obj if isinstance(obj, type) else type(obj)
+        fields = dataclasses.fields(cls)
+
+        # Dataclasses don't natively support field-level docstrings easily
+        # unless using some convention.
+        metadata: list[FieldMetadata] = [
+            {
+                "name": f.name,
+                "type_annotation": f.type,
+                "description": None,
+                "default_value": f.default
+                if f.default is not dataclasses.MISSING
+                else None,
+            }
+            for f in fields
+        ]
+        return metadata

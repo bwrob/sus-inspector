@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from typing_extensions import override
 
-from sus_inspector.hooks.base import BaseObjectHandler
+from sus_inspector.hooks.base import BaseObjectHandler, FieldMetadata
 
 if TYPE_CHECKING:
     from rich.console import RenderableType
@@ -63,6 +63,46 @@ class PydanticHandler(BaseObjectHandler):
         if hasattr(obj, "model_extra") and obj.model_extra:
             fields.update(obj.model_extra)
         return fields
+
+    @override
+    def get_field_metadata(self, obj: Any) -> list[FieldMetadata]:
+        """Extract metadata for Pydantic fields.
+
+        Returns:
+            list[FieldMetadata]: List of field metadata dictionaries.
+
+        """
+        cls = obj if isinstance(obj, type) else type(obj)
+        metadata: list[FieldMetadata] = []
+
+        # Pydantic v2
+        if hasattr(cls, "model_fields"):
+            # Cast to Any to avoid basedpyright issues with dynamic Pydantic attributes
+            cls_v2 = cast("Any", cls)
+            for name, field in cls_v2.model_fields.items():
+                metadata.append(
+                    {
+                        "name": name,
+                        "type_annotation": field.annotation,
+                        "description": field.description,
+                        "default_value": field.default,
+                    }
+                )
+        # Pydantic v1
+        elif hasattr(cls, "__fields__"):
+            # Cast to Any to avoid basedpyright issues with dynamic Pydantic attributes
+            cls_v1 = cast("Any", cls)
+            for name, field in cls_v1.__fields__.items():
+                metadata.append(
+                    {
+                        "name": name,
+                        "type_annotation": field.outer_type_,
+                        "description": field.field_info.description,
+                        "default_value": field.default,
+                    }
+                )
+
+        return metadata
 
 
 class PydanticInspector(PydanticHandler):

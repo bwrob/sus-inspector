@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import dataclasses
+
 import pytest
 from textual.widgets import Tree
 
@@ -42,9 +44,8 @@ async def test_tui_paging_list() -> None:
 @pytest.mark.asyncio
 async def test_tui_expansion_toggle() -> None:
     """Test the 'e' key binding to toggle expansion."""
-    from dataclasses import dataclass
 
-    @dataclass
+    @dataclasses.dataclass
     class Large:
         f0: int = 0
         f1: int = 0

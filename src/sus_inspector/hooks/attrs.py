@@ -6,7 +6,7 @@ from typing import Any, cast
 
 from typing_extensions import override
 
-from sus_inspector.hooks.base import BaseObjectHandler
+from sus_inspector.hooks.base import BaseObjectHandler, FieldMetadata
 
 
 class AttrsHandler(BaseObjectHandler):
@@ -58,3 +58,27 @@ class AttrsHandler(BaseObjectHandler):
         import attr  # noqa: PLC0415
 
         return attr.asdict(obj, recurse=False)
+
+    @override
+    def get_field_metadata(self, obj: Any) -> list[FieldMetadata]:
+        """Extract metadata for attrs fields.
+
+        Returns:
+            list[FieldMetadata]: List of field metadata dictionaries.
+
+        """
+        import attr  # noqa: PLC0415
+
+        cls = obj if isinstance(obj, type) else type(obj)
+        fields = attr.fields(cls)
+
+        metadata: list[FieldMetadata] = [
+            {
+                "name": f.name,
+                "type_annotation": f.type,
+                "description": f.metadata.get("description") if f.metadata else None,
+                "default_value": f.default if f.default is not attr.NOTHING else None,
+            }
+            for f in fields
+        ]
+        return metadata

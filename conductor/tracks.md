@@ -64,7 +64,7 @@ Tracks are prioritized by their impact on core usability, navigation efficiency,
 
 ---
 
-- [~] **Track: Unified custom viewers for dataclasses, pydantic, attrs etc.**
+- [x] **Track: Unified custom viewers for dataclasses, pydantic, attrs etc.**
     - *ID:* `custom_viewers_20260329`
     - *Status:* `new`
     - *Priority:* Low (Basic object support, already partially covered by defaults)

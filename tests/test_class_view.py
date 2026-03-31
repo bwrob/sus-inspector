@@ -3,14 +3,13 @@
 from __future__ import annotations
 
 import dataclasses
-from typing import Any, Callable, Final, cast
+from typing import TYPE_CHECKING, Any, Final, cast
 
 import attr
 import msgspec
 import pytest
 from rich.console import Console, Group
 from textual.app import App, ComposeResult
-from textual.widgets import Static
 from typing_extensions import override
 
 from sus_inspector.hooks.attrs import AttrsHandler
@@ -19,6 +18,11 @@ from sus_inspector.hooks.dataclasses import DataclassHandler
 from sus_inspector.hooks.handlers import HANDLER_REGISTRY, ensure_handlers
 from sus_inspector.hooks.msgspec import MsgspecHandler
 from sus_inspector.tui.widgets import ClassInfoPane
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from textual.widgets import Static
 
 FIELD_COUNT_2: Final = 2
 MIN_PANE_CHILDREN: Final = 2
@@ -92,15 +96,15 @@ def test_base_handler_render_class_view() -> None:
     # Test with no metadata (Mock)
     class EmptyHandler(BaseObjectHandler):
         @override
-        def can_handle(self, obj: Any) -> bool:  # noqa: ANN401
+        def can_handle(self, obj: Any) -> bool:
             return False
 
         @override
-        def get_type_tag(self, obj: Any) -> str:  # noqa: ANN401
+        def get_type_tag(self, obj: Any) -> str:
             return ""
 
         @override
-        def get_fields(self, obj: Any) -> dict[str, Any]:  # noqa: ANN401
+        def get_fields(self, obj: Any) -> dict[str, Any]:
             return {}
 
     empty = EmptyHandler()
@@ -277,7 +281,7 @@ async def test_class_info_pane_none() -> None:
         pane.update_object(None)
         await pilot.pause()
 
-        child = cast(Static, pane.children[0])
+        child = cast("Static", pane.children[0])
         assert "No class metadata for None" in str(child.render())
 
 

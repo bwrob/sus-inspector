@@ -47,6 +47,7 @@
         "type-check",
         "type-check-ty",
         "complexity",
+        "dependencies",
     ]
 
 [tasks.test]

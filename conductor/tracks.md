@@ -64,14 +64,6 @@ Tracks are prioritized by their impact on core usability, navigation efficiency,
 
 ---
 
-- [ ] **Track: Unified custom viewers for dataclasses, pydantic, attrs etc.**
-    - *ID:* `custom_viewers_20260329`
-    - *Status:* `new`
-    - *Priority:* Low (Basic object support, already partially covered by defaults)
-    - *Link: [./tracks/custom_viewers_20260329/](./tracks/custom_viewers_20260329/)*
-
----
-
 - [ ] **Track: Custom Plugin System with Runtime Registration API**
     - *ID:* `plugin_system_20260330`
     - *Status:* `new`
@@ -81,7 +73,8 @@ Tracks are prioritized by their impact on core usability, navigation efficiency,
 ---
 
 ## Archived Tracks (Completed)
-
+- [x] **Track: Unified custom viewers for dataclasses, pydantic, attrs etc.**
+    - *Link: [./archive/custom_viewers_20260329/](./archive/custom_viewers_20260329/)*
 - [x] **Track: Type Safety Refactor (basedpyright & ty)**
     - *Link: [./archive/type_refactor_20260328/](./archive/type_refactor_20260328/)*
 - [x] **Track: Replace `rich.inspect` with Custom Inspector Registry**

@@ -34,7 +34,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     # Run on manual trigger OR on push to main (if not a tag)
-    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    if: github.event_name == 'workflow_dispatch'
     environment:
       name: testpypi
       url: https://test.pypi.org/p/sus-inspector

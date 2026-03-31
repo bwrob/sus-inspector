@@ -53,18 +53,29 @@ class ClassInfoPane(VerticalScroll):
             _ = self.mount(Static("No class metadata for None."))
             return
 
-        # Check for custom class renderer
+        # 1. Check for specialized handler class view
+        from sus_inspector.hooks.handlers import HANDLER_REGISTRY  # noqa: PLC0415
+
+        handler = HANDLER_REGISTRY.get_handler(obj)
+        if handler:
+            _ = self.mount(Static(handler.render_class_view(obj)))
+            # We still want to show the base metadata (MRO, etc.)
+            metadata = get_class_metadata(obj)
+            self._mount_essential_metadata(metadata)
+            return
+
+        # 2. Check for custom class renderer (legacy hooks)
         renderer = get_renderer(obj, CLASS_HOOKS)
         if renderer:
             _ = self.mount(Static(renderer(obj)))
             return
 
-        # Fallback to default class metadata extraction
+        # 3. Fallback to default class metadata extraction
         metadata = get_class_metadata(obj)
         self._mount_default(metadata)
 
-    def _mount_default(self, metadata: ClassMetadata) -> None:
-        """Mount default metadata sections.
+    def _mount_essential_metadata(self, metadata: ClassMetadata) -> None:
+        """Mount essential metadata sections (MRO, docstring).
 
         Args:
             metadata: The extracted class metadata.
@@ -80,6 +91,15 @@ class ClassInfoPane(VerticalScroll):
         _ = self.mount(
             Static(Panel(metadata.inheritance_tree, title="Inheritance Hierarchy"))
         )
+
+    def _mount_default(self, metadata: ClassMetadata) -> None:
+        """Mount default metadata sections.
+
+        Args:
+            metadata: The extracted class metadata.
+
+        """
+        self._mount_essential_metadata(metadata)
 
         # Class Fields and Methods
         if metadata.class_fields:

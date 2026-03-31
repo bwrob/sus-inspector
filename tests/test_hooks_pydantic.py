@@ -1,29 +1,103 @@
-"""Tests for Pydantic view hooks."""
+"""Tests for Pydantic specialized handler."""
 
 from __future__ import annotations
 
-from pydantic import BaseModel
-from rich.console import Console, Group
+from typing import Any, Final, cast
 
-from sus_inspector.hooks.pydantic import pydantic_view
+from pydantic import BaseModel, Field
+from rich.console import Group
+
+from sus_inspector.hooks.pydantic import PydanticHandler, pydantic_view
+
+F_COUNT_12: Final = 12
+METADATA_COUNT_2: Final = 2
 
 
-def test_pydantic_view() -> None:
-    """pydantic_view should render a BaseModel."""
+class User(BaseModel):
+    """Pydantic model for testing."""
 
-    class User(BaseModel):
-        id: int
-        name: str
+    id: int
+    name: str
 
+
+class LargeModel(BaseModel):
+    """Large Pydantic model for testing."""
+
+    f0: int = 0
+    f1: int = 1
+    f2: int = 2
+    f3: int = 3
+    f4: int = 4
+    f5: int = 5
+    f6: int = 6
+    f7: int = 7
+    f8: int = 8
+    f9: int = 9
+    f10: int = 10
+    f11: int = 11
+
+
+def test_pydantic_handler_can_handle() -> None:
+    """Test can_handle method."""
+    handler = PydanticHandler()
+    user = User(id=1, name="Alice")
+
+    assert handler.can_handle(user) is True
+    assert handler.can_handle({"id": 1}) is False
+    assert handler.can_handle(User) is False
+
+
+def test_pydantic_handler_get_type_tag() -> None:
+    """Test get_type_tag method."""
+    handler = PydanticHandler()
+    user = User(id=1, name="Alice")
+    assert handler.get_type_tag(user) == "Pydantic"
+
+
+def test_pydantic_handler_get_fields() -> None:
+    """Test get_fields method."""
+    handler = PydanticHandler()
+    user = User(id=1, name="Alice")
+    fields = handler.get_fields(user)
+    assert fields == {"id": 1, "name": "Alice"}
+
+
+def test_pydantic_handler_render() -> None:
+    """Test render method."""
+    handler = PydanticHandler()
+    user = User(id=1, name="Alice")
+    renderable = handler.render(user)
+    assert isinstance(renderable, Group)
+
+    # Complex object
+    large = LargeModel()
+    renderable_complex = cast("Any", handler.render(large, expanded=False))
+    assert isinstance(renderable_complex, Group)
+    group = cast("Any", renderable_complex)
+    assert f"({F_COUNT_12} fields) ..." in str(group.renderables[1])
+
+
+def test_pydantic_handler_field_metadata() -> None:
+    """Test get_field_metadata method."""
+
+    class MetaModel(BaseModel):
+        """Model with metadata."""
+
+        id: int = Field(..., description="The unique identifier")
+        name: str = "Anonymous"
+
+    handler = PydanticHandler()
+    metadata = handler.get_field_metadata(MetaModel)
+
+    assert len(metadata) == METADATA_COUNT_2
+    assert metadata[0]["name"] == "id"
+    assert metadata[0]["description"] == "The unique identifier"
+    assert metadata[1]["name"] == "name"
+    assert metadata[1]["default_value"] == "Anonymous"
+
+
+def test_pydantic_view_wrapper() -> None:
+    """Test the compatibility wrapper."""
     user = User(id=1, name="Alice")
     renderable = pydantic_view(user)
     assert isinstance(renderable, Group)
-
-    # Use a console to render to string to check content
-    console = Console(width=80, force_terminal=False)
-    with console.capture() as capture:
-        console.print(renderable)
-    content = capture.get()
-
-    assert "User" in content
-    assert "Alice" in content

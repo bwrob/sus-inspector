@@ -9,17 +9,19 @@ import attr
 import msgspec
 import pytest
 from rich.console import Console, Group
-from rich.table import Table
 from textual.app import App, ComposeResult
 from typing_extensions import override
 
 from sus_inspector.hooks.attrs import AttrsHandler
 from sus_inspector.hooks.base import BaseObjectHandler
 from sus_inspector.hooks.dataclasses import DataclassHandler
+from sus_inspector.hooks.handlers import HANDLER_REGISTRY, ensure_handlers
 from sus_inspector.hooks.msgspec import MsgspecHandler
 from sus_inspector.tui.widgets import ClassInfoPane
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from textual.widgets import Static
 
 FIELD_COUNT_2: Final = 2
@@ -132,8 +134,8 @@ def test_base_handler_get_methods() -> None:
     assert "__init__" not in methods
 
 
-def test_base_handler_render_instance_with_methods() -> None:
-    """Test instance rendering includes methods section."""
+def test_base_handler_render_instance_no_methods() -> None:
+    """Test instance rendering does NOT include methods section."""
 
     @dataclasses.dataclass
     class MyDC:
@@ -150,21 +152,24 @@ def test_base_handler_render_instance_with_methods() -> None:
         console.print(renderable)
     output = capture.get()
 
-    assert "Methods:" in output
-    assert "action()" in output
+    assert "Methods:" not in output
+    assert "action()" not in output
 
 
-def test_render_method_table_exception() -> None:
-    """Test _render_method_table with a function that has no signature."""
+def test_render_method_table_robustness() -> None:
+    """Test render_class_view handles functions with no signature via public API."""
+
+    class MyClass:
+        # Built-in functions often don't have a readable signature via inspect.signature
+        built_in: Callable[..., Any] = len
+
     handler = DataclassHandler()
-    # Built-in functions often don't have a readable signature via inspect.signature
-    methods = {"built_in": len}
-    table = handler._render_method_table(methods)  # noqa: SLF001
-    assert isinstance(table, Table)
+    renderable = handler.render_class_view(MyClass)
+    assert isinstance(renderable, Group)
 
     console = Console(width=100)
     with console.capture() as capture:
-        console.print(table)
+        console.print(renderable)
     output = capture.get()
     assert "built_in" in output
 
@@ -263,3 +268,36 @@ async def test_class_info_pane_none() -> None:
 
         child = cast("Static", pane.children[0])
         assert "No class metadata for None" in str(child.render())
+
+
+def test_handler_registry_get_handler_coverage() -> None:
+    """Trigger get_handler in HANDLER_REGISTRY for various types."""
+    ensure_handlers()
+
+    @dataclasses.dataclass
+    class MyDC:
+        a: int
+
+    assert HANDLER_REGISTRY.get_handler(MyDC(a=1)) is not None
+    assert HANDLER_REGISTRY.get_handler({"a": 1}) is None
+    assert HANDLER_REGISTRY.get_handler(None) is None
+
+
+def test_base_handler_tag_style_default() -> None:
+    """Test default tag style in BaseObjectHandler."""
+
+    class SimpleHandler(BaseObjectHandler):
+        @override
+        def can_handle(self, obj: Any) -> bool:
+            return False
+
+        @override
+        def get_type_tag(self, obj: Any) -> str:
+            return ""
+
+        @override
+        def get_fields(self, obj: Any) -> dict[str, Any]:
+            return {}
+
+    handler = SimpleHandler()
+    assert handler.get_tag_style() == "bold white"

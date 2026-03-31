@@ -14,8 +14,10 @@ def _get_fields(o: Any) -> dict[str, Any]:  # noqa: ANN401
     """
     if isinstance(o, dict):
         return cast("dict[str, Any]", o)
-    if hasattr(o, "__dict__"):
-        return cast("dict[str, Any]", o.__dict__)
+    # Access __dict__ more safely
+    obj_dict = getattr(o, "__dict__", None)
+    if isinstance(obj_dict, dict):
+        return cast("dict[str, Any]", obj_dict)
     if hasattr(o, "__slots__"):
         slots = cast("tuple[str, ...] | str", o.__slots__)
         if isinstance(slots, str):

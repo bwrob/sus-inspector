@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, TypedDict, cast
+from typing import TYPE_CHECKING, Any, TypedDict
 
 from rich.console import Group
 from rich.pretty import Pretty
@@ -112,13 +112,6 @@ class BaseObjectHandler(ABC):
         for k, v in fields.items():
             table.add_row(f"{k}:", Pretty(v, max_length=3, max_string=50))
 
-        methods = self.get_methods(obj)
-        if methods:
-            table.add_row("", "")  # Spacer
-            table.add_row("[bold blue]Methods:[/]", "")
-            for name in sorted(methods.keys()):
-                table.add_row(f"  {name}()", "")
-
         return Group(header, table)
 
     def get_tag_style(self) -> str:  # noqa: PLR6301
@@ -157,12 +150,15 @@ class BaseObjectHandler(ABC):
 
         cls = obj if isinstance(obj, type) else type(obj)
         methods: dict[str, Any] = {}
-        # Cast to Any to avoid basedpyright issues with unknown members
-        for name, value in inspect.getmembers(cast("Any", cls)):
+        for name in dir(cls):
             if name.startswith("__"):
                 continue
-            if inspect.isroutine(value):
-                methods[name] = value
+            try:
+                value = getattr(cls, name)
+                if inspect.isroutine(value):
+                    methods[name] = value
+            except (AttributeError, Exception):  # noqa: BLE001, S112
+                continue
         return methods
 
     def render_class_view(self, obj: Any) -> RenderableType:  # noqa: ANN401

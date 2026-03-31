@@ -228,11 +228,7 @@ class ObjectExplorerApp(App[None]):
         if methods:
             methods_node = node.add("Methods", data=None, allow_expand=False)
             for name, func in sorted(methods.items()):
-                _ = methods_node.add(
-                    f"{name}()",
-                    data=func,
-                    allow_expand=self._is_expandable(func),
-                )
+                _ = methods_node.add(f"{name}()", data=func, allow_expand=False)
 
     def _add_dict_children(
         self, node: TreeNode[object], obj_dict: dict[object, object]

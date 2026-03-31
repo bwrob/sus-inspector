@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, cast, get_type_hints
+from typing import Any
 
 from typing_extensions import override
 
@@ -54,48 +54,41 @@ class MsgspecHandler(BaseObjectHandler):
             dict[str, Any]: Fields and values.
 
         """
+        # We use Any to avoid basedpyright issues with dynamic struct fields
         return {f: getattr(obj, f) for f in obj.__struct_fields__}
 
     @override
     def get_field_metadata(self, obj: Any) -> list[FieldMetadata]:
-        """Extract metadata for msgspec fields.
+        """Extract metadata for msgspec fields using msgspec.inspect.
 
         Returns:
             list[FieldMetadata]: List of field metadata dictionaries.
 
         """
-        cls = obj if isinstance(obj, type) else type(obj)
-        metadata: list[FieldMetadata] = []
-
-        # msgspec doesn't store much metadata in the struct itself,
-        # but we can get names and type hints.
-        hints = get_type_hints(cls)
-        # Cast to Any to avoid basedpyright issues with unknown members
-        cls_any = cast("Any", cls)
-
-        # To get default values correctly for msgspec.Struct
-        # we can use inspect.signature on the class __init__
-        import inspect  # noqa: PLC0415
-
         try:
-            sig = inspect.signature(cls)
-            params = sig.parameters
+            import msgspec  # noqa: PLC0415
+            import msgspec.inspect  # noqa: PLC0415
+        except ImportError:
+            return []
+
+        cls = obj if isinstance(obj, type) else type(obj)
+        try:
+            info = msgspec.inspect.type_info(cls)
         except (ValueError, TypeError):
-            params = cast("Any", {})
+            return []
 
-        for name in cls_any.__struct_fields__:
-            default = None
-            if name in params:
-                param = cast("Any", params[name])
-                if param.default is not inspect.Parameter.empty:
-                    default = param.default
+        if not isinstance(info, msgspec.inspect.StructType):
+            return []
 
-            metadata.append(
-                {
-                    "name": name,
-                    "type_annotation": hints.get(name, Any),
-                    "description": None,
-                    "default_value": default,
-                }
-            )
+        metadata: list[FieldMetadata] = [
+            {
+                "name": field.name,
+                "type_annotation": field.type,
+                "description": None,  # msgspec doesn't natively support field descriptions  # noqa: E501
+                "default_value": field.default
+                if field.default is not msgspec.NODEFAULT
+                else None,
+            }
+            for field in info.fields
+        ]
         return metadata

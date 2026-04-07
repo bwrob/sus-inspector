@@ -1,9 +1,10 @@
-name: Deploy Documentation
+name: Docs
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -12,22 +13,18 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: 🛠️ Check out the repository
-        uses: actions/checkout@v6
-
-      - name: 🛠️ Install uv
-        uses: astral-sh/setup-uv@v7
+      - uses: actions/checkout@v6
         with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
           python-version: "3.12"
 
-      - name: 🛠️ Install dependencies
-        run: uv sync --locked --dev
+      - name: Install dependencies
+        run: uv sync --group dev
 
-      - name: 🛠️ Build documentation
-        run: uv run mkdocs build
-
-      - name: 🚀 Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./site
+      - name: Deploy documentation
+        run: uv run mkdocs gh-deploy --force

@@ -34,6 +34,7 @@ class ObjectExplorerApp(App[None]):
         Binding("q", "quit", "Quit"),
         Binding("escape", "quit", "Quit"),
         Binding("/", "search", "Search Tree"),
+        Binding("d", "toggle_private", "Toggle Private Members"),
         Binding("c", "toggle_class_view", "Toggle Class Info"),
         Binding("e", "toggle_expansion", "Expand/Collapse Detail"),
         Binding("left", "tree_collapse", "Collapse Node", show=False, priority=True),
@@ -186,6 +187,16 @@ class ObjectExplorerApp(App[None]):
         _ = tree.select_node(found_node)
         _ = tree.scroll_to_node(found_node)
 
+    def action_toggle_private(self) -> None:
+        """Toggle the visibility of private members."""
+        self.show_private = not self.show_private
+        tree = self.query_one(Tree[object])
+        tree.root.remove_children()
+        # Always re-populate from root object to reflect the toggle
+        self.add_children(tree.root, self.root_obj)
+        _ = tree.root.expand()
+        tree.refresh()
+
     def add_children(self, node: TreeNode[object], obj: object) -> None:
         """Recursively add children to a tree node.
 
@@ -195,6 +206,7 @@ class ObjectExplorerApp(App[None]):
 
         """
         from sus_inspector.hooks.handlers import HANDLER_REGISTRY  # noqa: PLC0415
+        import inspect
 
         handler = HANDLER_REGISTRY.get_handler(obj)
         if handler:
@@ -203,10 +215,72 @@ class ObjectExplorerApp(App[None]):
 
         if isinstance(obj, dict):
             self._add_dict_children(node, cast("dict[object, object]", obj))
-        elif isinstance(obj, (list, tuple, set)):
+            return
+        if isinstance(obj, (list, tuple, set)):
             self._add_collection_children(node, list(cast("list[object]", obj)))
+            return
+
+        # Smart Grouping for Objects
+        all_names = dir(obj)
+        if not self.show_private:
+            # Filter private and common library noise (boilerplate)
+            boilerplate = {"__pydantic_initialised__", "__pydantic_fields_set__", "__pydantic_extra__", "__pydantic_private__"}
+            all_names = [n for n in all_names if not n.startswith("_") and n not in boilerplate]
+
+        fields: list[tuple[str, Any]] = []
+        methods: list[tuple[str, Any]] = []
+
+        for name in all_names:
+            try:
+                val = getattr(obj, name)
+                if inspect.isroutine(val):
+                    methods.append((name, val))
+                else:
+                    fields.append((name, val))
+            except Exception:  # noqa: BLE001
+                continue
+
+        total = len(fields) + len(methods)
+        if total >= self.grouping_threshold:
+            if fields:
+                f_node = node.add(
+                    f"📁 Fields ({len(fields)})",
+                    data=None,
+                    allow_expand=True,
+                )
+                for name, val in sorted(fields):
+                    _ = f_node.add(
+                        f"• [cyan]{name}[/cyan]",
+                        data=val,
+                        allow_expand=self._is_expandable(val),
+                    )
+                _ = f_node.expand()
+            if methods:
+                m_node = node.add(
+                    f"📁 Methods ({len(methods)})",
+                    data=None,
+                    allow_expand=True,
+                )
+                for name, val in sorted(methods):
+                    _ = m_node.add(
+                        f"ƒ [magenta]{name}[/magenta]",
+                        data=val,
+                        allow_expand=self._is_expandable(val),
+                    )
         else:
-            self._add_object_attributes(node, obj)
+            # Flat list
+            for name, val in sorted(fields):
+                _ = node.add(
+                    f"• [cyan]{name}[/cyan]",
+                    data=val,
+                    allow_expand=self._is_expandable(val),
+                )
+            for name, val in sorted(methods):
+                _ = node.add(
+                    f"ƒ [magenta]{name}[/magenta]",
+                    data=val,
+                    allow_expand=self._is_expandable(val),
+                )
 
     def _add_handler_fields(
         self,
@@ -217,7 +291,7 @@ class ObjectExplorerApp(App[None]):
         """Add fields from a specialized handler."""
         fields = list(handler.get_fields(obj).items())
         for k, v in fields[:MAX_TREE_CHILDREN]:
-            _ = node.add(str(k), data=v, allow_expand=self._is_expandable(v))
+            _ = node.add(f"• [cyan]{k}[/cyan]", data=v, allow_expand=self._is_expandable(v))
         if len(fields) > MAX_TREE_CHILDREN:
             _ = node.add(
                 f"... and {len(fields) - MAX_TREE_CHILDREN} more fields",
@@ -228,9 +302,9 @@ class ObjectExplorerApp(App[None]):
         # Add methods
         methods = handler.get_methods(obj)
         if methods:
-            methods_node = node.add("Methods", data=None, allow_expand=False)
+            methods_node = node.add("📁 Methods", data=None, allow_expand=True)
             for name, func in sorted(methods.items()):
-                _ = methods_node.add(f"{name}()", data=func, allow_expand=False)
+                _ = methods_node.add(f"ƒ [magenta]{name}[/magenta]", data=func, allow_expand=False)
 
     def _add_dict_children(
         self, node: TreeNode[object], obj_dict: dict[object, object]

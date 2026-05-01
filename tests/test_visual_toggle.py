@@ -81,8 +81,8 @@ async def test_small_object_no_grouping() -> None:
         labels = [str(n.label) for n in root_children]
         
         assert not any("Fields" in l for l in labels)
-        assert "a" in labels
-        assert "b" in labels
+        assert any("a" in l for l in labels)
+        assert any("b" in l for l in labels)
 
 
 @pytest.mark.asyncio
@@ -94,15 +94,19 @@ async def test_private_member_visibility() -> None:
             self._private = 2
     
     app = ObjectExplorerApp(PrivateObj())
+    app.grouping_threshold = 100
     async with app.run_test() as pilot:
         tree = app.query_one(Tree[object])
-        
+
         # Initially hidden
-        assert not any("_private" in str(n.label) for n in tree.root.children)
-        assert any("public" in str(n.label) for n in tree.root.children)
-        
+        labels_before = [str(n.label) for n in tree.root.children]
+        assert not any("_private" in l for l in labels_before)
+        assert any("public" in l for l in labels_before)
+
         # Toggle 'd'
         await pilot.press("d")
-        
+        await pilot.wait_for_animation()
+
         # Now shown
-        assert any("_private" in str(n.label) for n in tree.root.children)
+        labels_after = [str(n.label) for n in tree.root.children]
+        assert any("_private" in l for l in labels_after)

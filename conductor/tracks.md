@@ -74,6 +74,11 @@ Tracks are prioritized by their impact on core usability, navigation efficiency,
 
 ---
 
+- [ ] **Track: improve documentation. move to zensical from mkdocs. use textual to generate snapshot of how the tui looks and behaves. add examples and explanations.**
+*Link: [./tracks/zensical_docs_20260501/](./tracks/zensical_docs_20260501/)*
+
+---
+
 ## Archived Tracks (Completed)
 - [x] **Track: Implement visual toggle ('d') and Smart Grouping**
     - *Link: [./archive/visual_toggle_20260328/](./archive/visual_toggle_20260328/)*

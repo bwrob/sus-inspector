@@ -58,6 +58,8 @@ class ObjectExplorerApp(App[None]):
         self.root_obj: object = obj
         self.root_name: str = obj_name
         self.expanded_details: set[int] = set()
+        self.show_private: bool = False
+        self.grouping_threshold: int = 10
         # Ensure handlers are loaded when the app starts
         from sus_inspector.hooks.handlers import ensure_handlers  # noqa: PLC0415
 

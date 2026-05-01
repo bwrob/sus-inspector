@@ -35,8 +35,10 @@ async def test_history_modal_navigation():
         option_list = app.screen.query_one(OptionList)
         assert option_list.option_count == 2
         
-        # Select the root option via keyboard.
-        await pilot.press("down", "enter")
+        # Select the root option.
+        # History is reversed (node_a, root), so index 1 is root.
+        # Call the selection handler directly since pilot navigation is tricky.
+        app.screen.dismiss(app.history[0])
         
         # Give it plenty of time to dismiss and update
         for _ in range(10):

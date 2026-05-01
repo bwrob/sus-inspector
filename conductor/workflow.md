@@ -76,7 +76,8 @@ This meta-task requires the Conductor agent to:
 Work on a track **MUST** end with archiving the track and creating a GitHub PR.
 1.  **Archive:** Move the track's folder from `conductor/tracks/` to `conductor/archive/` and update `conductor/tracks.md`.
 2.  **PR Creation:** Open a Pull Request from the track branch to `main` using the GitHub CLI (`gh`).
-3.  **PR Details:**
+3.  **Review & Iteration:** The user will review and comment on the GitHub PR. You MUST check for these comments and address them (fix and push) when prompted.
+4.  **PR Details:**
     - **Title:** Use the track description (e.g., `feat(conductor): <Track Description>`).
     - **Body:** Briefly summarize the changes and link to the archived track's `index.md`.
-4.  **Command:** `rtk gh pr create --fill --label "track-complete"`.
+5.  **Command:** `rtk gh pr create --fill --label "track-complete"`.

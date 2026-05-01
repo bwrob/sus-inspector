@@ -8,14 +8,6 @@ Tracks are prioritized by their impact on core usability, navigation efficiency,
 
 ---
 
-- [ ] **Track: Implement visual toggle ('d') and Smart Grouping**
-    - *ID:* `visual_toggle_20260328`
-    - *Status:* `new`
-    - *Priority:* High (Core usability and clutter management)
-    - *Link: [./tracks/visual_toggle_20260328/](./tracks/visual_toggle_20260328/)*
-
----
-
 - [ ] **Track: Visual Breadcrumb Trail and Session History List**
     - *ID:* `breadcrumbs_history_20260330`
     - *Status:* `new`
@@ -73,6 +65,8 @@ Tracks are prioritized by their impact on core usability, navigation efficiency,
 ---
 
 ## Archived Tracks (Completed)
+- [x] **Track: Implement visual toggle ('d') and Smart Grouping**
+    - *Link: [./archive/visual_toggle_20260328/](./archive/visual_toggle_20260328/)*
 - [x] **Track: Unified custom viewers for dataclasses, pydantic, attrs etc.**
     - *Link: [./archive/custom_viewers_20260329/](./archive/custom_viewers_20260329/)*
 - [x] **Track: Type Safety Refactor (basedpyright & ty)**

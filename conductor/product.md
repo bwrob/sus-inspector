@@ -19,9 +19,9 @@ The interactive, terminal-based object inspector for suspicious Python objects. 
 - **Comprehensive Documentation Site:** A central resource for users and developers, including automated API reference and getting started guides.
 - **Inspector Registry:** A modular system for custom object-specific rendering logic, allowing for highly tailored inspection views.
 - **Side-by-side TUI layout:** Optimized dual-pane display for simultaneous instance and class metadata inspection.
-- **Visual Toggle ('d'):** Quickly show or hide private `__dunder__` methods for cleaner inspection.
-- **Expression Evaluation:** Allow users to evaluate simple Python expressions directly within the search bar or TUI.
-- **Interactive Class Views:** Dedicated views for inspecting class-level metadata, methods, and inheritance trees (Toggle with 'c').
+- **Smart Grouping:** Automatically groups members into "Fields" and "Methods" for complex objects.
+- **Visual Toggle ('d'):** Quickly show or hide private `_` members for cleaner inspection.
+- **Expression Evaluation:** Allow users to evaluate simple Python expressions directly within the search bar or TUI.- **Interactive Class Views:** Dedicated views for inspecting class-level metadata, methods, and inheritance trees (Toggle with 'c').
 - **Enhanced Custom Handlers:** Expand the plugin system with more robust, interactive handlers for common libraries and data structures.
 
 ## Technical & Design Constraints

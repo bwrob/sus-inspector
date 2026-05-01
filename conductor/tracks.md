@@ -8,9 +8,9 @@ Tracks are prioritized by their impact on core usability, navigation efficiency,
 
 ---
 
-- [ ] **Track: Implement visual toggle ('d') and Smart Grouping**
+- [x] **Track: Implement visual toggle ('d') and Smart Grouping**
     - *ID:* `visual_toggle_20260328`
-    - *Status:* `new`
+    - *Status:* `completed`
     - *Priority:* High (Core usability and clutter management)
     - *Link: [./tracks/visual_toggle_20260328/](./tracks/visual_toggle_20260328/)*
 

@@ -64,6 +64,11 @@ Tracks are prioritized by their impact on core usability, navigation efficiency,
 
 ---
 
+- [ ] **Track: perform architectural review, code cleanup, separation of responsibilities, etc**
+*Link: [./tracks/architecture_refactor_20260501/](./tracks/architecture_refactor_20260501/)*
+
+---
+
 ## Archived Tracks (Completed)
 - [x] **Track: Implement visual toggle ('d') and Smart Grouping**
     - *Link: [./archive/visual_toggle_20260328/](./archive/visual_toggle_20260328/)*

@@ -1,0 +1,8 @@
+{
+  "track_id": "zensical_docs_20260501",
+  "type": "chore",
+  "status": "new",
+  "created_at": "2026-05-01T00:00:00Z",
+  "updated_at": "2026-05-01T00:00:00Z",
+  "description": "improve documentation. move to zensical from mkdocs. use textual to generate snapshot of how the tui looks and behaves. add examples and explanations."
+}

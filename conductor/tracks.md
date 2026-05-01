@@ -7,15 +7,7 @@ This file tracks all major development tracks for `sus-inspector`.
 Tracks are prioritized by their impact on core usability, navigation efficiency, and inspection depth.
 
 ---
-
-- [x] **Track: Visual Breadcrumb Trail and Session History List**
-    - *ID:* `breadcrumbs_history_20260330`
-    - *Status:* `new`
-    - *Priority:* High (Essential for navigation and nested object exploration)
-    - *Link: [./tracks/breadcrumbs_history_20260330/](./tracks/breadcrumbs_history_20260330/)*
-
----
-
+## Archived Tracks (Completed)
 - [ ] **Track: Custom viewers for pandas and polars dataframes and numpy ndarrays.**
     - *ID:* `dataframe_viewers_20260330`
     - *Status:* `new`

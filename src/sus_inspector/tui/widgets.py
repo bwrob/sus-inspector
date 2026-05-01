@@ -6,14 +6,47 @@ from typing import TYPE_CHECKING, Any, final
 
 from rich.panel import Panel
 from rich.text import Text
-from textual.containers import VerticalScroll
-from textual.widgets import Static
-
-from sus_inspector.hooks.registry import CLASS_HOOKS, get_renderer
-from sus_inspector.metadata import get_class_metadata
+from textual.containers import Horizontal, Vertical, VerticalScroll
+from textual.screen import ModalScreen
+from textual.widgets import Button, Input, OptionList, Static
 
 if TYPE_CHECKING:
+    from textual.app import ComposeResult
+    from textual.widgets.tree import TreeNode
     from sus_inspector.metadata import ClassMetadata
+
+
+@final
+class Breadcrumbs(Horizontal):
+    """A widget to display the current traversal path as clickable breadcrumbs."""
+
+    def update_path(self, node: TreeNode[object]) -> None:
+        """Update the breadcrumbs based on the selected node.
+
+        Args:
+            node: The currently selected tree node.
+
+        """
+        self.query("*").remove()
+
+        path_nodes: list[TreeNode[object]] = []
+        curr = node
+        while curr:
+            path_nodes.insert(0, curr)
+            curr = curr.parent
+
+        for i, p_node in enumerate(path_nodes):
+            if i > 0:
+                _ = self.mount(Static(" > ", classes="bc-separator"))
+
+            label = str(p_node.label)
+            # Remove Rich tags for button label for cleaner look in breadcrumbs
+            import re  # noqa: PLC0415
+            clean_label = re.sub(r"\[.*?\]", "", label)
+            
+            btn = Button(clean_label, variant="default", classes="bc-button")
+            btn.node = p_node  # type: ignore[reportAttributeAccessIssue]
+            _ = self.mount(btn)
 
 
 @final
@@ -113,3 +146,91 @@ class ClassInfoPane(VerticalScroll):
         if metadata.class_methods:
             methods_text = Text("\n".join(metadata.class_methods))
             _ = self.mount(Static(Panel(methods_text, title="Class Methods")))
+
+
+@final
+class HistoryModal(ModalScreen["TreeNode[object]"]):
+    """A modal screen showing session history."""
+
+    def __init__(self, history: list[TreeNode[object]]) -> None:
+        """Initialize the history modal.
+
+        Args:
+            history: List of visited nodes.
+
+        """
+        super().__init__()
+        self.history = history
+        self.filtered_history: list[TreeNode[object]] = list(reversed(history))
+
+    def compose(self) -> ComposeResult:
+        """Compose the modal layout."""
+        with Vertical(id="history-container"):
+            yield Static("Session History", id="history-title")
+            yield Input(placeholder="Search history...", id="history-search")
+            # Use OptionList for efficient selection
+            options = []
+            for node in self.filtered_history:
+                label = self._get_node_path(node)
+                options.append(label)
+
+            yield OptionList(*options, id="history-list")
+            yield Static("Press Enter to select, Escape to cancel", id="history-footer")
+
+    def on_mount(self) -> None:
+        """Focus the search bar on mount."""
+        _ = self.query_one("#history-search").focus()
+
+    def on_input_changed(self, event: Input.Changed) -> None:
+        """Filter the history list as the user types.
+
+        Args:
+            event: Input change event.
+
+        """
+        query = event.value.lower()
+        option_list = self.query_one(OptionList)
+        _ = option_list.clear_options()
+
+        self.filtered_history = []
+        for node in reversed(self.history):
+            path = self._get_node_path(node)
+            if query in path.lower():
+                _ = option_list.add_option(path)
+                self.filtered_history.append(node)
+
+    def _get_node_path(self, node: TreeNode[object]) -> str:
+        """Get the full path string for a node.
+
+        Args:
+            node: The tree node.
+
+        Returns:
+            str: Path representation.
+
+        """
+        segments = []
+        curr = node
+        while curr and curr.parent:
+            segments.insert(0, str(curr.label))
+            curr = curr.parent
+
+        path = "root"
+        for s in segments:
+            import re  # noqa: PLC0415
+            clean_s = re.sub(r"\[.*?\]", "", s)
+            if clean_s.startswith("["):
+                path += clean_s
+            else:
+                path += f".{clean_s}"
+        return path
+
+    def on_option_list_option_selected(self, event: OptionList.OptionSelected) -> None:
+        """Handle option selection.
+
+        Args:
+            event: Selection event.
+
+        """
+        # We need to map back to the TreeNode via filtered_history
+        self.dismiss(self.filtered_history[event.option_index])

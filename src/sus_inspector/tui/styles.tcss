@@ -21,12 +21,71 @@
     overflow-y: scroll;
 }
 
-#path-bar {
+Breadcrumbs {
     dock: bottom;
+    height: 1;
+    background: $surface;
+    padding: 0 1;
+    align-vertical: middle;
+}
+
+.bc-button {
+    min-width: 0;
+    height: 1;
+    border: none;
+    background: transparent;
+    color: $text;
+    padding: 0 1;
+    margin: 0;
+}
+
+.bc-button:hover {
     background: $accent;
+    color: $text;
+}
+
+.bc-separator {
+    color: $text-disabled;
+}
+
+#path-bar {
+    display: none;
 }
 
 #search-bar {
     dock: bottom;
     display: none;
+}
+
+HistoryModal {
+    align: center middle;
+}
+
+#history-container {
+    width: 60%;
+    height: 60%;
+    background: $surface;
+    border: thick $primary;
+    padding: 1;
+}
+
+#history-title {
+    width: 100%;
+    text-align: center;
+    background: $primary;
+    color: $text;
+    text-style: bold;
+    margin-bottom: 1;
+}
+
+#history-list {
+    height: 1fr;
+    border: solid $secondary;
+}
+
+#history-footer {
+    width: 100%;
+    text-align: center;
+    color: $text-disabled;
+    margin-top: 1;
 }

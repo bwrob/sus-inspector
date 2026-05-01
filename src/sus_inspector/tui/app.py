@@ -15,7 +15,7 @@ from textual.widgets import Footer, Header, Input, Static, Tree
 from typing_extensions import override
 
 from sus_inspector.hooks.registry import VIEW_HOOKS, ensure_default_hooks
-from sus_inspector.tui.widgets import ClassInfoPane
+from sus_inspector.tui.widgets import Breadcrumbs, ClassInfoPane, HistoryModal
 
 if TYPE_CHECKING:
     from textual._path import CSSPathType
@@ -38,6 +38,9 @@ class ObjectExplorerApp(App[None]):
         Binding("d", "toggle_private", "Toggle Private Members"),
         Binding("c", "toggle_class_view", "Toggle Class Info"),
         Binding("e", "toggle_expansion", "Expand/Collapse Detail"),
+        Binding("alt+left", "go_back", "Back", show=True),
+        Binding("alt+right", "go_forward", "Forward", show=True),
+        Binding("ctrl+h", "show_history", "History", show=True),
         Binding("left", "tree_collapse", "Collapse Node", show=False, priority=True),
         Binding("right", "tree_expand", "Expand Node", show=False, priority=True),
     ]
@@ -62,6 +65,8 @@ class ObjectExplorerApp(App[None]):
         self.expanded_details: set[int] = set()
         self.show_private: bool = False
         self.grouping_threshold: int = 10
+        self.history: list[TreeNode[object]] = []
+        self.history_index: int = -1
         # Ensure handlers are loaded when the app starts
         from sus_inspector.hooks.handlers import ensure_handlers  # noqa: PLC0415
 
@@ -97,6 +102,7 @@ class ObjectExplorerApp(App[None]):
                 class_pane.border_title = "Class Information"
                 yield class_pane
 
+        yield Breadcrumbs(id="breadcrumbs")
         yield Static(f"Path: {self.root_name}", id="path-bar")
         msg = "Search keys (Press Enter to find next)..."
         yield Input(placeholder=msg, id="search-bar")
@@ -136,6 +142,80 @@ class ObjectExplorerApp(App[None]):
         tree = self.query_one(Tree[object])
         if tree.cursor_node:
             _ = tree.cursor_node.expand()
+
+    def action_go_back(self) -> None:
+        """Navigate back in history."""
+        if self.history_index > 0:
+            self.history_index -= 1
+            tree = self.query_one(Tree[object])
+            target_node = self.history[self.history_index]
+            # Ensure path to node is expanded
+            curr = target_node.parent
+            while curr:
+                _ = curr.expand()
+                curr = curr.parent
+            _ = tree.select_node(target_node)
+            _ = tree.scroll_to_node(target_node)
+            _ = tree.focus()
+
+    def action_go_forward(self) -> None:
+        """Navigate forward in history."""
+        if self.history_index < len(self.history) - 1:
+            self.history_index += 1
+            tree = self.query_one(Tree[object])
+            target_node = self.history[self.history_index]
+            # Ensure path to node is expanded
+            curr = target_node.parent
+            while curr:
+                _ = curr.expand()
+                curr = curr.parent
+            _ = tree.select_node(target_node)
+            _ = tree.scroll_to_node(target_node)
+            _ = tree.focus()
+
+    def action_show_history(self) -> None:
+        """Show the session history modal."""
+
+        def on_selected(node: TreeNode[object] | None) -> None:
+            if node:
+                tree = self.query_one(Tree[object])
+                # Find the node in history and update index
+                try:
+                    self.history_index = self.history.index(node)
+                except ValueError:
+                    pass
+
+                # Ensure path to node is expanded
+                curr = node.parent
+                while curr:
+                    _ = curr.expand()
+                    curr = curr.parent
+
+                _ = tree.select_node(node)
+                _ = tree.focus()
+
+        self.push_screen(HistoryModal(self.history), on_selected)
+
+    def _push_history(self, node: TreeNode[object]) -> None:
+        """Push a node to the navigation history.
+
+        Args:
+            node: The node to push.
+
+        """
+        if node.data is None:
+            return
+
+        # If we are already at this node in history, don't push.
+        # This handles both history navigation and repeated clicks.
+        if 0 <= self.history_index < len(self.history):
+            if self.history[self.history_index] == node:
+                return
+
+        # Truncate any "forward" history if we are in the middle and navigating to a new place
+        self.history = self.history[: self.history_index + 1]
+        self.history.append(node)
+        self.history_index += 1
 
     def on_input_submitted(self, event: Input.Submitted) -> None:
         """Handle search queries.
@@ -443,6 +523,18 @@ class ObjectExplorerApp(App[None]):
         if event.node.data is not None and not event.node.children:
             self.add_children(event.node, event.node.data)
 
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Handle breadcrumb button clicks.
+
+        Args:
+            event: Button press event.
+
+        """
+        if hasattr(event.button, "node"):
+            tree = self.query_one(Tree[object])
+            _ = tree.select_node(event.button.node)  # type: ignore[reportAttributeAccessIssue]
+            _ = tree.focus()
+
     def action_toggle_expansion(self) -> None:
         """Toggle the expansion state of the current object in the detail view."""
         tree = self.query_one(Tree[object])
@@ -465,11 +557,16 @@ class ObjectExplorerApp(App[None]):
             event: Highlight event.
 
         """
+        self._push_history(event.node)
         detail_view = self.query_one("#detail-view", Static)
         detail_pane = self.query_one("#detail-pane")
         path_bar = self.query_one("#path-bar", Static)
+        breadcrumbs = self.query_one(Breadcrumbs)
         class_pane = self.query_one(ClassInfoPane)
         obj = event.node.data
+
+        # --- Update Breadcrumbs ---
+        breadcrumbs.update_path(event.node)
 
         # --- Update the Tree Path Bar ---
         self._update_path_bar(path_bar, event.node)

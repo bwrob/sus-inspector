@@ -15,7 +15,9 @@ The interactive, terminal-based object inspector for suspicious Python objects. 
 - **Python Developers:** Debugging complex nested objects, class instances, and functional logic in real-time.
 - **API Consumers:** Exploring deeply nested JSON structures or class-based responses from external services.
 
-## Core Features (Next Steps)
+## Core Features
+- **Interactive Navigation:** Visual breadcrumb trail for instant context and clickable "jump-to-path" capability.
+- **Session History:** Robust navigation history with back/forward support (Alt+Left/Right) and a searchable history popup (Ctrl+H).
 - **Comprehensive Documentation Site:** A central resource for users and developers, including automated API reference and getting started guides.
 - **Inspector Registry:** A modular system for custom object-specific rendering logic, allowing for highly tailored inspection views.
 - **Side-by-side TUI layout:** Optimized dual-pane display for simultaneous instance and class metadata inspection.

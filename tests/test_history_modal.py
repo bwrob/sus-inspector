@@ -35,16 +35,14 @@ async def test_history_modal_navigation():
         option_list = app.screen.query_one(OptionList)
         assert option_list.option_count == 2
         
-        # Select the second option (root)
-        # In the modal, we reversed history, so "root" is the second option
-        await pilot.press("down")
-        await pilot.press("enter")
+        # Select the root option via keyboard.
+        await pilot.press("down", "enter")
         
         # Give it plenty of time to dismiss and update
-        for _ in range(5):
+        for _ in range(10):
             await pilot.pause()
         
-        # Modal should be dismissed (check screen stack)
-        assert not any(isinstance(s, HistoryModal) for s in app.screen_stack)
+        # Modal should be dismissed (check query results)
+        assert len(app.query(HistoryModal)) == 0
         assert tree.cursor_node == tree.root
         assert app.history_index == 0

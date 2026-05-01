@@ -9,8 +9,9 @@
 - **Atomic Operations:** Keep changes small and focused on a single task.
 
 ## 2. Branching & Commits
+- **Protected Branch:** The `main` branch is protected. **NEVER** push directly to `main` or merge into `main` locally.
 - **Track Branches:** Every track must be developed on a dedicated branch (e.g., `track/shortname-YYYYMMDD`). This branch will persist for the duration of the track.
-- **Merge Requests (MRs):** Upon completing a track, create a Merge Request (or Pull Request) to merge the track branch into the main development branch.
+- **Merge Requests (MRs):** All changes MUST be submitted via a Pull Request (PR) from the track branch.
 - **Per-Task Commits:** Commit changes after every completed task in `plan.md`.
 - **Git Notes Summaries:** Store detailed task summaries in Git notes metadata to keep the commit history clean.
 
@@ -72,9 +73,11 @@ This meta-task requires the Conductor agent to:
 3.  **Confirm:** Ask the user to confirm the phase meets their expectations before proceeding to the next phase.
 
 ## 7. Protocol: Track Finalization & PR
-After a track is successfully implemented and archived (moved to `conductor/archive/`):
-1.  **PR Creation:** Open a Pull Request from the track branch to `main` using the GitHub CLI (`gh`).
-2.  **PR Details:**
+Work on a track **MUST** end with archiving the track and creating a GitHub PR.
+1.  **Archive:** Move the track's folder from `conductor/tracks/` to `conductor/archive/` and update `conductor/tracks.md`.
+2.  **PR Creation:** Open a Pull Request from the track branch to `main` using the GitHub CLI (`gh`).
+3.  **Review & Iteration:** The user will review and comment on the GitHub PR. You MUST check for these comments and address them (fix and push) when prompted.
+4.  **PR Details:**
     - **Title:** Use the track description (e.g., `feat(conductor): <Track Description>`).
     - **Body:** Briefly summarize the changes and link to the archived track's `index.md`.
-3.  **Command:** `rtk gh pr create --fill --label "track-complete"`.
+5.  **Command:** `rtk gh pr create --fill --label "track-complete"`.

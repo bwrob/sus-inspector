@@ -91,6 +91,7 @@ class ObjectExplorerApp(App[None]):
 
         """
         yield Header(show_clock=True, icon="🔍")
+        yield Breadcrumbs(id="breadcrumbs")
 
         with Horizontal():
             tree: Tree[object] = Tree(self.root_name, id="tree-pane")
@@ -107,8 +108,6 @@ class ObjectExplorerApp(App[None]):
                 class_pane.border_title = "Class Information"
                 yield class_pane
 
-        yield Breadcrumbs(id="breadcrumbs")
-        yield Static(f"Path: {self.root_name}", id="path-bar")
         msg = "Search keys (Press Enter to find next)..."
         yield Input(placeholder=msg, id="search-bar")
         yield Footer()
@@ -565,16 +564,12 @@ class ObjectExplorerApp(App[None]):
         self._push_history(event.node)
         detail_view = self.query_one("#detail-view", Static)
         detail_pane = self.query_one("#detail-pane")
-        path_bar = self.query_one("#path-bar", Static)
         breadcrumbs = self.query_one(Breadcrumbs)
         class_pane = self.query_one(ClassInfoPane)
         obj = event.node.data
 
         # --- Update Breadcrumbs ---
         breadcrumbs.update_path(event.node)
-
-        # --- Update the Tree Path Bar ---
-        self._update_path_bar(path_bar, event.node)
 
         # --- Update the Class Info Pane (if visible) ---
         if class_pane.is_pane_visible:
@@ -599,28 +594,6 @@ class ObjectExplorerApp(App[None]):
 
         # Fallback to rich pretty print
         detail_view.update(Panel(Pretty(obj), title="Object Preview"))
-
-    def _update_path_bar(self, path_bar: Static, node: TreeNode[object]) -> None:
-        """Update the path bar with the current traversal path.
-
-        Args:
-            path_bar: Static widget for path.
-            node: The currently selected node.
-
-        """
-        path_segments: list[str] = []
-        curr = node
-        while curr and curr.parent:
-            path_segments.insert(0, str(curr.label))
-            curr = curr.parent
-
-        full_path: str = self.root_name
-        for p in path_segments:
-            if p.startswith("["):
-                full_path += p
-            else:
-                full_path += f".{p}"
-        path_bar.update(f"Path: {full_path}")
 
     @staticmethod
     def _try_view_hooks(detail_view: Static, obj: object) -> bool:

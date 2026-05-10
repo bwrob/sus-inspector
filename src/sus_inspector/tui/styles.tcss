@@ -22,11 +22,11 @@
 }
 
 Breadcrumbs {
-    dock: bottom;
     height: 1;
     background: $surface;
     padding: 0 1;
     align-vertical: middle;
+    border-bottom: solid $primary;
 }
 
 .bc-button {
@@ -46,10 +46,6 @@ Breadcrumbs {
 
 .bc-separator {
     color: $text-disabled;
-}
-
-#path-bar {
-    display: none;
 }
 
 #search-bar {

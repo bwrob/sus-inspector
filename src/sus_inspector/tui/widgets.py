@@ -52,7 +52,31 @@ class NodeButton(Button):
 class Breadcrumbs(Horizontal):
     """A widget to display the current traversal path as clickable breadcrumbs."""
 
-    path: reactive[list[TreeNode[object]]] = reactive([], recompose=True)
+    path: reactive[list[TreeNode[object]]] = reactive([])
+
+    def watch_path(self, path: list[TreeNode[object]]) -> None:
+        """Update the UI when the path changes.
+
+        Args:
+            path: The new traversal path.
+
+        """
+        _ = self.query("*").remove()
+        _ = self.mount(Static("NAV: ", classes="bc-label"))
+
+        from rich.text import Text as RichText  # noqa: PLC0415
+
+        for i, p_node in enumerate(path):
+            if i > 0:
+                _ = self.mount(Static(" > ", classes="bc-separator"))
+
+            label = str(p_node.label)
+            clean_label = RichText.from_markup(label).plain
+            _ = self.mount(
+                NodeButton(
+                    clean_label, variant="default", classes="bc-button", node=p_node
+                )
+            )
 
     async def update_path(self, node: TreeNode[object]) -> None:
         """Update the breadcrumbs based on the selected node.
@@ -65,29 +89,20 @@ class Breadcrumbs(Horizontal):
         curr: TreeNode[object] | None = node
         while curr is not None:
             path_nodes.insert(0, curr)
-            curr = curr.parent
+            # Use getattr for robustness if parent property is missing
+            curr = getattr(curr, "parent", None)
 
         self.path = path_nodes
 
     @override
     def compose(self) -> ComposeResult:
-        """Compose the breadcrumbs.
+        """Compose the initial layout.
 
         Yields:
-            The breadcrumb buttons and separators.
+            The initial label.
 
         """
-        from rich.text import Text as RichText  # noqa: PLC0415
-
-        for i, p_node in enumerate(self.path):
-            if i > 0:
-                yield Static(" > ", classes="bc-separator")
-
-            label = str(p_node.label)
-            clean_label = RichText.from_markup(label).plain
-            yield NodeButton(
-                clean_label, variant="default", classes="bc-button", node=p_node
-            )
+        yield Static("NAV: ", classes="bc-label")
 
 
 @final

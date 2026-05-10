@@ -91,22 +91,24 @@ class ObjectExplorerApp(App[None]):
 
         """
         yield Header(show_clock=True, icon="🔍")
-        yield Breadcrumbs(id="breadcrumbs")
 
-        with Horizontal():
-            tree: Tree[object] = Tree(self.root_name, id="tree-pane")
-            tree.border_title = "Object Tree"
-            yield tree
+        with Vertical():
+            yield Breadcrumbs(id="breadcrumbs")
 
-            with Vertical(id="detail-container"):
-                with VerticalScroll(id="detail-pane") as vs:
-                    vs.border_title = "Inspection View"
-                    vs.border_subtitle = "Select an item..."
-                    yield Static("Select a node to inspect...", id="detail-view")
+            with Horizontal():
+                tree: Tree[object] = Tree(self.root_name, id="tree-pane")
+                tree.border_title = "Object Tree"
+                yield tree
 
-                class_pane = ClassInfoPane(id="class-pane")
-                class_pane.border_title = "Class Information"
-                yield class_pane
+                with Vertical(id="detail-container"):
+                    with VerticalScroll(id="detail-pane") as vs:
+                        vs.border_title = "Inspection View"
+                        vs.border_subtitle = "Select an item..."
+                        yield Static("Select a node to inspect...", id="detail-view")
+
+                    class_pane = ClassInfoPane(id="class-pane")
+                    class_pane.border_title = "Class Information"
+                    yield class_pane
 
         msg = "Search keys (Press Enter to find next)..."
         yield Input(placeholder=msg, id="search-bar")
@@ -122,7 +124,7 @@ class ObjectExplorerApp(App[None]):
 
         # Ensure breadcrumbs are showing root on startup
         breadcrumbs = self.query_one(Breadcrumbs)
-        await breadcrumbs.update_path(tree.root)
+        _ = self.call_after_refresh(breadcrumbs.update_path, tree.root)
 
     def action_search(self) -> None:
         """Triggered by pressing '/' to show the search bar."""

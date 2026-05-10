@@ -51,24 +51,24 @@ class NodeButton(Button):
 class Breadcrumbs(Horizontal):
     """A widget to display the current traversal path as clickable breadcrumbs."""
 
-    def update_path(self, node: TreeNode[object]) -> None:
+    async def update_path(self, node: TreeNode[object]) -> None:
         """Update the breadcrumbs based on the selected node.
 
         Args:
             node: The currently selected tree node.
 
         """
-        _ = self.query("*").remove()
+        await self.query("*").remove()
 
         path_nodes: list[TreeNode[object]] = []
-        curr = node
+        curr: TreeNode[object] | None = node
         while curr:
             path_nodes.insert(0, curr)
             curr = curr.parent
 
         for i, p_node in enumerate(path_nodes):
             if i > 0:
-                _ = self.mount(Static(" > ", classes="bc-separator"))
+                await self.mount(Static(" > ", classes="bc-separator"))
 
             label = str(p_node.label)
             # Remove Rich tags for button label for cleaner look in breadcrumbs
@@ -79,7 +79,7 @@ class Breadcrumbs(Horizontal):
             btn = NodeButton(
                 clean_label, variant="default", classes="bc-button", node=p_node
             )
-            _ = self.mount(btn)
+            await self.mount(btn)
 
 
 @final
@@ -105,7 +105,7 @@ class ClassInfoPane(VerticalScroll):
         self._is_pane_visible = value
         self.display = value
 
-    def update_object(self, obj: object) -> None:
+    async def update_object(self, obj: object) -> None:
         """Update the pane with a new object's class metadata.
 
         Args:
@@ -113,10 +113,10 @@ class ClassInfoPane(VerticalScroll):
 
         """
         # Clear existing content
-        _ = self.query("*").remove()
+        await self.query("*").remove()
 
         if obj is None:
-            _ = self.mount(Static("No class metadata for None."))
+            await self.mount(Static("No class metadata for None."))
             return
 
         # 1. Check for specialized handler class view
@@ -124,23 +124,23 @@ class ClassInfoPane(VerticalScroll):
 
         handler = HANDLER_REGISTRY.get_handler(obj)
         if handler:
-            _ = self.mount(Static(handler.render_class_view(obj)))
+            await self.mount(Static(handler.render_class_view(obj)))
             # We still want to show the base metadata (MRO, etc.)
             metadata = get_class_metadata(obj)
-            self._mount_essential_metadata(metadata)
+            await self._mount_essential_metadata(metadata)
             return
 
         # 2. Check for custom class renderer (legacy hooks)
         renderer = get_renderer(obj, CLASS_HOOKS)
         if renderer:
-            _ = self.mount(Static(renderer(obj)))
+            await self.mount(Static(renderer(obj)))
             return
 
         # 3. Fallback to default class metadata extraction
         metadata = get_class_metadata(obj)
-        self._mount_default(metadata)
+        await self._mount_default(metadata)
 
-    def _mount_essential_metadata(self, metadata: ClassMetadata) -> None:
+    async def _mount_essential_metadata(self, metadata: ClassMetadata) -> None:
         """Mount essential metadata sections (MRO, docstring).
 
         Args:
@@ -149,23 +149,23 @@ class ClassInfoPane(VerticalScroll):
         """
         # Docstring
         if metadata.doc:
-            _ = self.mount(
+            await self.mount(
                 Static(Panel(Text(metadata.doc, style="italic"), title="Docstring"))
             )
 
         # MRO and Inheritance Tree
-        _ = self.mount(
+        await self.mount(
             Static(Panel(metadata.inheritance_tree, title="Inheritance Hierarchy"))
         )
 
-    def _mount_default(self, metadata: ClassMetadata) -> None:
+    async def _mount_default(self, metadata: ClassMetadata) -> None:
         """Mount default metadata sections.
 
         Args:
             metadata: The extracted class metadata.
 
         """
-        self._mount_essential_metadata(metadata)
+        await self._mount_essential_metadata(metadata)
 
         # Class Fields and Methods
         if metadata.class_fields:
@@ -174,11 +174,11 @@ class ClassInfoPane(VerticalScroll):
                     f"{k}: {type(v).__name__}" for k, v in metadata.class_fields.items()
                 )
             )
-            _ = self.mount(Static(Panel(fields_text, title="Class Fields")))
+            await self.mount(Static(Panel(fields_text, title="Class Fields")))
 
         if metadata.class_methods:
             methods_text = Text("\n".join(metadata.class_methods))
-            _ = self.mount(Static(Panel(methods_text, title="Class Methods")))
+            await self.mount(Static(Panel(methods_text, title="Class Methods")))
 
 
 @final

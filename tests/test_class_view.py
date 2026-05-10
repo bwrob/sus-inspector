@@ -235,7 +235,7 @@ async def test_class_info_pane_specialized_handler() -> None:
     app = TestApp()
     async with app.run_test() as pilot:
         pane = app.query_one(ClassInfoPane)
-        pane.update_object(MyDC(a=1))
+        await pane.update_object(MyDC(a=1))
         await pilot.pause()
 
         # Verify children are mounted
@@ -259,7 +259,7 @@ async def test_class_info_pane_fallback() -> None:
     app = TestApp()
     async with app.run_test() as pilot:
         pane = app.query_one(ClassInfoPane)
-        pane.update_object(RegularClass())
+        await pane.update_object(RegularClass())
         await pilot.pause()
 
         # Should show MRO/Hierarchy at least
@@ -278,7 +278,7 @@ async def test_class_info_pane_none() -> None:
     app = TestApp()
     async with app.run_test() as pilot:
         pane = app.query_one(ClassInfoPane)
-        pane.update_object(None)
+        await pane.update_object(None)
         await pilot.pause()
 
         child = cast("Static", pane.children[0])

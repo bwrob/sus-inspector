@@ -101,7 +101,7 @@ async def test_class_pane_none_object() -> None:
     async with app.run_test() as pilot:
         await pilot.press("c")
         class_pane = app.query_one(ClassInfoPane)
-        class_pane.update_object(None)
+        await class_pane.update_object(None)
         await pilot.pause()
 
         statics = list(class_pane.query(Static))

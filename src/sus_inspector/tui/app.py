@@ -122,7 +122,7 @@ class ObjectExplorerApp(App[None]):
 
         # Ensure breadcrumbs are showing root on startup
         breadcrumbs = self.query_one(Breadcrumbs)
-        breadcrumbs.update_path(tree.root)
+        _ = self.run_worker(breadcrumbs.update_path(tree.root))
 
     def action_search(self) -> None:
         """Triggered by pressing '/' to show the search bar."""
@@ -130,14 +130,14 @@ class ObjectExplorerApp(App[None]):
         search_bar.display = True
         _ = search_bar.focus()
 
-    def action_toggle_class_view(self) -> None:
+    async def action_toggle_class_view(self) -> None:
         """Toggle the class info pane."""
         pane = self.query_one(ClassInfoPane)
         pane.is_pane_visible = not pane.is_pane_visible
         if pane.is_pane_visible:
             tree = self.query_one(Tree[object])
             if tree.cursor_node:
-                pane.update_object(tree.cursor_node.data)
+                await pane.update_object(tree.cursor_node.data)
 
     def action_tree_collapse(self) -> None:
         """Collapse the currently selected tree node."""
@@ -556,9 +556,13 @@ class ObjectExplorerApp(App[None]):
             self.expanded_details.add(obj_id)
 
         # Re-trigger highlight update to re-render the detail view
-        self.on_tree_node_highlighted(Tree.NodeHighlighted(tree.cursor_node))
+        _ = self.run_worker(
+            self.on_tree_node_highlighted(Tree.NodeHighlighted(tree.cursor_node))
+        )
 
-    def on_tree_node_highlighted(self, event: Tree.NodeHighlighted[object]) -> None:
+    async def on_tree_node_highlighted(
+        self, event: Tree.NodeHighlighted[object]
+    ) -> None:
         """Update the detail view when a node is selected.
 
         Args:
@@ -573,11 +577,11 @@ class ObjectExplorerApp(App[None]):
         obj = event.node.data
 
         # --- Update Breadcrumbs ---
-        breadcrumbs.update_path(event.node)
+        await breadcrumbs.update_path(event.node)
 
         # --- Update the Class Info Pane (if visible) ---
         if class_pane.is_pane_visible:
-            class_pane.update_object(obj)
+            await class_pane.update_object(obj)
 
         # --- Handle the Data View ---
         if obj is None:

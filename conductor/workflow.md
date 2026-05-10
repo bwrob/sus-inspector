@@ -78,6 +78,10 @@ Work on a track **MUST** end with archiving the track and creating a GitHub PR.
 2.  **PR Creation:** Open a Pull Request from the track branch to `main` using the GitHub CLI (`gh`).
 3.  **Review & Iteration:** The user will review and comment on the GitHub PR. You MUST check for these comments and address them (fix and push) when prompted.
 4.  **PR Details:**
-    - **Title:** Use the track description (e.g., `feat(conductor): <Track Description>`).
-    - **Body:** Briefly summarize the changes and link to the archived track's `index.md`.
-5.  **Command:** `rtk gh pr create --fill --label "track-complete"`.
+    - **Title:** Use a clear, descriptive title (e.g., `feat: <Track Description>` or `feat(tui): <Feature Name>`).
+    - **Body:** **MANDATORY.** Every PR MUST include a high-quality, comprehensive description. It should include:
+        - **Overview:** A concise summary of the purpose of the PR.
+        - **Key Changes:** A bulleted list of significant modifications, architectural shifts, or new features.
+        - **Quality & Testing:** A summary of testing performed, coverage achieved, and verification of linting/type-safety.
+        - **Link:** A link to the archived track's `index.md` or `plan.md`.
+    - **Command:** `rtk gh pr create --title "..." --body "..." --label "track-complete"`. (Avoid `--fill` if it results in an inadequate description).

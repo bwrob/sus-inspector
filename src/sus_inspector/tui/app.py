@@ -112,7 +112,7 @@ class ObjectExplorerApp(App[None]):
         yield Input(placeholder=msg, id="search-bar")
         yield Footer()
 
-    def on_mount(self) -> None:
+    async def on_mount(self) -> None:
         """Initialize the tree root."""
         tree = self.query_one(Tree[object])
         tree.root.data = self.root_obj
@@ -569,8 +569,6 @@ class ObjectExplorerApp(App[None]):
             event: Highlight event.
 
         """
-        with open("sus_debug.log", "a") as f:
-            f.write(f"Highlighted: {event.node.label}\n")
         self._push_history(event.node)
 
         detail_view = self.query_one("#detail-view", Static)

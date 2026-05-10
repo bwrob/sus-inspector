@@ -83,9 +83,6 @@ class Breadcrumbs(Horizontal):
         await self.query("*").remove()
         await self.mount(*to_mount)
 
-        with open("sus_debug.log", "a") as f:
-            f.write(f"Breadcrumbs updated: {[n.label for n in path_nodes]}\n")
-
 
 @final
 class ClassInfoPane(VerticalScroll):

@@ -58,17 +58,16 @@ class Breadcrumbs(Horizontal):
             node: The currently selected tree node.
 
         """
-        await self.query("*").remove()
-
         path_nodes: list[TreeNode[object]] = []
         curr: TreeNode[object] | None = node
         while curr:
             path_nodes.insert(0, curr)
             curr = curr.parent
 
+        to_mount: list[Static | NodeButton] = []
         for i, p_node in enumerate(path_nodes):
             if i > 0:
-                await self.mount(Static(" > ", classes="bc-separator"))
+                to_mount.append(Static(" > ", classes="bc-separator"))
 
             label = str(p_node.label)
             # Remove Rich tags for button label for cleaner look in breadcrumbs
@@ -79,7 +78,13 @@ class Breadcrumbs(Horizontal):
             btn = NodeButton(
                 clean_label, variant="default", classes="bc-button", node=p_node
             )
-            await self.mount(btn)
+            to_mount.append(btn)
+
+        await self.query("*").remove()
+        await self.mount(*to_mount)
+
+        with open("sus_debug.log", "a") as f:
+            f.write(f"Breadcrumbs updated: {[n.label for n in path_nodes]}\n")
 
 
 @final

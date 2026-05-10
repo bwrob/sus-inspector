@@ -122,7 +122,7 @@ class ObjectExplorerApp(App[None]):
 
         # Ensure breadcrumbs are showing root on startup
         breadcrumbs = self.query_one(Breadcrumbs)
-        _ = self.run_worker(breadcrumbs.update_path(tree.root))
+        await breadcrumbs.update_path(tree.root)
 
     def action_search(self) -> None:
         """Triggered by pressing '/' to show the search bar."""
@@ -580,12 +580,7 @@ class ObjectExplorerApp(App[None]):
         obj = event.node.data
 
         # --- Update Breadcrumbs ---
-        _ = self.run_worker(
-            breadcrumbs.update_path(event.node),
-            exclusive=True,
-            thread=False,
-            name="update_breadcrumbs",
-        )
+        await breadcrumbs.update_path(event.node)
 
         # --- Update the Class Info Pane (if visible) ---
         if class_pane.is_pane_visible:

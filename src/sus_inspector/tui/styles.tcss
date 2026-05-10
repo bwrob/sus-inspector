@@ -23,10 +23,9 @@
 
 Breadcrumbs {
     height: 1;
-    background: $surface;
+    background: $boost;
     padding: 0 1;
-    align-vertical: middle;
-    border-bottom: solid $primary;
+    width: 100%;
 }
 
 .bc-button {
@@ -37,6 +36,7 @@ Breadcrumbs {
     color: $text;
     padding: 0 1;
     margin: 0;
+    content-align: center middle;
 }
 
 .bc-button:hover {

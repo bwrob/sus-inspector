@@ -120,6 +120,10 @@ class ObjectExplorerApp(App[None]):
         _ = tree.root.expand()
         _ = tree.focus()
 
+        # Ensure breadcrumbs are showing root on startup
+        breadcrumbs = self.query_one(Breadcrumbs)
+        breadcrumbs.update_path(tree.root)
+
     def action_search(self) -> None:
         """Triggered by pressing '/' to show the search bar."""
         search_bar = self.query_one("#search-bar", Input)

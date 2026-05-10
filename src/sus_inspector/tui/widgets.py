@@ -72,7 +72,9 @@ class Breadcrumbs(Horizontal):
 
             label = str(p_node.label)
             # Remove Rich tags for button label for cleaner look in breadcrumbs
-            clean_label = re.sub(r"\[.*?\]", "", label)
+            from rich.text import Text as RichText  # noqa: PLC0415
+
+            clean_label = RichText.from_markup(label).plain
 
             btn = NodeButton(
                 clean_label, variant="default", classes="bc-button", node=p_node

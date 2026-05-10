@@ -2,18 +2,22 @@
 
 from __future__ import annotations
 
+import logging
 import re
 from typing import TYPE_CHECKING, Any, cast, final
 
 from rich.panel import Panel
 from rich.text import Text
-from textual.containers import Horizontal, Vertical, VerticalScroll
+from textual.containers import HorizontalScroll, Vertical, VerticalScroll
 from textual.screen import ModalScreen
 from textual.widgets import Button, Input, OptionList, Static
 from typing_extensions import override
 
 from sus_inspector.hooks.registry import CLASS_HOOKS, get_renderer
 from sus_inspector.metadata import ClassMetadata, get_class_metadata
+
+logger = logging.getLogger(__name__)
+
 
 if TYPE_CHECKING:
     from textual.app import ComposeResult
@@ -48,7 +52,7 @@ class NodeButton(Button):
 
 
 @final
-class Breadcrumbs(Horizontal):
+class Breadcrumbs(HorizontalScroll):
     """A widget to display the current traversal path as clickable breadcrumbs."""
 
     async def update_path(self, node: TreeNode[object]) -> None:
@@ -60,9 +64,11 @@ class Breadcrumbs(Horizontal):
         """
         path_nodes: list[TreeNode[object]] = []
         curr: TreeNode[object] | None = node
-        while curr:
+        while curr is not None:
             path_nodes.insert(0, curr)
             curr = curr.parent
+
+        logger.debug("Updating breadcrumbs: %s", [str(n.label) for n in path_nodes])
 
         to_mount: list[Static | NodeButton] = []
         for i, p_node in enumerate(path_nodes):
@@ -81,7 +87,10 @@ class Breadcrumbs(Horizontal):
             to_mount.append(btn)
 
         await self.query("*").remove()
-        await self.mount(*to_mount)
+        if to_mount:
+            await self.mount(*to_mount)
+
+        logger.debug("Breadcrumbs mounted %d widgets", len(to_mount))
 
 
 @final

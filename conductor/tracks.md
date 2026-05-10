@@ -6,6 +6,12 @@ This file tracks all major development tracks for `sus-inspector`.
 
 Tracks are prioritized by their impact on core usability, navigation efficiency, and inspection depth.
 
+- [ ] **Track: Smart Breadcrumbs & Session History**
+    - *ID:* `breadcrumbs_history_20260330`
+    - *Status:* `in-progress`
+    - *Priority:* High (Improves navigation speed and mental model)
+    - *Link: [./tracks/breadcrumbs_history_20260330/](./tracks/breadcrumbs_history_20260330/)*
+
 ---
 ## Archived Tracks (Completed)
 - [ ] **Track: Custom viewers for pandas and polars dataframes and numpy ndarrays.**

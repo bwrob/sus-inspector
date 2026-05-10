@@ -15,6 +15,7 @@ from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.widgets import Button, Footer, Header, Input, Static, Tree
 from typing_extensions import override
 
+from sus_inspector.hooks.handlers import HANDLER_REGISTRY, ensure_handlers
 from sus_inspector.hooks.registry import VIEW_HOOKS, ensure_default_hooks
 from sus_inspector.tui.widgets import (
     Breadcrumbs,
@@ -73,8 +74,6 @@ class ObjectExplorerApp(App[None]):
         self.grouping_threshold: int = 10
         self.history: list[TreeNode[object]] = []
         self.history_index: int = -1
-        # Ensure handlers are loaded when the app starts
-        from sus_inspector.hooks.handlers import ensure_handlers  # noqa: PLC0415
 
         ensure_default_hooks()
         ensure_handlers()
@@ -198,7 +197,7 @@ class ObjectExplorerApp(App[None]):
                 _ = tree.select_node(node)
                 _ = tree.focus()
 
-        self.push_screen(HistoryModal(self.history), on_selected)
+        _ = self.push_screen(HistoryModal(self.history, self.root_name), on_selected)
 
     def _push_history(self, node: TreeNode[object]) -> None:
         """Push a node to the navigation history.
@@ -278,6 +277,9 @@ class ObjectExplorerApp(App[None]):
     def action_toggle_private(self) -> None:
         """Toggle the visibility of private members."""
         self.show_private = not self.show_private
+        # Clear history as the tree is rebuilt and nodes are invalidated
+        self.history = []
+        self.history_index = -1
         tree = self.query_one(Tree[object])
         tree.root.remove_children()
         # Always re-populate from root object to reflect the toggle
@@ -293,8 +295,6 @@ class ObjectExplorerApp(App[None]):
             obj: The object whose members to add.
 
         """
-        from sus_inspector.hooks.handlers import HANDLER_REGISTRY  # noqa: PLC0415
-
         handler = HANDLER_REGISTRY.get_handler(obj)
         if handler:
             self._add_handler_fields(node, obj, handler)
@@ -510,8 +510,6 @@ class ObjectExplorerApp(App[None]):
             bool: True if expandable.
 
         """
-        from sus_inspector.hooks.handlers import HANDLER_REGISTRY  # noqa: PLC0415
-
         if HANDLER_REGISTRY.get_handler(obj):
             return True
 
@@ -589,8 +587,6 @@ class ObjectExplorerApp(App[None]):
             return
 
         detail_pane.border_subtitle = f"Type: {type(obj).__name__}"
-
-        from sus_inspector.hooks.handlers import HANDLER_REGISTRY  # noqa: PLC0415
 
         handler = HANDLER_REGISTRY.get_handler(obj)
         if handler:

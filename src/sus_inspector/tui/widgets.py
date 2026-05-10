@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from typing import TYPE_CHECKING, Any, cast, final
 
 from rich.panel import Panel
@@ -9,21 +10,21 @@ from rich.text import Text
 from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.screen import ModalScreen
 from textual.widgets import Button, Input, OptionList, Static
+from typing_extensions import override
+
+from sus_inspector.hooks.registry import CLASS_HOOKS, get_renderer
+from sus_inspector.metadata import ClassMetadata, get_class_metadata
 
 if TYPE_CHECKING:
     from textual.app import ComposeResult
     from textual.widgets.tree import TreeNode
-
-    from sus_inspector.hooks.registry import CLASS_HOOKS, get_renderer
-from sus_inspector.hooks.registry import CLASS_HOOKS, get_renderer
-from sus_inspector.metadata import ClassMetadata, get_class_metadata
 
 
 @final
 class NodeButton(Button):
     """A button that holds a reference to a tree node."""
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         label: str | None = None,
         *,
@@ -57,7 +58,7 @@ class Breadcrumbs(Horizontal):
             node: The currently selected tree node.
 
         """
-        self.query("*").remove()
+        _ = self.query("*").remove()
 
         path_nodes: list[TreeNode[object]] = []
         curr = node
@@ -71,8 +72,6 @@ class Breadcrumbs(Horizontal):
 
             label = str(p_node.label)
             # Remove Rich tags for button label for cleaner look in breadcrumbs
-            import re  # noqa: PLC0415
-
             clean_label = re.sub(r"\[.*?\]", "", label)
 
             btn = NodeButton(
@@ -184,17 +183,24 @@ class ClassInfoPane(VerticalScroll):
 class HistoryModal(ModalScreen["TreeNode[object]"]):
     """A modal screen showing session history."""
 
-    def __init__(self, history: list[TreeNode[object]]) -> None:
+    def __init__(
+        self,
+        history: list[TreeNode[object]],
+        root_name: str = "root",
+    ) -> None:
         """Initialize the history modal.
 
         Args:
             history: List of visited nodes.
+            root_name: Name of the root node.
 
         """
         super().__init__()
-        self.history = history
+        self.history: list[TreeNode[object]] = history
+        self.root_name = root_name
         self.filtered_history: list[TreeNode[object]] = list(reversed(history))
 
+    @override
     def compose(self) -> ComposeResult:
         """Compose the modal layout.
 
@@ -206,7 +212,7 @@ class HistoryModal(ModalScreen["TreeNode[object]"]):
             yield Static("Session History", id="history-title")
             yield Input(placeholder="Search history...", id="history-search")
             # Use OptionList for efficient selection
-            options = []
+            options: list[str] = []
             for node in self.filtered_history:
                 label = self._get_node_path(node)
                 options.append(label)
@@ -246,16 +252,14 @@ class HistoryModal(ModalScreen["TreeNode[object]"]):
             str: Path representation.
 
         """
-        segments = []
-        curr = node
+        segments: list[str] = []
+        curr: TreeNode[object] | None = node
         while curr and curr.parent:
             segments.insert(0, str(curr.label))
             curr = curr.parent
 
-        path = "root"
+        path = self.root_name
         for s in segments:
-            import re  # noqa: PLC0415
-
             clean_s = re.sub(r"\[.*?\]", "", s)
             if clean_s.startswith("["):
                 path += clean_s
@@ -271,4 +275,4 @@ class HistoryModal(ModalScreen["TreeNode[object]"]):
 
         """
         # We need to map back to the TreeNode via filtered_history
-        self.dismiss(self.filtered_history[event.option_index])
+        _ = self.dismiss(self.filtered_history[event.option_index])

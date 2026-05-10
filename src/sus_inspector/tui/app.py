@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import inspect
 import logging
 from typing import TYPE_CHECKING, Any, ClassVar, cast
@@ -11,11 +12,16 @@ from rich.pretty import Pretty
 from textual.app import App, ComposeResult
 from textual.binding import Binding, BindingType
 from textual.containers import Horizontal, Vertical, VerticalScroll
-from textual.widgets import Footer, Header, Input, Static, Tree
+from textual.widgets import Button, Footer, Header, Input, Static, Tree
 from typing_extensions import override
 
 from sus_inspector.hooks.registry import VIEW_HOOKS, ensure_default_hooks
-from sus_inspector.tui.widgets import Breadcrumbs, ClassInfoPane, HistoryModal
+from sus_inspector.tui.widgets import (
+    Breadcrumbs,
+    ClassInfoPane,
+    HistoryModal,
+    NodeButton,
+)
 
 if TYPE_CHECKING:
     from textual._path import CSSPathType
@@ -180,10 +186,8 @@ class ObjectExplorerApp(App[None]):
             if node:
                 tree = self.query_one(Tree[object])
                 # Find the node in history and update index
-                try:
+                with contextlib.suppress(ValueError):
                     self.history_index = self.history.index(node)
-                except ValueError:
-                    pass
 
                 # Ensure path to node is expanded
                 curr = node.parent
@@ -208,11 +212,14 @@ class ObjectExplorerApp(App[None]):
 
         # If we are already at this node in history, don't push.
         # This handles both history navigation and repeated clicks.
-        if 0 <= self.history_index < len(self.history):
-            if self.history[self.history_index] == node:
-                return
+        if (
+            0 <= self.history_index < len(self.history)
+            and self.history[self.history_index] == node
+        ):
+            return
 
-        # Truncate any "forward" history if we are in the middle and navigating to a new place
+        # Truncate forward history if in middle
+        # and navigating to a new place.
         self.history = self.history[: self.history_index + 1]
         self.history.append(node)
         self.history_index += 1
@@ -530,9 +537,9 @@ class ObjectExplorerApp(App[None]):
             event: Button press event.
 
         """
-        if hasattr(event.button, "node"):
+        if isinstance(event.button, NodeButton):
             tree = self.query_one(Tree[object])
-            _ = tree.select_node(event.button.node)  # type: ignore[reportAttributeAccessIssue]
+            _ = tree.select_node(event.button.node)
             _ = tree.focus()
 
     def action_toggle_expansion(self) -> None:

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, final
+from typing import TYPE_CHECKING, Any, cast, final
 
 from rich.panel import Panel
 from rich.text import Text
@@ -13,7 +13,37 @@ from textual.widgets import Button, Input, OptionList, Static
 if TYPE_CHECKING:
     from textual.app import ComposeResult
     from textual.widgets.tree import TreeNode
-    from sus_inspector.metadata import ClassMetadata
+
+    from sus_inspector.hooks.registry import CLASS_HOOKS, get_renderer
+from sus_inspector.hooks.registry import CLASS_HOOKS, get_renderer
+from sus_inspector.metadata import ClassMetadata, get_class_metadata
+
+
+@final
+class NodeButton(Button):
+    """A button that holds a reference to a tree node."""
+
+    def __init__(
+        self,
+        label: str | None = None,
+        *,
+        node: TreeNode[object],
+        variant: str = "default",
+        name: str | None = None,
+        widget_id: str | None = None,
+        classes: str | None = None,
+        disabled: bool = False,
+    ) -> None:
+        """Initialize NodeButton."""
+        super().__init__(
+            label=label,
+            variant=cast("Any", variant),
+            name=name,
+            id=widget_id,
+            classes=classes,
+            disabled=disabled,
+        )
+        self.node = node
 
 
 @final
@@ -42,10 +72,12 @@ class Breadcrumbs(Horizontal):
             label = str(p_node.label)
             # Remove Rich tags for button label for cleaner look in breadcrumbs
             import re  # noqa: PLC0415
+
             clean_label = re.sub(r"\[.*?\]", "", label)
-            
-            btn = Button(clean_label, variant="default", classes="bc-button")
-            btn.node = p_node  # type: ignore[reportAttributeAccessIssue]
+
+            btn = NodeButton(
+                clean_label, variant="default", classes="bc-button", node=p_node
+            )
             _ = self.mount(btn)
 
 
@@ -164,7 +196,12 @@ class HistoryModal(ModalScreen["TreeNode[object]"]):
         self.filtered_history: list[TreeNode[object]] = list(reversed(history))
 
     def compose(self) -> ComposeResult:
-        """Compose the modal layout."""
+        """Compose the modal layout.
+
+        Yields:
+            Widgets for the history modal.
+
+        """
         with Vertical(id="history-container"):
             yield Static("Session History", id="history-title")
             yield Input(placeholder="Search history...", id="history-search")
@@ -218,6 +255,7 @@ class HistoryModal(ModalScreen["TreeNode[object]"]):
         path = "root"
         for s in segments:
             import re  # noqa: PLC0415
+
             clean_s = re.sub(r"\[.*?\]", "", s)
             if clean_s.startswith("["):
                 path += clean_s

@@ -569,7 +569,10 @@ class ObjectExplorerApp(App[None]):
             event: Highlight event.
 
         """
+        with open("sus_debug.log", "a") as f:
+            f.write(f"Highlighted: {event.node.label}\n")
         self._push_history(event.node)
+
         detail_view = self.query_one("#detail-view", Static)
         detail_pane = self.query_one("#detail-pane")
         breadcrumbs = self.query_one(Breadcrumbs)
@@ -577,7 +580,12 @@ class ObjectExplorerApp(App[None]):
         obj = event.node.data
 
         # --- Update Breadcrumbs ---
-        await breadcrumbs.update_path(event.node)
+        _ = self.run_worker(
+            breadcrumbs.update_path(event.node),
+            exclusive=True,
+            thread=False,
+            name="update_breadcrumbs",
+        )
 
         # --- Update the Class Info Pane (if visible) ---
         if class_pane.is_pane_visible:

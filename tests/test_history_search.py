@@ -1,5 +1,7 @@
 """Tests for history modal search."""
 
+from typing import cast
+
 import pytest
 from textual.widgets import OptionList, Tree
 
@@ -13,7 +15,7 @@ async def test_history_modal_search() -> None:
     app = ObjectExplorerApp(obj)
 
     async with app.run_test() as pilot:
-        tree = app.query_one(Tree)
+        tree = cast("Tree[object]", app.query_one(Tree))
 
         await pilot.pause()
 
@@ -23,7 +25,7 @@ async def test_history_modal_search() -> None:
             if "apple" in str(child.label):
                 node_apple = child
                 break
-        tree.select_node(node_apple)
+        _ = tree.select_node(node_apple)
         await pilot.pause()
 
         # Select "banana"
@@ -32,7 +34,7 @@ async def test_history_modal_search() -> None:
             if "banana" in str(child.label):
                 node_banana = child
                 break
-        tree.select_node(node_banana)
+        _ = tree.select_node(node_banana)
         await pilot.pause()
 
         # Show history

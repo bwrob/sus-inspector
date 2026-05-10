@@ -1,5 +1,7 @@
 """Tests for history modal navigation."""
 
+from typing import cast
+
 import pytest
 from textual.widgets import OptionList, Tree
 
@@ -14,7 +16,7 @@ async def test_history_modal_navigation() -> None:
     app = ObjectExplorerApp(obj)
 
     async with app.run_test() as pilot:
-        tree = app.query_one(Tree)
+        tree = cast("Tree[object]", app.query_one(Tree))
 
         await pilot.pause()
 
@@ -26,7 +28,7 @@ async def test_history_modal_navigation() -> None:
                 node_a = child
                 break
 
-        tree.select_node(node_a)
+        _ = tree.select_node(node_a)
         await pilot.pause()
 
         # Show history

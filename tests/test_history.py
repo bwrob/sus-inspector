@@ -1,5 +1,7 @@
 """Tests for history navigation logic."""
 
+from typing import cast
+
 import pytest
 from textual.widgets import Tree
 
@@ -13,7 +15,7 @@ async def test_history_navigation_logic() -> None:
     app = ObjectExplorerApp(obj)
 
     async with app.run_test() as pilot:
-        tree = app.query_one(Tree)
+        tree = cast("Tree[object]", app.query_one(Tree))
 
         # Initial state: root selected (usually on_mount selects root)
         # Wait for tree to be populated
@@ -33,7 +35,7 @@ async def test_history_navigation_logic() -> None:
                 break
 
         assert node_a is not None
-        tree.select_node(node_a)
+        _ = tree.select_node(node_a)
         await pilot.pause()
 
         expected_len = 2

@@ -1,5 +1,7 @@
 """Tests for breadcrumb navigation."""
 
+from typing import cast
+
 import pytest
 from textual.widgets import Button, Tree
 
@@ -14,7 +16,7 @@ async def test_breadcrumb_navigation() -> None:
     app = ObjectExplorerApp(obj)
 
     async with app.run_test() as pilot:
-        tree = app.query_one(Tree)
+        tree = cast("Tree[object]", app.query_one(Tree))
         breadcrumbs = app.query_one(Breadcrumbs)
 
         await pilot.pause()
@@ -27,7 +29,7 @@ async def test_breadcrumb_navigation() -> None:
                 break
 
         assert node_a is not None
-        tree.select_node(node_a)
+        _ = tree.select_node(node_a)
         await pilot.pause()
 
         # Breadcrumbs should have "root" and "a"
@@ -38,6 +40,6 @@ async def test_breadcrumb_navigation() -> None:
         assert "a" in str(buttons[1].label).lower()
 
         # Press "root" button in breadcrumbs
-        buttons[0].press()
+        _ = buttons[0].press()
         await pilot.pause()
         assert tree.cursor_node == tree.root

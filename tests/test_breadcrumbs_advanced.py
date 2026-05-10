@@ -1,8 +1,13 @@
 """Advanced tests for breadcrumbs and history interaction."""
 
+from dataclasses import dataclass
+from typing import cast
+
 import pytest
-from textual.widgets import Tree
+from textual.widgets import Button, OptionList, Static, Tree
+
 from sus_inspector.tui.app import ObjectExplorerApp
+from sus_inspector.tui.widgets import Breadcrumbs, ClassInfoPane, HistoryModal
 
 
 @pytest.mark.asyncio
@@ -12,7 +17,7 @@ async def test_history_cleared_on_toggle_private() -> None:
     app = ObjectExplorerApp(obj)
 
     async with app.run_test() as pilot:
-        tree = app.query_one(Tree)
+        tree = cast("Tree[object]", app.query_one(Tree))
 
         # Select "a" to add to history
         node_a = None
@@ -22,7 +27,7 @@ async def test_history_cleared_on_toggle_private() -> None:
                 break
 
         assert node_a is not None
-        tree.select_node(node_a)
+        _ = tree.select_node(node_a)
         await pilot.pause()
 
         assert len(app.history) > 0
@@ -40,7 +45,6 @@ async def test_history_cleared_on_toggle_private() -> None:
 @pytest.mark.asyncio
 async def test_breadcrumb_none_and_handler() -> None:
     """Verify breadcrumbs with None and specialized handlers."""
-    from dataclasses import dataclass
 
     @dataclass
     class MyData:
@@ -50,7 +54,7 @@ async def test_breadcrumb_none_and_handler() -> None:
     app = ObjectExplorerApp(obj)
 
     async with app.run_test() as pilot:
-        tree = app.query_one(Tree)
+        tree = cast("Tree[object]", app.query_one(Tree))
 
         # Select "a" (None)
         node_a = None
@@ -59,12 +63,10 @@ async def test_breadcrumb_none_and_handler() -> None:
                 node_a = child
                 break
         assert node_a is not None
-        tree.select_node(node_a)
+        _ = tree.select_node(node_a)
         await pilot.pause()
 
         # Check detail view for None
-        from textual.widgets import Static
-
         detail_view = app.query_one("#detail-view", Static)
         assert "No data" in str(detail_view.render())
 
@@ -75,7 +77,7 @@ async def test_breadcrumb_none_and_handler() -> None:
                 node_b = child
                 break
         assert node_b is not None
-        tree.select_node(node_b)
+        _ = tree.select_node(node_b)
         await pilot.pause()
 
         # Check handler was used (should show fields)
@@ -85,8 +87,6 @@ async def test_breadcrumb_none_and_handler() -> None:
 @pytest.mark.asyncio
 async def test_class_pane_updates_on_highlight() -> None:
     """Verify that class pane updates when a node is highlighted."""
-    from textual.widgets import Static
-
     obj = {"a": 1}
     app = ObjectExplorerApp(obj)
 
@@ -95,13 +95,11 @@ async def test_class_pane_updates_on_highlight() -> None:
         await pilot.press("c")
         await pilot.pause()
 
-        from sus_inspector.tui.widgets import ClassInfoPane
-
         class_pane = app.query_one(ClassInfoPane)
         assert class_pane.display is True
 
         # Select "a"
-        tree = app.query_one(Tree)
+        tree = cast("Tree[object]", app.query_one(Tree))
         node_a = None
         for child in tree.root.children:
             if "a" in str(child.label):
@@ -109,7 +107,7 @@ async def test_class_pane_updates_on_highlight() -> None:
                 break
 
         assert node_a is not None
-        tree.select_node(node_a)
+        _ = tree.select_node(node_a)
         await pilot.pause()
 
         # Class pane should have been updated and mounted something
@@ -124,11 +122,7 @@ async def test_breadcrumb_root_name_custom() -> None:
 
     async with app.run_test() as pilot:
         # Check breadcrumbs
-        from sus_inspector.tui.widgets import Breadcrumbs
-
         breadcrumbs = app.query_one(Breadcrumbs)
-        from textual.widgets import Button
-
         buttons = breadcrumbs.query(Button)
         assert "CustomRoot" in str(buttons[0].label)
 
@@ -136,15 +130,11 @@ async def test_breadcrumb_root_name_custom() -> None:
         await pilot.press("ctrl+h")
         await pilot.pause()
 
-        from sus_inspector.tui.widgets import HistoryModal
-
         modal = app.screen
         assert isinstance(modal, HistoryModal)
         assert modal.root_name == "CustomRoot"
 
         # Check path string in modal
-        from textual.widgets import OptionList
-
         option_list = modal.query_one(OptionList)
         assert "CustomRoot" in str(option_list.get_option_at_index(0).prompt)
 

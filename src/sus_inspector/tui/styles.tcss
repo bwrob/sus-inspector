@@ -26,6 +26,7 @@ Breadcrumbs {
     background: $boost;
     padding: 0 1;
     width: 100%;
+    overflow: hidden;
 }
 
 .bc-button {

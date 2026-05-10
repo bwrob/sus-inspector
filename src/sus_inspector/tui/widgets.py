@@ -2,22 +2,19 @@
 
 from __future__ import annotations
 
-import logging
 import re
 from typing import TYPE_CHECKING, Any, cast, final
 
 from rich.panel import Panel
 from rich.text import Text
-from textual.containers import HorizontalScroll, Vertical, VerticalScroll
+from textual.containers import Horizontal, Vertical, VerticalScroll
+from textual.reactive import reactive
 from textual.screen import ModalScreen
 from textual.widgets import Button, Input, OptionList, Static
 from typing_extensions import override
 
 from sus_inspector.hooks.registry import CLASS_HOOKS, get_renderer
 from sus_inspector.metadata import ClassMetadata, get_class_metadata
-
-logger = logging.getLogger(__name__)
-
 
 if TYPE_CHECKING:
     from textual.app import ComposeResult
@@ -52,8 +49,10 @@ class NodeButton(Button):
 
 
 @final
-class Breadcrumbs(HorizontalScroll):
+class Breadcrumbs(Horizontal):
     """A widget to display the current traversal path as clickable breadcrumbs."""
+
+    path: reactive[list[TreeNode[object]]] = reactive([], recompose=True)
 
     async def update_path(self, node: TreeNode[object]) -> None:
         """Update the breadcrumbs based on the selected node.
@@ -68,29 +67,27 @@ class Breadcrumbs(HorizontalScroll):
             path_nodes.insert(0, curr)
             curr = curr.parent
 
-        logger.debug("Updating breadcrumbs: %s", [str(n.label) for n in path_nodes])
+        self.path = path_nodes
 
-        to_mount: list[Static | NodeButton] = []
-        for i, p_node in enumerate(path_nodes):
+    @override
+    def compose(self) -> ComposeResult:
+        """Compose the breadcrumbs.
+
+        Yields:
+            The breadcrumb buttons and separators.
+
+        """
+        from rich.text import Text as RichText  # noqa: PLC0415
+
+        for i, p_node in enumerate(self.path):
             if i > 0:
-                to_mount.append(Static(" > ", classes="bc-separator"))
+                yield Static(" > ", classes="bc-separator")
 
             label = str(p_node.label)
-            # Remove Rich tags for button label for cleaner look in breadcrumbs
-            from rich.text import Text as RichText  # noqa: PLC0415
-
             clean_label = RichText.from_markup(label).plain
-
-            btn = NodeButton(
+            yield NodeButton(
                 clean_label, variant="default", classes="bc-button", node=p_node
             )
-            to_mount.append(btn)
-
-        await self.query("*").remove()
-        if to_mount:
-            await self.mount(*to_mount)
-
-        logger.debug("Breadcrumbs mounted %d widgets", len(to_mount))
 
 
 @final

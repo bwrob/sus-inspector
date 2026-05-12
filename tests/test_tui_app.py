@@ -14,6 +14,7 @@ from typing_extensions import override
 
 from sus_inspector.hooks.registry import INSTANCE_HOOKS, register_hook
 from sus_inspector.tui.app import ObjectExplorerApp
+from sus_inspector.tui.widgets import Breadcrumbs
 
 
 def get_static_content(static: Static) -> str:
@@ -173,10 +174,9 @@ async def test_path_bar_multi_segments() -> None:
         # Down to '[0]'
         await pilot.press("down")
 
-        from sus_inspector.tui.widgets import Breadcrumbs
-
         breadcrumbs = app.query_one(Breadcrumbs)
         content = str(breadcrumbs.render())
+
         assert "root" in content
         assert "a" in content
         assert "b" in content

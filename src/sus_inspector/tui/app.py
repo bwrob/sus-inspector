@@ -532,7 +532,7 @@ class ObjectExplorerApp(App[None]):
         if event.node.data is not None and not event.node.children:
             self.add_children(event.node, event.node.data)
 
-    def on_button_pressed(self, event: Button.Pressed) -> None:
+    def on_button_pressed(self, _event: Button.Pressed) -> None:
         """Handle button press events."""
         # Generic button handler if needed
 

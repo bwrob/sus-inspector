@@ -2,18 +2,100 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, final
+import re
+from typing import TYPE_CHECKING, Any, cast, final
 
 from rich.panel import Panel
 from rich.text import Text
-from textual.containers import VerticalScroll
-from textual.widgets import Static
+from textual.containers import Vertical, VerticalScroll
+from textual.reactive import reactive
+from textual.screen import ModalScreen
+from textual.widgets import Button, Input, OptionList, Static
+from typing_extensions import override
 
 from sus_inspector.hooks.registry import CLASS_HOOKS, get_renderer
-from sus_inspector.metadata import get_class_metadata
+from sus_inspector.metadata import ClassMetadata, get_class_metadata
 
 if TYPE_CHECKING:
-    from sus_inspector.metadata import ClassMetadata
+    from textual.app import ComposeResult
+    from textual.widgets.tree import TreeNode
+
+
+@final
+class NodeButton(Button):
+    """A button that holds a reference to a tree node."""
+
+    def __init__(  # noqa: PLR0913
+        self,
+        label: str | None = None,
+        *,
+        node: TreeNode[object],
+        variant: str = "default",
+        name: str | None = None,
+        widget_id: str | None = None,
+        classes: str | None = None,
+        disabled: bool = False,
+    ) -> None:
+        """Initialize NodeButton."""
+        super().__init__(
+            label=label,
+            variant=cast("Any", variant),
+            name=name,
+            id=widget_id,
+            classes=classes,
+            disabled=disabled,
+        )
+        self.node = node
+
+
+@final
+class Breadcrumbs(Static):
+    """A widget to display the current traversal path."""
+
+    path: reactive[list[TreeNode[object]]] = reactive([])
+
+    async def watch_path(self) -> None:
+        """Update the UI when the path changes."""
+        from rich.text import Text as RichText  # noqa: PLC0415
+
+        full_path = RichText()
+        _ = full_path.append("NAV: ", style="bold blue")
+
+        for i, p_node in enumerate(self.path):
+            if i > 0:
+                _ = full_path.append(" > ", style="dim")
+
+            label = str(p_node.label)
+            clean_label = RichText.from_markup(label).plain
+            _ = full_path.append(clean_label, style="underline yellow")
+
+        self.update(full_path)
+
+    async def update_path(self, node: TreeNode[object]) -> None:
+        """Update the breadcrumbs based on the selected node.
+
+        Args:
+            node: The currently selected tree node.
+
+        """
+        path_nodes: list[TreeNode[object]] = []
+        curr: TreeNode[object] | None = node
+        while curr is not None:
+            path_nodes.insert(0, curr)
+            # Use getattr for robustness if parent property is missing
+            curr = getattr(curr, "parent", None)
+
+        self.path = path_nodes
+
+    @override
+    def compose(self) -> ComposeResult:
+        """Compose the layout.
+
+        Yields:
+            Empty initial state.
+
+        """
+        yield from []
 
 
 @final
@@ -39,7 +121,7 @@ class ClassInfoPane(VerticalScroll):
         self._is_pane_visible = value
         self.display = value
 
-    def update_object(self, obj: object) -> None:
+    async def update_object(self, obj: object) -> None:
         """Update the pane with a new object's class metadata.
 
         Args:
@@ -47,10 +129,10 @@ class ClassInfoPane(VerticalScroll):
 
         """
         # Clear existing content
-        _ = self.query("*").remove()
+        await self.query("*").remove()
 
         if obj is None:
-            _ = self.mount(Static("No class metadata for None."))
+            await self.mount(Static("No class metadata for None."))
             return
 
         # 1. Check for specialized handler class view
@@ -58,23 +140,23 @@ class ClassInfoPane(VerticalScroll):
 
         handler = HANDLER_REGISTRY.get_handler(obj)
         if handler:
-            _ = self.mount(Static(handler.render_class_view(obj)))
+            await self.mount(Static(handler.render_class_view(obj)))
             # We still want to show the base metadata (MRO, etc.)
             metadata = get_class_metadata(obj)
-            self._mount_essential_metadata(metadata)
+            await self._mount_essential_metadata(metadata)
             return
 
         # 2. Check for custom class renderer (legacy hooks)
         renderer = get_renderer(obj, CLASS_HOOKS)
         if renderer:
-            _ = self.mount(Static(renderer(obj)))
+            await self.mount(Static(renderer(obj)))
             return
 
         # 3. Fallback to default class metadata extraction
         metadata = get_class_metadata(obj)
-        self._mount_default(metadata)
+        await self._mount_default(metadata)
 
-    def _mount_essential_metadata(self, metadata: ClassMetadata) -> None:
+    async def _mount_essential_metadata(self, metadata: ClassMetadata) -> None:
         """Mount essential metadata sections (MRO, docstring).
 
         Args:
@@ -83,23 +165,23 @@ class ClassInfoPane(VerticalScroll):
         """
         # Docstring
         if metadata.doc:
-            _ = self.mount(
+            await self.mount(
                 Static(Panel(Text(metadata.doc, style="italic"), title="Docstring"))
             )
 
         # MRO and Inheritance Tree
-        _ = self.mount(
+        await self.mount(
             Static(Panel(metadata.inheritance_tree, title="Inheritance Hierarchy"))
         )
 
-    def _mount_default(self, metadata: ClassMetadata) -> None:
+    async def _mount_default(self, metadata: ClassMetadata) -> None:
         """Mount default metadata sections.
 
         Args:
             metadata: The extracted class metadata.
 
         """
-        self._mount_essential_metadata(metadata)
+        await self._mount_essential_metadata(metadata)
 
         # Class Fields and Methods
         if metadata.class_fields:
@@ -108,8 +190,107 @@ class ClassInfoPane(VerticalScroll):
                     f"{k}: {type(v).__name__}" for k, v in metadata.class_fields.items()
                 )
             )
-            _ = self.mount(Static(Panel(fields_text, title="Class Fields")))
+            await self.mount(Static(Panel(fields_text, title="Class Fields")))
 
         if metadata.class_methods:
             methods_text = Text("\n".join(metadata.class_methods))
-            _ = self.mount(Static(Panel(methods_text, title="Class Methods")))
+            await self.mount(Static(Panel(methods_text, title="Class Methods")))
+
+
+@final
+class HistoryModal(ModalScreen["TreeNode[object]"]):
+    """A modal screen showing session history."""
+
+    def __init__(
+        self,
+        history: list[TreeNode[object]],
+        root_name: str = "root",
+    ) -> None:
+        """Initialize the history modal.
+
+        Args:
+            history: List of visited nodes.
+            root_name: Name of the root node.
+
+        """
+        super().__init__()
+        self.history: list[TreeNode[object]] = history
+        self.root_name = root_name
+        self.filtered_history: list[TreeNode[object]] = list(reversed(history))
+
+    @override
+    def compose(self) -> ComposeResult:
+        """Compose the modal layout.
+
+        Yields:
+            Widgets for the history modal.
+
+        """
+        with Vertical(id="history-container"):
+            yield Static("Session History", id="history-title")
+            yield Input(placeholder="Search history...", id="history-search")
+            # Use OptionList for efficient selection
+            options: list[str] = []
+            for node in self.filtered_history:
+                label = self._get_node_path(node)
+                options.append(label)
+
+            yield OptionList(*options, id="history-list")
+            yield Static("Press Enter to select, Escape to cancel", id="history-footer")
+
+    def on_mount(self) -> None:
+        """Focus the search bar on mount."""
+        _ = self.query_one("#history-search").focus()
+
+    def on_input_changed(self, event: Input.Changed) -> None:
+        """Filter the history list as the user types.
+
+        Args:
+            event: Input change event.
+
+        """
+        query = event.value.lower()
+        option_list = self.query_one(OptionList)
+        _ = option_list.clear_options()
+
+        self.filtered_history = []
+        for node in reversed(self.history):
+            path = self._get_node_path(node)
+            if query in path.lower():
+                _ = option_list.add_option(path)
+                self.filtered_history.append(node)
+
+    def _get_node_path(self, node: TreeNode[object]) -> str:
+        """Get the full path string for a node.
+
+        Args:
+            node: The tree node.
+
+        Returns:
+            str: Path representation.
+
+        """
+        segments: list[str] = []
+        curr: TreeNode[object] | None = node
+        while curr and curr.parent:
+            segments.insert(0, str(curr.label))
+            curr = curr.parent
+
+        path = self.root_name
+        for s in segments:
+            clean_s = re.sub(r"\[.*?\]", "", s)
+            if clean_s.startswith("["):
+                path += clean_s
+            else:
+                path += f".{clean_s}"
+        return path
+
+    def on_option_list_option_selected(self, event: OptionList.OptionSelected) -> None:
+        """Handle option selection.
+
+        Args:
+            event: Selection event.
+
+        """
+        # We need to map back to the TreeNode via filtered_history
+        _ = self.dismiss(self.filtered_history[event.option_index])

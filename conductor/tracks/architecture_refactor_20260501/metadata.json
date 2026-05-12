@@ -1,8 +1,8 @@
 {
-  "track_id": "architecture_refactor_20260501",
-  "type": "refactor",
-  "status": "new",
-  "created_at": "2026-05-01T00:00:00Z",
-  "updated_at": "2026-05-01T00:00:00Z",
-  "description": "perform architectural review, code cleanup, separation of responsibilities, etc"
+    "created_at": "2026-05-01T00:00:00Z",
+    "description": "perform architectural review, code cleanup, separation of responsibilities, etc",
+    "status": "new",
+    "track_id": "architecture_refactor_20260501",
+    "type": "refactor",
+    "updated_at": "2026-05-01T00:00:00Z"
 }

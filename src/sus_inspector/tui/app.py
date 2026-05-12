@@ -556,22 +556,21 @@ class ObjectExplorerApp(App[None]):
     async def on_tree_node_highlighted(
         self, event: Tree.NodeHighlighted[object]
     ) -> None:
-        """Update the detail view when a node is selected.
+        """Update the detail view when a node is highlighted.
 
         Args:
             event: Highlight event.
 
         """
+        # --- Update History & Breadcrumbs Immediately ---
         self._push_history(event.node)
+        breadcrumbs = self.query_one(Breadcrumbs)
+        await breadcrumbs.update_path(event.node)
 
         detail_view = self.query_one("#detail-view", Static)
         detail_pane = self.query_one("#detail-pane")
-        breadcrumbs = self.query_one(Breadcrumbs)
         class_pane = self.query_one(ClassInfoPane)
         obj = event.node.data
-
-        # --- Update Breadcrumbs ---
-        await breadcrumbs.update_path(event.node)
 
         # --- Update the Class Info Pane (if visible) ---
         if class_pane.is_pane_visible:

@@ -26,34 +26,6 @@ Breadcrumbs {
     background: $boost;
     padding: 0 1;
     width: 100%;
-    overflow: hidden;
-    border-bottom: solid $accent;
-}
-
-.bc-label {
-    color: $primary;
-    text-style: bold;
-    padding-right: 1;
-}
-
-.bc-button {
-    min-width: 0;
-    height: 1;
-    border: none;
-    background: transparent;
-    color: $text;
-    padding: 0 1;
-    margin: 0;
-    content-align: center middle;
-}
-
-.bc-button:hover {
-    background: $accent;
-    color: $text;
-}
-
-.bc-separator {
-    color: $text-disabled;
 }
 
 #search-bar {

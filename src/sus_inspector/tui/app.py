@@ -21,7 +21,6 @@ from sus_inspector.tui.widgets import (
     Breadcrumbs,
     ClassInfoPane,
     HistoryModal,
-    NodeButton,
 )
 
 if TYPE_CHECKING:
@@ -534,16 +533,8 @@ class ObjectExplorerApp(App[None]):
             self.add_children(event.node, event.node.data)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        """Handle breadcrumb button clicks.
-
-        Args:
-            event: Button press event.
-
-        """
-        if isinstance(event.button, NodeButton):
-            tree = self.query_one(Tree[object])
-            _ = tree.select_node(event.button.node)
-            _ = tree.focus()
+        """Handle button press events."""
+        # Generic button handler if needed
 
     def action_toggle_expansion(self) -> None:
         """Toggle the expansion state of the current object in the detail view."""

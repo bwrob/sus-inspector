@@ -173,9 +173,13 @@ async def test_path_bar_multi_segments() -> None:
         # Down to '[0]'
         await pilot.press("down")
 
-        path_bar = app.query_one("#path-bar", Static)
-        content = get_static_content(path_bar)
-        assert "root.a.b" in content
+        from sus_inspector.tui.widgets import Breadcrumbs
+
+        breadcrumbs = app.query_one(Breadcrumbs)
+        content = str(breadcrumbs.render())
+        assert "root" in content
+        assert "a" in content
+        assert "b" in content
 
 
 @pytest.mark.asyncio

@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any, cast, final
 
 from rich.panel import Panel
 from rich.text import Text
-from textual.containers import Horizontal, Vertical, VerticalScroll
+from textual.containers import Vertical, VerticalScroll
 from textual.reactive import reactive
 from textual.screen import ModalScreen
 from textual.widgets import Button, Input, OptionList, Static
@@ -49,34 +49,27 @@ class NodeButton(Button):
 
 
 @final
-class Breadcrumbs(Horizontal):
-    """A widget to display the current traversal path as clickable breadcrumbs."""
+class Breadcrumbs(Static):
+    """A widget to display the current traversal path."""
 
     path: reactive[list[TreeNode[object]]] = reactive([])
 
-    def watch_path(self, path: list[TreeNode[object]]) -> None:
-        """Update the UI when the path changes.
-
-        Args:
-            path: The new traversal path.
-
-        """
-        _ = self.query("*").remove()
-        _ = self.mount(Static("NAV: ", classes="bc-label"))
-
+    async def watch_path(self) -> None:
+        """Update the UI when the path changes."""
         from rich.text import Text as RichText  # noqa: PLC0415
 
-        for i, p_node in enumerate(path):
+        full_path = RichText()
+        _ = full_path.append("NAV: ", style="bold blue")
+
+        for i, p_node in enumerate(self.path):
             if i > 0:
-                _ = self.mount(Static(" > ", classes="bc-separator"))
+                _ = full_path.append(" > ", style="dim")
 
             label = str(p_node.label)
             clean_label = RichText.from_markup(label).plain
-            _ = self.mount(
-                NodeButton(
-                    clean_label, variant="default", classes="bc-button", node=p_node
-                )
-            )
+            _ = full_path.append(clean_label, style="underline yellow")
+
+        self.update(full_path)
 
     async def update_path(self, node: TreeNode[object]) -> None:
         """Update the breadcrumbs based on the selected node.
@@ -96,13 +89,13 @@ class Breadcrumbs(Horizontal):
 
     @override
     def compose(self) -> ComposeResult:
-        """Compose the initial layout.
+        """Compose the layout.
 
         Yields:
-            The initial label.
+            Empty initial state.
 
         """
-        yield Static("NAV: ", classes="bc-label")
+        yield from []
 
 
 @final

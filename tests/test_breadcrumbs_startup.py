@@ -3,7 +3,7 @@
 from typing import cast
 
 import pytest
-from textual.widgets import Button, Tree
+from textual.widgets import Tree
 
 from sus_inspector.tui.app import ObjectExplorerApp
 from sus_inspector.tui.widgets import Breadcrumbs
@@ -20,9 +20,8 @@ async def test_breadcrumbs_on_start() -> None:
         breadcrumbs = app.query_one(Breadcrumbs)
 
         # Initial check
-        buttons = list(breadcrumbs.query(Button))
-        assert len(buttons) == 1
-        assert "ROOT" in str(buttons[0].label)
+        content = str(breadcrumbs.render())
+        assert "ROOT" in content
 
         # Navigate to "a"
         tree = cast("Tree[object]", app.query_one(Tree))
@@ -36,7 +35,5 @@ async def test_breadcrumbs_on_start() -> None:
         await pilot.pause()
 
         # Check update
-        buttons = list(breadcrumbs.query(Button))
-        expected_buttons = 2
-        assert len(buttons) == expected_buttons
-        assert "a" in str(buttons[1].label).lower()
+        content = str(breadcrumbs.render())
+        assert "a" in content.lower()

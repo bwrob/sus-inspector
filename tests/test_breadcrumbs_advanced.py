@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import cast
 
 import pytest
-from textual.widgets import Button, OptionList, Static, Tree
+from textual.widgets import OptionList, Static, Tree
 
 from sus_inspector.tui.app import ObjectExplorerApp
 from sus_inspector.tui.widgets import Breadcrumbs, ClassInfoPane, HistoryModal
@@ -121,10 +121,11 @@ async def test_breadcrumb_root_name_custom() -> None:
     app = ObjectExplorerApp(obj, obj_name="CustomRoot")
 
     async with app.run_test() as pilot:
+        await pilot.pause()
         # Check breadcrumbs
         breadcrumbs = app.query_one(Breadcrumbs)
-        buttons = breadcrumbs.query(Button)
-        assert "CustomRoot" in str(buttons[0].label)
+        content = str(breadcrumbs.render())
+        assert "CustomRoot" in content
 
         # Check history modal
         await pilot.press("ctrl+h")

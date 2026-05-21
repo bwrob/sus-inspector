@@ -1,5 +1,3 @@
-"""Inspector registry for object-specific rendering logic."""
-
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
@@ -80,15 +78,7 @@ class InspectorRegistry:
         self,
         obj: Any,  # noqa: ANN401
     ) -> Inspector | Callable[[Any], RenderableType] | None:
-        """Find the first matching inspector for an object.
-
-        Args:
-            obj: The object to inspect.
-
-        Returns:
-            The inspector if found, else None.
-
-        """
+        """Find the first matching inspector for an object."""
         for type_checker, inspector in self._inspectors:
             if isinstance(type_checker, type):
                 if isinstance(obj, type_checker):
